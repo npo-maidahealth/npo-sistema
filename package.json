@@ -1,0 +1,41 @@
+{
+  "name": "painel-evolux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/npo-maidahealth/npo-sistema.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/npo-maidahealth/npo-sistema/issues"
+  },
+  "homepage": "https://github.com/npo-maidahealth/npo-sistema#readme",
+  "dependencies": {
+    "@prisma/client": "^5.15.0",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.1.0",
+    "luxon": "^3.4.4",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.15.0"
+  }
+}

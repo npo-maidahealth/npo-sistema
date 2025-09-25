@@ -1,0 +1,47 @@
+/* Linguagens de Programação */
+.tag-javascript   { background: #f7df1e; color: #000000; }
+.tag-python       { background: #306998; color: #ffd43b; }
+.tag-java         { background: #007396; color: #ffffff; }
+.tag-c            { background: #00599c; color: #ffffff; }
+.tag-cpp          { background: #00599c; color: #ffffff; }
+.tag-csharp       { background: #239120; color: #ffffff; }
+.tag-php          { background: #777bb4; color: #ffffff; }
+.tag-ruby         { background: #cc342d; color: #ffffff; }
+.tag-go           { background: #00add8; color: #ffffff; }
+.tag-rust         { background: #000000; color: #ffffff; }
+.tag-kotlin       { background: #7f52ff; color: #ffffff; }
+.tag-swift        { background: #f05138; color: #ffffff; }
+.tag-typescript   { background: #3178c6; color: #ffffff; }
+
+/* Bancos de Dados */
+.tag-mysql        { background: #4479a1; color: #ffffff; }
+.tag-postgresql   { background: #336791; color: #ffffff; }
+.tag-mongodb      { background: #47a248; color: #ffffff; }
+.tag-oracle       { background: #f80000; color: #ffffff; }
+.tag-sqlite       { background: #003b57; color: #ffffff; }
+.tag-redis        { background: #d82c20; color: #ffffff; }
+.tag-cassandra    { background: #1287a8; color: #ffffff; }
+.tag-firebird     { background: #e65100; color: #ffffff; }
+
+/* SGBDs */
+.tag-sql-server   { background: #cc2927; color: #ffffff; }
+.tag-db2          { background: #052f61; color: #ffffff; }
+.tag-sybase       { background: #c8e6c9; color: #000000; }
+.tag-informix     { background: #008080; color: #ffffff; }
+.tag-dynamodb     { background: #4053d6; color: #ffffff; }
+
+/* Tags de Dificuldade */
+.tag-dificuldade-1 { background: #4caf50; color: white; }
+.tag-dificuldade-2 { background: #ff9800; color: white; }
+.tag-dificuldade-3 { background: #f44336; color: white; }
+
+.tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin: 0 5px 5px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Escalas - Maida Health</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="./escalas.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="/img/npologo.png" alt="Maida Health" height="40">
+            <h1>Gestão de Escalas - Coordenador</h1>
+        </div>
+        <nav>
+            <a href="/index.html"><button><i class="fas fa-arrow-left"></i> Voltar ao Painel</button></a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="section">
+            <h2>Gerenciar Reguladores</h2>
+            <form id="form-regulador">
+                <div class="form-group">
+                    <label for="nome-regulador">Nome do Regulador:</label>
+                    <input type="text" id="nome-regulador" required>
+                </div>
+                <button type="submit">Adicionar Regulador</button>
+            </form>
+
+            <div id="lista-reguladores" style="margin-top: 20px;">
+                <h3>Reguladores Cadastrados</h3>
+                </div>
+        </div>
+
+        <div class="section">
+            <h2>Gerenciar Escalas</h2>
+            <form id="form-escala">
+                <div class="form-group">
+                    <label for="regulador-escala">Regulador:</label>
+                    <select id="regulador-escala" required>
+                        <option value="">Selecione um regulador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dia-semana">Dia da Semana:</label>
+                    <select id="dia-semana" required>
+                        <option value="">Selecione o dia</option>
+                        <option value="1">Segunda-feira</option>
+                        <option value="2">Terça-feira</option>
+                        <option value="3">Quarta-feira</option>
+                        <option value="4">Quinta-feira</option>
+                        <option value="5">Sexta-feira</option>
+                        <option value="6">Sábado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="turno">Turno:</label>
+                    <select id="turno" required>
+                        <option value="">Selecione o turno</option>
+                        <option value="MANHÃ">Manhã</option>
+                        <option value="TARDE">Tarde</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora-inicio">Hora Início:</label>
+                    <input type="time" id="hora-inicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora-fim">Hora Fim:</label>
+                    <input type="time" id="hora-fim" required>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="fila-select">Adicionar Fila de Atendimento:</label>
+                        <select id="fila-select">
+                            <option value="">Selecione uma fila</option>
+                            <option value="OPME - Análise">OPME - Análise</option>
+                            <option value="Prorrogação">Prorrogação</option>
+                            <option value="Urgência e Emergência">Urgência e Emergência</option>
+                            <option value="Internação Eletiva">Internação Eletiva</option>
+                            <option value="TRATAMENTO OCULAR QUIMIOTERAPICO COM ANTIANGIOGENICO">TRATAMENTO OCULAR QUIMIOTERAPICO COM ANTIANGIOGENICO</option>
+                            <option value="HOME CARE ISSEC">HOME CARE ISSEC</option>
+                            <option value="email (uso exclusivo OPME / GNMED)">email (uso exclusivo OPME / GNMED)</option>
+                            <option value="Perícia médica - Análise administrativa">Perícia médica - Análise administrativa</option>
+                            <option value="Regulação Geral">Regulação Geral</option>
+                            <option value="Internação domiciliar">Internação domiciliar</option>
+                            <option value="Auditoria">Auditoria</option>
+                            <option value="SISWEB">SISWEB</option>
+                        </select>
+                    </div>
+                    <button type="button" id="adicionar-fila-btn">Adicionar</button>
+                </div>
+                <div class="form-group">
+                    <label>Filas Setadas:</label>
+                    <div id="filas-setadas-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                    <input type="hidden" id="filas-escala" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="observacao-escala">Observação:</label>
+                    <textarea id="observacao-escala" placeholder="Observações adicionais"></textarea>
+                </div>
+
+                <button type="submit">Adicionar Escala</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section" style="margin-top: 20px;">
+        <h2>Escala Semanal</h2>
+        <div id="escala-semanal" class="escala-grid">
+            </div>
+    </div>
+
+    <script src="escalas.js"></script>
+</body>
+</html>

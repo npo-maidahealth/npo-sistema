@@ -1,0 +1,306 @@
+/* ===== VARIÁVEIS ===== */
+.protocolo-detalhe-container {
+    --card-padding: 1.5rem;
+    --card-radius: 0.75rem;
+    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    --section-spacing: 1.875rem;
+    --border-color: #eee;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.protocolo-detalhe-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+/* ===== BOTÃO VOLTAR ===== */
+.voltar-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--maida-azul);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 1.25rem;
+    transition: var(--transicao-padrao);
+}
+
+.voltar-btn:hover {
+    color: var(--maida-rosa);
+    transform: translateX(-0.1875rem);
+}
+
+/* ===== HEADER DO PROTOCOLO ===== */
+.protocolo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--section-spacing);
+    padding-bottom: 0.9375rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.protocolo-header h1 {
+    font-size: 2em;
+    color: var(--maida-cinza-escuro);
+    margin: 0;
+}
+
+/* ===== BADGE DE STATUS ===== */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 1.25rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-pendente_triagem { background-color: #ffc107; color: #333; }
+.status-aberto { background-color: #ffcc00; color: #333; }
+.status-em_andamento { background-color: #007bff; color: white; }
+.status-pendente { background-color: #ff9800; color: white; }
+.status-fechado { background-color: #28a745; color: white; }
+
+/* ===== CARDS DE CONTEÚDO ===== */
+.protocolo-info-card,
+.tratativas-section,
+.acoes-section,
+.resolucao-final-card {
+    background: var(--maida-branco);
+    padding: var(--card-padding);
+    border-radius: var(--card-radius);
+    margin-bottom: var(--section-spacing);
+    box-shadow: var(--card-shadow);
+}
+
+.protocolo-info-card h3,
+.tratativas-section h2,
+.resolucao-final-card h3 {
+    margin-bottom: 1.25rem;
+    font-size: 1.3em;
+    color: var(--maida-cinza-escuro);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.625rem;
+}
+
+.protocolo-info-card p {
+    margin: 0.75rem 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--maida-cinza-escuro);
+}
+
+.protocolo-info-card p strong {
+    display: inline-block;
+    min-width: 7.5rem;
+    color: var(--maida-azul);
+}
+
+/* ===== RESOLUÇÃO FINAL ===== */
+.resolucao-final-card {
+    background: var(--maida-branco)
+}
+
+.resolucao-final-card h3 {
+    color: var(--maida-cinza-escuro);
+    border-bottom: none;
+    margin-bottom: 0.9375rem;
+}
+
+/* ===== TAGS ===== */
+.protocolo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin: 0.9375rem 0 var(--section-spacing) 0;
+}
+
+/* ===== TRATATIVAS ===== */
+.tratativas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.tratativa-item {
+    background: #f8f9fa;
+    padding: 1.25rem;
+    border-radius: 0.625rem;
+    border-left: 5px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: var(--transicao-padrao);
+}
+
+.tratativa-item.resolucao { 
+    border-left-color: #007bff; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%); 
+}
+
+.tratativa-item.aprovacao { 
+    border-left-color: #28a745; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%); 
+}
+
+.tratativa-item.melhoria { 
+    border-left-color: #ff9800; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff3e0 100%); 
+}
+
+.tratativa-item.encerramento { 
+    border-left-color: #6c757d; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #f0f0f0 100%); 
+}
+
+.tratativa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.9375rem;
+    font-size: 0.875rem;
+}
+
+.tratativa-usuario {
+    font-weight: bold;
+    color: var(--maida-azul);
+    font-size: 1em;
+}
+
+.tratativa-data {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.tratativa-conteudo {
+    line-height: 1.6;
+    color: var(--maida-cinza-escuro);
+    font-size: 0.9375rem;
+    white-space: pre-wrap;
+}
+
+/* ===== BOTÕES DE AÇÃO ===== */
+.acao-buttons {
+    display: flex;
+    gap: 0.9375rem;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    background-color: var(--maida-branco);
+    border: 2px solid var(--maida-azul);
+    color: var(--maida-azul);
+    padding: 0.5rem 0.9375rem;
+    border-radius: 1.25rem;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: var(--transicao-padrao);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.action-button:hover {
+    background-color: var(--maida-azul);
+    color: var(--maida-branco);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 4px 10px rgba(34, 74, 162, 0.2);
+}
+
+.action-button.danger {
+    background-color: #dc3545;
+    color: var(--maida-branco);
+    border-color: #dc3545;
+}
+
+.action-button.danger:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.action-button.primary { 
+    border: 2px solid var(--maida-azul); 
+    color: var(--maida-azul); 
+}
+
+.action-button.primary:hover { 
+    background-color: var(--maida-azul); 
+    color: var(--maida-branco); 
+}
+
+.action-button.success {
+    background-color: #28a745;
+    color: var(--maida-branco);
+    border-color: #28a745;
+}
+
+.action-button.success:hover { 
+    background-color: #28a745; 
+    color: white; 
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); 
+}
+
+/* ===== MODAL DE MOTIVO MELHORIA ===== */
+#motivo-melhoria-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 0.9375rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#motivo-melhoria-text {
+    width: 100%;
+    min-height: 6.25rem;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+}
+
+#confirmar-melhoria-btn {
+    align-self: flex-end;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .protocolo-detalhe-container { 
+        padding: 0.9375rem; 
+    }
+    
+    .protocolo-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 0.9375rem; 
+    }
+    
+    .tratativa-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 0.3125rem; 
+    }
+    
+    .acao-buttons { 
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    
+    .action-button { 
+        justify-content: center; 
+    }
+}
+
+.is-hidden {
+    display: none !important;
+}
+/* Regras de estilo para os status do protocolo */
+.status-pendente_triagem { background-color: #ffc107; color: #333; }
+.status-aberto { background-color: #ffcc00; color: #333; }
+.status-em_andamento { background-color: #007bff; color: white; }
+.status-pendente { background-color: #ff9800; color: white; }
+.status-fechado { background-color: #28a745; color: white; }

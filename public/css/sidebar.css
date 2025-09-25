@@ -1,0 +1,365 @@
+/* css/sidebar.css */
+
+:root {
+    /* ==== Cores da Maida Health (usadas como base) ==== */
+    --maida-branco: #ffffff;
+    --maida-amarelo: #ffcc00;
+    --maida-rosa: #ff0073;
+    --maida-azul: #0070ff;
+    --cinza-claro-fundo: #f8f9fa;
+    --maida-cinza-escuro: #333333;
+
+    /* ==== Dimensões (sem alteração) ==== */
+    --expanded: 16.875rem;
+    --collapsed: 4.5rem;
+    --svg: 1.5rem;
+    --item: 2.75rem;
+    --brad-outer: 0.75rem;
+    --frame-space: 0.5rem;
+    --brad-inner: calc(var(--brad-outer) - var(--frame-space));
+}
+
+/* =============================================================== */
+/* ==================== TEMA CLARO (LIGHT) ======================= */
+/* =============================================================== */
+body.light {
+    --sidebar-bg: var(--maida-branco);
+    --sidebar-border: #e0e0e0;
+    --sidebar-icon-color: #585958;
+    --sidebar-text-color: var(--maida-cinza-escuro);
+    --sidebar-heading-color: var(--maida-cinza-escuro);
+    --sidebar-hover-bg: var(--cinza-claro-fundo);
+    --sidebar-active-bg: #e6f1ff;
+    --sidebar-submenu-bg: rgba(0, 112, 255, 0.04);
+}
+
+/* =============================================================== */
+/* ===================== TEMA ESCURO (DARK) ====================== */
+/* =============================================================== */
+body:not(.light) {
+    --sidebar-bg: #1f1f23; /* Um pouco mais claro que o fundo da página */
+    --sidebar-border: #2d2d30;
+    --sidebar-icon-color: #A1A1AA;
+    --sidebar-text-color: #D4D4D8;
+    --sidebar-heading-color: var(--maida-branco);
+    --sidebar-hover-bg: #2a2a2e;
+    --sidebar-active-bg: #3a3a40;
+    --sidebar-submenu-bg: rgba(0, 112, 255, 0.1);
+}
+
+
+/* =============================================================== */
+/* =================== ESTILOS GERAIS DO SIDEBAR ================= */
+/* =============================================================== */
+
+*,
+*::after,
+*::before {
+    box-sizing: inherit;
+}
+
+label, button, a { cursor: pointer; }
+figure { margin-inline: 0; margin-block: 0.25rem; }
+h1, h2, h3, h4, p { margin: 0; font-size: inherit; line-height: 1.1; }
+input[type="checkbox"] { display: none; }
+
+.vertical-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    height: 100vh;
+    z-index: 1000;
+}
+
+.vertical-sidebar nav {
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-flow: column;
+    min-width: var(--collapsed);
+    border-radius: 0;
+    flex: 0 0 auto;
+    transition: flex-basis 300ms ease-out, background-color .3s;
+    will-change: flex-basis;
+    padding: var(--frame-space);
+    box-shadow: 0 3px 5px #1233, 0 5px 17px #0003;
+}
+
+.vertical-sidebar :checked ~ nav { flex-basis: var(--expanded); }
+.vertical-sidebar :not(:checked) ~ nav { flex-basis: var(--collapsed); }
+
+.vertical-sidebar header {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sidebar-border);
+    transition: border-color .3s;
+}
+
+.sidebar__toggle-container {
+    block-size: var(--item);
+    display: flex;
+    justify-content: end;
+}
+
+.nav__toggle {
+    block-size: 100%;
+    background: none;
+    border: none;
+    transition: all 233ms ease-in;
+    border-radius: var(--brad-inner);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    overflow: hidden;
+}
+
+.toggle--icons {
+    block-size: inherit;
+    aspect-ratio: 1;
+    display: inline-grid;
+    place-content: center;
+    grid-template-areas: "svg";
+    z-index: 10;
+}
+
+.toggle-svg-icon {
+    grid-area: svg;
+    fill: var(--sidebar-icon-color);
+    transition: fill 233ms ease-in, opacity 200ms ease-out;
+}
+
+.nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
+.nav__toggle:hover .toggle-svg-icon { fill: var(--sidebar-heading-color); }
+
+.vertical-sidebar figure {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    container-type: inline-size;
+    gap: 0.375rem;
+}
+
+.codepen-logo {
+    margin-inline: auto;
+    display: block;
+    min-inline-size: 3rem;
+    max-inline-size: 60cqi;
+    aspect-ratio: 1;
+    block-size: 100%;
+    object-fit: contain;
+    transition: width 100ms linear;
+    border-radius: 50%;
+}
+
+.vertical-sidebar figcaption { text-align: center; }
+
+.user-id {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-block-end: 0.25rem;
+    color: var(--sidebar-heading-color);
+    transition: color .3s;
+}
+
+.user-role {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: var(--sidebar-icon-color);
+    transition: color .3s;
+}
+
+.sidebar__wrapper {
+    --list-gap: 0.5rem;
+    display: flex;
+    flex-flow: column;
+    gap: var(--list-gap);
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-grow: 1;
+    padding-top: 1rem;
+}
+
+.sidebar__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-flow: column;
+    gap: 0.25rem;
+    overflow: hidden;
+    height: 100%; /* Faz a lista ocupar toda a altura do wrapper */
+}
+
+.sidebar__item { border-radius: var(--brad-inner); }
+
+.sidebar__link {
+    display: flex;
+    text-decoration: none;
+    height: var(--item);
+    align-items: center;
+    gap: 0.75rem;
+    outline: 2px solid transparent;
+    border-radius: inherit;
+    padding-left: 0.5rem;
+    position: relative;
+}
+
+.icon {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 100%;
+    display: inline-grid;
+}
+
+.icon svg {
+    place-self: center;
+    inline-size: var(--svg);
+    block-size: var(--svg);
+    fill: var(--sidebar-icon-color);
+    transition: fill 266ms ease-out;
+}
+
+.text {
+    pointer-events: none;
+    color: var(--sidebar-text-color);
+    font-size: 0.9em;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 266ms ease-out;
+}
+
+/* --- ESTADOS DOS LINKS --- */
+.sidebar__link:visited .icon svg, .sidebar__link .icon svg { fill: var(--sidebar-icon-color); }
+.sidebar__link:hover { background: var(--sidebar-hover-bg); }
+.sidebar__link:hover .icon svg { fill: var(--maida-azul); }
+.sidebar__link:hover .text { color: var(--sidebar-heading-color); }
+.sidebar__link:focus { outline: 2px solid var(--maida-azul); outline-offset: -2px; }
+.sidebar__link:focus .icon svg { fill: var(--maida-azul); }
+.sidebar__link:active { background-color: var(--sidebar-active-bg); }
+.sidebar__link:active .icon svg { fill: var(--maida-amarelo); }
+
+/* --- DROPDOWN --- */
+.sidebar__item.has-submenu > .sidebar__link::after {
+    content: '›';
+    position: absolute;
+    right: 15px;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+    transform-origin: center;
+    color: var(--sidebar-icon-color);
+}
+
+.sidebar__submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 1rem;
+    background: var(--sidebar-submenu-bg);
+    border-radius: 5px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out, background-color .3s;
+}
+
+.sidebar__item.has-submenu.is-open > .sidebar__link::after { transform: rotate(90deg); }
+.sidebar__item.has-submenu.is-open .sidebar__submenu { max-height: 500px; padding-top: 5px; padding-bottom: 5px; }
+.submenu__item a { display: block; color: var(--sidebar-text-color); text-decoration: none; font-size: 0.85em; padding: 10px 10px 10px 2.5rem; position: relative; transition: all 0.2s ease; }
+.submenu__item a:hover { color: var(--maida-azul); background-color: var(--sidebar-active-bg); }
+.submenu__item a::before { content: ''; position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: var(--sidebar-icon-color); }
+
+/* --- EFEITOS DE ANIMAÇÃO E TOOLTIPS (sem alteração) --- */
+.vertical-sidebar:not(:has(:checked)) .toggle--close,
+.vertical-sidebar:has(:checked) .toggle--open { opacity: 0; }
+.vertical-sidebar:not(:has(:checked)) :where(figcaption, .text, .sidebar__item.has-submenu > .sidebar__link::after) { opacity: 0; width: 0; pointer-events: none; }
+.vertical-sidebar:has(:checked) :where(figcaption, .text, .sidebar__item.has-submenu > .sidebar__link::after) { transition: opacity 300ms ease-in 200ms; }
+.vertical-sidebar:not(:has(:checked)) .sidebar__submenu { display: none; }
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: fixed;
+    translate: calc(var(--item) * 1.5) calc(var(--item) * 0.125);
+    border-radius: var(--brad-inner);
+    padding: 0.5rem 0.75rem;
+    color: #ddd;
+    background-color: hsl(198 16 30);
+    box-shadow: 0 6px 12px -6px #0003;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0);
+    z-index: 999;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 250ms ease-out;
+    white-space: nowrap;
+}
+.vertical-sidebar:not(:has(:checked)) .sidebar__link:where(:hover, :focus-visible)[data-tooltip]::before { opacity: 1; transform: scale(1); }
+
+
+/* =============================================================== */
+/* =============  ESTILOS PARA O BOTÃO DE TEMA      ============== */
+/* =============================================================== */
+.sidebar__item--theme-toggle {
+    margin-top: auto; /* Empurra para o final do menu */
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end; /* Alinha o ícone à direita */
+    padding-right: 0.8rem; /* Adiciona um pequeno espaço da borda */
+    height: var(--item);
+    align-items: center;
+}
+
+.day-night {
+  cursor: pointer;
+  position: relative;
+  transform: scale(0.9); /* Deixa o botão um pouco menor para caber melhor */
+}
+.day-night input {
+  display: none;
+}
+.day-night input + div {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  box-shadow: inset 8px -8px 0 0 var(--sidebar-heading-color);
+  transform: scale(1) rotate(-2deg);
+  transition: box-shadow .5s ease 0s, transform .4s ease .1s;
+}
+.day-night input + div:before {
+  content: '';
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: background-color .3s ease;
+}
+.day-night input + div:after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: -3px 0 0 -3px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  box-shadow: 0 -23px 0 var(--sidebar-heading-color), 0 23px 0 var(--sidebar-heading-color), 23px 0 0 var(--sidebar-heading-color), -23px 0 0 var(--sidebar-heading-color), 15px 15px 0 var(--sidebar-heading-color), -15px 15px 0 var(--sidebar-heading-color), 15px -15px 0 var(--sidebar-heading-color), -15px -15px 0 var(--sidebar-heading-color);
+  transform: scale(0);
+  transition: all .3s ease;
+}
+.day-night input:checked + div {
+  box-shadow: inset 20px -20px 0 0 var(--sidebar-heading-color);
+  transform: scale(.5) rotate(0deg);
+  transition: transform .3s ease .1s, box-shadow .2s ease 0s;
+}
+.day-night input:checked + div:before {
+  background: var(--sidebar-heading-color);
+  transition: background-color .3s ease .1s;
+}
+.day-night input:checked + div:after {
+  transform: scale(1);
+  transition: transform .5s ease .15s;
+}

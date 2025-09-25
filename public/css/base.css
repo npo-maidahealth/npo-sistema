@@ -1,0 +1,40 @@
+/* /css/base.css - VERSÃO CORRIGIDA PARA SIDEBAR */
+
+/* --- ESTILOS GLOBAIS --- */
+:root {
+   --maida-branco: #ffffff;
+   --maida-amarelo: #ffcc00;
+   --maida-rosa: #ff0073;
+   --maida-azul: #0070ff;
+   --maida-cinza-escuro: #585958;
+   --cinza-claro-fundo: #f8f9fa;
+   --transicao-padrao: all 0.3s ease;
+}
+
+body {
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   background-color: var(--cinza-claro-fundo);
+   margin: 0;
+   padding: 0;
+}
+
+/* --- LAYOUT PRINCIPAL COM SIDEBAR --- */
+.main-content {
+    /* Define a margem inicial para dar espaço à sidebar recolhida */
+    margin-left: var(--collapsed); /* Variável vem de sidebar.css */
+    padding: 30px;
+    width: calc(100% - var(--collapsed));
+    transition: margin-left 300ms ease-out, width 300ms ease-out;
+}
+
+/* Quando a sidebar expande (classe adicionada pelo JS), aumenta a margem */
+body.sidebar-expanded .main-content {
+    margin-left: var(--expanded); /* Variável vem de sidebar.css */
+    width: calc(100% - var(--expanded));
+}
+
+h1 {
+    font-size: 1.8rem;
+    color: var(--maida-cinza-escuro);
+    margin-bottom: 25px;
+}

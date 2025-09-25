@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Protocolos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/tags.css">
+    <link rel="stylesheet" href="meus-protocolos.css">
+</head>
+<body>
+
+    <div id="sidebar-placeholder" class="vertical-sidebar"></div>
+
+    <main class="main-content">
+        <h1>Meus Protocolos</h1>
+        
+        <div class="protocol-filter-container">
+            <button id="filter-btn"><i class="fas fa-filter"></i> Filtrar</button>
+            <div id="filter-dropdown" class="filter-dropdown" style="display: none;">
+                <button class="filter-option" data-status="todos">Todos</button>
+                <button class="filter-option" data-status="pendente_triagem">Pendentes de Triagem</button>
+                <button class="filter-option" data-status="em_andamento">Em Andamento</button>
+                <button class="filter-option" data-status="fechado">Fechados</button>
+            </div>
+        </div>
+        
+        <div id="protocolos-list" class="protocol-list">
+            </div>
+    </main>
+    
+    <template id="protocolo-card-template">
+        <div class="protocolo-card">
+            <div class="protocolo-uid"></div>
+            <div class="protocolo-tags"></div>
+            <div class="protocolo-info">
+                <span class="solicitante"></span>
+                <span class="data-criacao"></span>
+            </div>
+            <div class="protocolo-descricao"></div>
+            <div class="protocolo-status"></div>
+            <div class="protocolo-actions"></div>
+        </div>
+    </template>
+
+    <div id="resolucao-final-modal-container" class="form-modal-container" style="display: none;">
+      <div class="form-modal-content">
+            <button id="close-resolucao-final-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Resolução do Protocolo <span id="resolucao-protocol-uid"></span></h2>
+            <div id="resolucao-final-text" class="analise-text-area"></div>
+        </div>
+    </div>
+
+    <script src="/js/shared.js"></script>
+    <script src="../js/meus-protocolos.js"></script>
+
+</body>
+</html>

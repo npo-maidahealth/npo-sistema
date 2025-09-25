@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Avançada - Relatórios</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script> <link rel="stylesheet" href="relatorios.css">
+</head>
+<body>
+    <header class="main-header" id="main-header-placeholder"></header>
+
+    <main class="content-area">
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="filter-type">Filtrar por:</label>
+                <select id="filter-type">
+                    <option value="group">Grupo de Fila</option>
+                    <option value="queue">Fila Individual</option>
+                </select>
+            </div>
+            
+            <div class="filter-group" id="group-selector-container">
+                <label for="select-group">Grupo:</label>
+                <select id="select-group"></select>
+            </div>
+            <div class="filter-group" id="queue-selector-container" style="display: none;">
+                <label for="select-queue">Fila:</label>
+                <select id="select-queue"></select>
+            </div>
+
+            <div class="filter-group">
+                <label for="start-date">Data Inicial:</label>
+                <input type="date" id="start-date">
+            </div>
+            <div class="filter-group">
+                <label for="end-date">Data Final:</label>
+                <input type="date" id="end-date">
+            </div>
+            <button id="generate-report-btn">Gerar Relatório</button>
+        </div>
+        
+        <div class="message-container">
+            <span id="error-message" class="error-message"></span>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-title">TMA Total</span>
+                <span class="kpi-value" id="kpi-tma">--:--</span>
+                <span class="kpi-meta" id="kpi-meta-tma">Meta: --:--</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">TME Total</span>
+                <span class="kpi-value" id="kpi-tme">--:--</span>
+                <span class="kpi-meta" id="kpi-meta-tme">Meta: --:--</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Nível de Serviço</span>
+                <span class="kpi-value" id="kpi-sla">--%</span>
+                <span class="kpi-meta" id="kpi-meta-sla">Meta: --%</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Abandono Total</span>
+                <span class="kpi-value" id="kpi-abandonment">--%</span>
+                <span class="kpi-meta" id="kpi-meta-abandonment">Meta: --%</span>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="volumeChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="slaChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="timeChart"></canvas>
+        </div>
+    </main>
+
+    <script src="relatorios.js"></script>
+    <script src="/js/shared.js"></script>
+</body>
+</html>

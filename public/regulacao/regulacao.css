@@ -1,0 +1,224 @@
+/* ================= VARIÁVEIS MAIDA ================= */
+:root {
+    --maida-branco: #ffffff;
+    --maida-amarelo: #ffcc00;
+    --maida-rosa: #ff0073;
+    --maida-azul: #0070ff;
+    --maida-cinza-escuro: #585958;
+    --cinza-claro-fundo: #f8f9fa;
+    --transicao-padrao: all 0.3s ease;
+}
+
+/* ================= VARIÁVEIS DE TEMA ================= */
+body.light {
+    --page-bg-color: var(--cinza-claro-fundo);
+    --card-bg-color: var(--maida-branco);
+    --text-color: var(--maida-cinza-escuro);
+    --border-color: #ddd;
+    --input-bg-color: #f1f1f1;
+    --input-text-color: var(--maida-cinza-escuro);
+    --tab-hover-bg: #e9ecef;
+}
+
+body:not(.light) {
+    --page-bg-color: #18181B;
+    --card-bg-color: #1f1f23;
+    --text-color: #A1A1AA;
+    --border-color: #2d2d30;
+    --input-bg-color: #2a2a2e;
+    --input-text-color: #D4D4D8;
+    --tab-hover-bg: #2a2a2e;
+}
+
+/* ================= RESET E BODY ================= */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--page-bg-color);
+    margin: 0;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    
+    --sidebar-collapsed: 4.5rem;
+    --sidebar-expanded: 16.875rem;
+    padding-left: var(--sidebar-collapsed);
+    transition: padding-left 300ms ease-out;
+}
+
+body.sidebar-expanded {
+    padding-left: var(--sidebar-expanded);
+}
+
+/* ================= CONTAINER PRINCIPAL ================= */
+.content-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* ================= TÍTULO ================= */
+.content-container h1, .tab-content h3 {
+    color: var(--text-color);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    font-weight: 600;
+    padding-left: 15px;
+    border-left: 5px solid var(--maida-amarelo);
+}
+.tab-content h3 {
+    font-size: 1.5rem;
+    border: none;
+    padding-left: 0;
+}
+
+/* ================= FORMULÁRIOS ================= */
+#eco-form, #consulta-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+#sisweb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+/* ================= CAMPOS DE ENTRADA ================= */
+input[type="text"], input[type="time"], textarea, select {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: var(--transicao-padrao);
+    box-sizing: border-box;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--maida-azul);
+    box-shadow: 0 0 0 3px rgba(0, 112, 255, 0.2);
+}
+
+/* ================= BOTÕES ================= */
+button {
+    padding: 12px 25px;
+    background-color: var(--maida-azul);
+    color: var(--maida-branco);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transicao-padrao);
+    height: fit-content;
+}
+
+button:hover {
+    background-color: #0056cc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 112, 255, 0.2);
+}
+
+/* ================= ABAS ================= */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    font-weight: 600;
+    transition: var(--transicao-padrao);
+    color: var(--text-color);
+}
+
+.tab:hover {
+    background-color: var(--tab-hover-bg);
+}
+
+.tab.active {
+    background-color: var(--maida-azul);
+    color: var(--maida-branco);
+    border-color: var(--maida-azul);
+}
+
+/* ================= DETALHES DA GUIA ================= */
+.card-detalhes, .resultado-item {
+    background-color: var(--page-bg-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.detalhes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* ================= NOTIFICAÇÃO E ERROS ================= */
+.notificacao {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--maida-azul);
+    color: var(--maida-branco);
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    text-align: center;
+}
+.notificacao.show { opacity: 1; visibility: visible; }
+.notificacao.erro { background-color: var(--maida-rosa); }
+
+/* ================= CONTEÚDO DAS ABAS ================= */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* O restante dos estilos de status, etc, permanecem os mesmos */
+[class^="status-"] {
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 15px;
+    color: var(--maida-branco);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+.status-pendente { background-color: #ffc107; }
+.status-em-analise, .status-em-análise { background-color: var(--maida-azul); }
+.status-concluido, .status-concluído { background-color: #28a745; }
+.status-rejeitado { background-color: var(--maida-rosa); }

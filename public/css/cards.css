@@ -1,0 +1,319 @@
+/* css/cards.css */
+
+/*
+  Define as variáveis de cor para os temas claro e escuro,
+  usando a paleta de cores da Maida.
+*/
+body {
+  /* TEMA ESCURO (Padrão) */
+   /* Cor de fundo principal do card (quase transparente) */
+  --card-background-color: rgba(255, 255, 255, .015);
+   /* Cor da borda do card */
+  --card-border-color: rgba(255, 255, 255, 0.1);
+   /* Cores da sombra do card */
+  --card-box-shadow-1: rgba(0, 0, 0, 0.05);
+  --card-box-shadow-2: rgba(0, 0, 0, 0.1);
+    /* Cor do texto de descrição */
+  --card-text-color: #A1A1AA;
+    /* Cor do título principal (ex: "Pedido de Prioridade") */
+  --card-heading-color: #f2f2f2;
+  /* Cor do ícone */
+  --card-icon-color: #D4D4D8;
+    /* Cor da categoria (ex: "Call Center") */
+  --card-category-color: var(--maida-branco); /* ADICIONADO */
+  --card-icon-background-color: rgba(255, 255, 255, 0.08);
+  --card-icon-border-color: rgba(255, 255, 255, 0.12);
+  --card-shine-gradient: conic-gradient(from 205deg at 50% 50%, rgba(0, 112, 255, 0) 0deg, var(--maida-azul) 25deg, rgba(255, 204, 0, 0.4) 295deg, rgba(0, 112, 255, 0) 360deg);
+  --card-line-color: #2A2B2C;
+  --card-tile-color: rgba(0, 112, 255, 0.08);
+
+  --card-hover-border-color: rgba(255, 255, 255, 0.2);
+  --card-hover-icon-color: var(--maida-azul);
+  --card-hover-icon-background-color: rgba(0, 112, 255, 0.1);
+  --card-hover-icon-border-color: rgba(0, 112, 255, 0.2);
+  --content-container-h1: #202023;
+}
+
+body.light {
+  /* TEMA CLARO */
+  --card-background-color: transparent;
+  --card-border-color: rgba(24, 24, 27, 0.08);
+  --card-box-shadow-1: rgba(24, 24, 27, 0.02);
+  --card-box-shadow-2: rgba(24, 24, 27, 0.04);
+  --card-text-color: #52525B;
+  --card-heading-color: var(--maida-cinza-escuro);
+  --card-icon-color: var(--maida-azul);
+  --card-category-color: var(--maida-azul); /* ADICIONADO */
+  --card-icon-background-color: rgba(0, 112, 255, 0.07);
+  --card-icon-border-color: rgba(0, 112, 255, 0.1);
+  --card-shine-gradient: conic-gradient(from 225deg at 50% 50%, rgba(0, 112, 255, 0) 0deg, var(--maida-azul) 25deg, #EDFAF6 285deg, var(--maida-branco) 345deg, rgba(0, 112, 255, 0) 360deg);
+  --card-line-color: #E9E9E7;
+  --card-tile-color: rgba(0, 112, 255, 0.08);
+
+  --card-hover-border-color: rgba(0, 112, 255, 0.2);
+  --card-hover-icon-color: var(--maida-azul);
+  --card-hover-icon-background-color: rgba(0, 112, 255, 0.1);
+  --card-hover-icon-border-color: rgba(0, 112, 255, 0.3);
+  /*BACKGROUND DE H1 FERRAMENTAS PRINCIPAIS*/
+  --content-container-h1: #F8F9FA;
+}
+/* Estilos base do card */
+.feature-card {
+  background-color: var(--card-background-color);
+  box-shadow: 0px 3px 6px var(--card-box-shadow-1), 0px 8px 15px var(--card-box-shadow-2), 0 0 0 1px var(--card-border-color);
+  padding: 56px 16px 16px 16px;
+  border-radius: 15px;
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow .25s;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  background-color: var(--card-background-color);
+}
+
+/* Conteúdo do card (ícone, texto, etc) */
+.feature-card .icon {
+  z-index: 2;
+  position: relative;
+  display: flex; /* Alterado */
+  align-items: center; /* Adicionado */
+  justify-content: center; /* Adicionado */
+  width: 48px;  /* Adicionado: Tamanho fixo */
+  height: 48px; /* Adicionado: Tamanho fixo */
+}
+.feature-card .icon i { /* Adaptado para Font Awesome */
+  position: relative;
+  z-index: 1;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  transform: translateZ(0);
+  color: var(--card-icon-color);
+  transition: color .25s;
+}
+
+.feature-card h3 {
+  z-index: 2;
+  position: relative;
+  margin: 12px 0 4px 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 2;
+  color: var(--card-heading-color);
+}
+
+.feature-card p {
+  z-index: 2;
+  position: relative;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--card-text-color);
+}
+
+/* Efeito de brilho (shine) */
+.feature-card .shine {
+  border-radius: inherit;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity .5s;
+}
+
+.feature-card .shine:before {
+  content: '';
+  width: 150%;
+  padding-bottom: 150%;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  bottom: 55%;
+  filter: blur(35px);
+  opacity: .7;
+  transform: translateX(-50%);
+  background-image: var(--card-shine-gradient);
+}
+
+/* Fundo animado (background) */
+.feature-card .background {
+  border-radius: inherit;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(circle at 60% 5%, black 0%, black 15%, transparent 60%);
+  mask-image: radial-gradient(circle at 60% 5%, black 0%, black 15%, transparent 60%);
+}
+
+.feature-card .background .tiles {
+  opacity: 0;
+  transition: opacity .25s;
+}
+
+.feature-card .background .tile {
+  position: absolute;
+  background-color: var(--card-tile-color);
+  animation-duration: 8s;
+  animation-iteration-count: infinite;
+  opacity: 0;
+}
+
+.feature-card .background .tile.tile-4, .feature-card .background .tile.tile-6, .feature-card .background .tile.tile-10 { animation-delay: -2s; }
+.feature-card .background .tile.tile-3, .feature-card .background .tile.tile-5, .feature-card .background .tile.tile-8 { animation-delay: -4s; }
+.feature-card .background .tile.tile-2, .feature-card .background .tile.tile-9 { animation-delay: -6s; }
+
+.feature-card .background .tile.tile-1 { top: 0; left: 0; height: 10%; width: 22.5%; }
+.feature-card .background .tile.tile-2 { top: 0; left: 22.5%; height: 10%; width: 27.5%; }
+.feature-card .background .tile.tile-3 { top: 0; left: 50%; height: 10%; width: 27.5%; }
+.feature-card .background .tile.tile-4 { top: 0; left: 77.5%; height: 10%; width: 22.5%; }
+.feature-card .background .tile.tile-5 { top: 10%; left: 0; height: 22.5%; width: 22.5%; }
+.feature-card .background .tile.tile-6 { top: 10%; left: 22.5%; height: 22.5%; width: 27.5%; }
+.feature-card .background .tile.tile-7 { top: 10%; left: 50%; height: 22.5%; width: 27.5%; }
+.feature-card .background .tile.tile-8 { top: 10%; left: 77.5%; height: 22.5%; width: 22.5%; }
+.feature-card .background .tile.tile-9 { top: 32.5%; left: 50%; height: 22.5%; width: 27.5%; }
+.feature-card .background .tile.tile-10 { top: 32.5%; left: 77.5%; height: 22.5%; width: 22.5%; }
+
+@keyframes tile { 0%, 12.5%, 100% { opacity: 1; } 25%, 82.5% { opacity: 0; } }
+
+.feature-card .background .line {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .35s;
+}
+
+.feature-card .background .line:before, .feature-card .background .line:after {
+  content: '';
+  position: absolute;
+  background-color: var(--card-line-color);
+  transition: transform .35s;
+}
+
+.feature-card .background .line:before { left: 0; right: 0; height: 1px; transform-origin: 0 50%; transform: scaleX(0); }
+.feature-card .background .line:after { top: 0; bottom: 0; width: 1px; transform-origin: 50% 0; transform: scaleY(0); }
+
+.feature-card .background .line.line-1:before { top: 10%; }
+.feature-card .background .line.line-1:after { left: 22.5%; }
+.feature-card .background .line.line-1:before, .feature-card .background .line.line-1:after { transition-delay: .3s; }
+
+.feature-card .background .line.line-2:before { top: 32.5%; }
+.feature-card .background .line.line-2:after { left: 50%; }
+.feature-card .background .line.line-2:before, .feature-card .background .line.line-2:after { transition-delay: .15s; }
+
+.feature-card .background .line.line-3:before { top: 55%; }
+.feature-card .background .line.line-3:after { right: 22.5%; }
+
+/* Animação no HOVER */
+.feature-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--card-border-color);
+}
+
+.feature-card:hover .icon::after {
+  background-color: var(--card-hover-icon-background-color);
+  border-color: var(--card-hover-icon-border-color);
+}
+
+.feature-card:hover .icon i {
+  color: var(--card-hover-icon-color);
+}
+
+.feature-card:hover .shine {
+  opacity: 1;
+  transition-duration: .5s;
+  transition-delay: 0s;
+}
+
+.feature-card:hover .background .tiles {
+  opacity: 1;
+  transition-delay: .25s;
+}
+
+.feature-card:hover .background .tile {
+  animation-name: tile;
+}
+
+.feature-card:hover .background .line {
+  opacity: 1;
+  transition-duration: .15s;
+}
+
+.feature-card:hover .background .line:before { transform: scaleX(1); }
+.feature-card:hover .background .line:after { transform: scaleY(1); }
+.feature-card:hover .background .line.line-1:before, .feature-card:hover .background .line.line-1:after { transition-delay: .0s; }
+.feature-card:hover .background .line.line-2:before, .feature-card:hover .background .line.line-2:after { transition-delay: .15s; }
+.feature-card:hover .background .line.line-3:before, .feature-card:hover .background .line.line-3:after { transition-delay: .3s; }
+
+
+/* Estilos para o botão de Dark/Light mode */
+.day-night:hover {
+  opacity: 1;
+}
+
+.day-night input {
+  display: none;
+}
+.day-night input + div {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  box-shadow: inset 8px -8px 0 0 var(--card-heading-color);
+  transform: scale(1) rotate(-2deg);
+  transition: box-shadow .5s ease 0s, transform .4s ease .1s;
+}
+.day-night input + div:before {
+  content: '';
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: background-color .3s ease;
+}
+.day-night input + div:after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: -3px 0 0 -3px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  box-shadow: 0 -23px 0 var(--card-heading-color), 0 23px 0 var(--card-heading-color), 23px 0 0 var(--card-heading-color), -23px 0 0 var(--card-heading-color), 15px 15px 0 var(--card-heading-color), -15px 15px 0 var(--card-heading-color), 15px -15px 0 var(--card-heading-color), -15px -15px 0 var(--card-heading-color);
+  transform: scale(0);
+  transition: all .3s ease;
+}
+.day-night input:checked + div {
+  box-shadow: inset 20px -20px 0 0 var(--card-heading-color);
+  transform: scale(.5) rotate(0deg);
+  transition: transform .3s ease .1s, box-shadow .2s ease 0s;
+}
+.day-night input:checked + div:before {
+  background: var(--card-heading-color);
+  transition: background-color .3s ease .1s;
+}
+.day-night input:checked + div:after {
+  transform: scale(1);
+  transition: transform .5s ease .15s;
+}
+.feature-category {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--card-category-color); 
+    margin-bottom: 15px;
+    display: block;
+    position: relative;
+    z-index: 2;
+    transition: color .25s; /* Adiciona transição suave */
+}
+.feature-card:hover .feature-category,
+.feature-card:hover h3 {
+    color: var(--maida-azul);
+}

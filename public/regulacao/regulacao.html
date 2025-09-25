@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Prioridade - Maida Health</title>
+    <link rel="stylesheet" href="/regulacao/regulacao.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body class="light"> <aside class="vertical-sidebar">
+        <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+        <nav>
+            <header>
+                <div class="sidebar__toggle-container">
+                    <label tabindex="0" for="checkbox-input" class="nav__toggle">
+                        <span class="toggle--icons" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                                <path fill="currentColor" d="M9.295 18.295l6-6-6-6-1.414 1.414 4.586 4.586-4.586 4.586z"></path>
+                            </svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                                <path fill="currentColor" d="M14.705 5.705l-6 6 6 6 1.414-1.414-4.586-4.586 4.586-4.586z"></path>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <figure>
+                    <img class="codepen-logo" src="/img/npologo.png" alt="Logo NPO" />
+                    <figcaption>
+                        <p class="user-id" id="sidebar-user-name">Carregando...</p>
+                        <p class="user-role" id="sidebar-user-role"></p>
+                    </figcaption>
+                </figure>
+            </header>
+            <section class="sidebar__wrapper">
+                <ul class="sidebar__list" id="sidebar-nav-links"></ul>
+            </section>
+        </nav>
+    </aside>
+
+    <main class="content-container">
+        <h1>Prioridade de Guia</h1>
+        <div class="tabs">
+            <div class="tab active" data-tab="eco">ECO</div>
+            <div class="tab" data-tab="sisweb">SISWEB</div>
+            <div class="tab" data-tab="consulta">Consultar</div>
+        </div>
+
+        <div class="form-tabs-container" id="form-tabs-container">
+            <div id="eco-content" class="tab-content active">
+                <h3>Buscar Guia ECO</h3>
+                <form id="eco-form">
+                    <input type="text" id="eco-guia" placeholder="Busque o nº da guia do ECO para verificar o status." required>
+                    <button type="submit">Buscar</button>
+                </form>
+                <div id="eco-prioridade-form" class="card-detalhes" style="display:none;">
+                    <h3>Detalhes da Guia</h3>
+                    <div class="detalhes-grid">
+                        <p><strong>Nº da Guia:</strong> <span id="eco-numero-guia"></span></p>
+                        <p><strong>Nome do Paciente:</strong> <span id="eco-nome-paciente"></span></p>
+                        <p><strong>Tipo de Guia:</strong> <span id="eco-tipo-guia"></span></p>
+                        <p><strong>Caráter de Atendimento:</strong> <span id="eco-carater"></span></p>
+                        <p><strong>Status da Guia:</strong> <span id="eco-status"></span></p>
+                    </div>
+                    <textarea id="eco-observacao" placeholder="Observações (opcional)"></textarea>
+                    <button id="eco-enviar-prioridade" type="button" title="Botão de enviar para prioridade">Enviar para Prioridade</button>
+                </div>
+            </div>
+
+            <div id="sisweb-content" class="tab-content">
+                <h3>Registrar Prioridade SISWEB</h3>
+                <form id="sisweb-form">
+                    <input type="text" id="sisweb-nome" placeholder="Nome do paciente" required>
+                    <input type="text" id="sisweb-numero-guia" placeholder="Nº da guia" required>
+                    <div class="custom-select-wrapper">
+                        <select id="sisweb-status" required class="original-select">
+                            <option value="">Selecione o status...</option>
+                            <option value="Aguardando Autenticação">Aguardando Autenticação</option>
+                            <option value="Autorização sem Restrição">Autorização sem Restrição</option>
+                            <option value="Autorização Pendente">Autorização Pendente</option>
+                            <option value="Autorização Estornada">Autorização Estornada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <input type="text" id="sisweb-tipo-guia" placeholder="Tipo de Guia" required>
+                    <input type="text" id="sisweb-carater" placeholder="Caráter de Atendimento" required>
+                    <textarea id="sisweb-observacao" placeholder="Observações (opcional)"></textarea>
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+
+            <div id="consulta-content" class="tab-content">
+                <h3>Consultar Prioridades</h3>
+                <form id="consulta-form">
+                    <input type="text" id="consulta-guia" placeholder="Digite o número da guia" required>
+                    <button type="submit">Consultar</button>
+                </form>
+                <div id="consulta-resultados" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/shared.js"></script>
+    <script src="/regulacao/regulacao.js"></script>
+</body>
+</html>
