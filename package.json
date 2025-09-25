@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -25,6 +26,7 @@
     "@prisma/client": "^5.15.0",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
+    "connect-pg-simple": "^10.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -33,7 +35,8 @@
     "express-validator": "^7.1.0",
     "luxon": "^3.4.4",
     "node-cache": "^5.1.2",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "prisma": "^5.15.0"

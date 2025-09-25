@@ -1,12 +1,16 @@
+// server.js 
+
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
+import pg from 'pg'; 
+import connectPgSimple from 'connect-pg-simple'; 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// rotas ES Modules
+// rotas
 import { isAuthenticated } from './middleware/auth.middleware.js';
 import authRoutes from './routes/auth.routes.js';
 import protocoloRoutes from './routes/protocolos.routes.js';
@@ -27,39 +31,35 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//  Configuração dinâmica do CORS
-const allowedOrigins = [
-    'http://localhost:3000' // Para desenvolvimento local
-];
+// Configuração do CORS
+const allowedOrigins = ['http://localhost:3000'];
 if (process.env.RENDER_EXTERNAL_URL) {
     allowedOrigins.push(process.env.RENDER_EXTERNAL_URL);
 }
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Permite requisições sem 'origin' (como apps mobile ou Postman) ou se a origem estiver na lista
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-};
-
-app.use(cors(corsOptions));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 app.use(express.json());
 app.use(cookieParser());
+
+// <<< Configuração do Session Store com PostgreSQL >>>
+const pgPool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false } 
+});
+const PgSession = connectPgSimple(session);
+
 app.use(session({
+    store: new PgSession({
+        pool: pgPool,
+        tableName: 'user_sessions' // Nome da tabela que será criada para guardar as sessões
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    // Em produção (Render), o cookie deve ser seguro
     cookie: { 
         secure: process.env.NODE_ENV === 'production', 
         httpOnly: true, 
-        maxAge: 24*60*60*1000 
+        maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
 }));
 
@@ -78,20 +78,21 @@ app.use('/api/escalas', escalasRoutes);
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rota principal e fallback para o frontend
+// Rota principal e fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     
     try {
         console.log('⏰ Iniciando atualização automática de status...');
-        await atualizarStatusGuias();
-        setInterval(atualizadorStatusGuias, 10 * 60 * 1000);
-        console.log('✅ Atualização automática agendada (a cada 10 minutos)');
+        setInterval(() => {
+            atualizarStatusGuias().catch(err => console.error('❌ Erro durante a atualização agendada:', err));
+        }, 10 * 60 * 1000); // a cada 10 minutos
+        console.log('✅ Atualização agit add .utomática agendada.');
     } catch (err) {
-        console.error('❌ Erro ao iniciar atualização:', err);
+        console.error('❌ Erro ao agendar a atualização automática:', err);
     }
 });
