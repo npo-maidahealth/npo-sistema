@@ -10,38 +10,18 @@
     <div class="auth-container" id="container">
         <div class="form-container sign-up-container">
             <form id="register-form">
-                <h1>Criar Conta</h1>
-                <span>Use seu email corporativo para se cadastrar</span>
+                <h1>Solicitar Acesso</h1>
+                <span>Use seu e-mail corporativo para solicitar</span>
+                
                 <input type="text" id="nome" placeholder="Nome Completo" required>
                 <input type="email" id="email-register" placeholder="Email Corporativo" required>
-                <input type="password" id="senha-register" placeholder="Senha" required>
-                <input type="text" id="whatsapp" placeholder="WhatsApp" required>
-                <div class="custom-select-wrapper">
-                    <select id="regional" required class="original-select">
-                        <option value="" disabled selected>Selecione sua regional</option>
-                        <option value="Nordeste">Nordeste</option>
-                        <option value="Centro-Oeste">Centro-Oeste</option>
-                        <option value="Bahia">Bahia</option>
-                        <option value="Santa Catarina">Santa Catarina</option>
-                    </select>
-                </div>
-                <div class="custom-select-wrapper">
-                    <select id="cargo" required class="original-select">
-                        <option value="" disabled selected>Selecione seu cargo</option>
-                        <option value="atendente">Atendente</option>
-                        <option value="regulacao">Regulação</option>
-                    </select>
-                </div>
-                <div class="custom-select-wrapper">
-                    <select id="produto" required class="original-select">
-                        <option value="" disabled selected>Selecione o produto</option>
-                        <option value="ISSEC">ISSEC</option>
-                        <option value="SASSEP">SASSEP</option>
-                        <option value="Planserv">Planserv</option>
-                    </select>
-                </div>
-                <button type="submit">Cadastrar</button>
+                <input type="text" id="whatsapp" placeholder="Celular / WhatsApp" required>
+                
+                <button type="submit">Solicitar Acesso</button>
                 <p id="register-error-message" class="error-message"></p>
+                <p style="font-size: 11px; color: #999; margin-top: 15px;">
+                    Após a solicitação, um gestor irá aprovar seu cadastro.
+                </p>
             </form>
         </div>
 
@@ -60,8 +40,8 @@
         <div class="overlay-container">
             <div class="overlay">
                 <div class="overlay-panel overlay-left">
-                    <h1>Crie sua conta!</h1>
-                    <p>Se já possuir conta cadastrada, clique no botão abaixo e faça login.</p>
+                    <h1>Bem-vindo de Volta!</h1>
+                    <p>Se já possui uma conta ativa, faça login com seus dados.</p>
                     <button class="ghost" id="signIn">Entrar</button>
                 </div>
                 <div class="overlay-panel overlay-right">
@@ -70,8 +50,8 @@
                         <img src="/img/npobranco.png" alt="Logo NPO">
                     </div>
                     <h1>Seja bem vindo ao portal NPO</h1>
-                    <p>Faça login, se ainda não possuir cadastro clique no botão abaixo e cadastre-se.</p>
-                    <button class="ghost" id="signUp">Cadastrar</button>
+                    <p>Para solicitar seu acesso, preencha seus dados no formulário de pré-cadastro.</p>
+                    <button class="ghost" id="signUp">Solicitar Acesso</button>
                 </div>
             </div>
         </div>

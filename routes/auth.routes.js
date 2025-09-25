@@ -1,15 +1,13 @@
-// API endpoints para autenticação: registro, login, logout e verificação de sessão.
+// routes/auth.routes.js
 
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
-import permissions from '../middleware/permissions.js';
 import prisma from '../db/prisma.js';
+
 const router = express.Router();
 
-// -------------------- CADASTRO -> POST /api/auth/register --------------------
+// -------------------- Rota de PRÉ-CADASTRO (Substitui o antigo /register) --------------------
 router.post('/pre-cadastro', async (req, res) => {
-    // No pré-cadastro, pegamos apenas os dados essenciais
     const { nome, email, whatsapp } = req.body;
 
     // Validações básicas
@@ -26,10 +24,14 @@ router.post('/pre-cadastro', async (req, res) => {
             return res.status(409).json({ message: "Este e-mail já está em uso ou aguardando aprovação." });
         }
 
-        // Cria o usuário com status PENDENTE e sem senha, cargo ou produto.
-        // O schema.prisma já define o status padrão como PENDENTE.
+        // Cria o usuário com status PENDENTE e sem senha
         await prisma.usuario.create({
-            data: { nome, email, whatsapp }
+            data: {
+                nome,
+                email,
+                whatsapp,
+                status: 'PENDENTE' 
+            }
         });
 
         res.status(201).json({
@@ -43,7 +45,7 @@ router.post('/pre-cadastro', async (req, res) => {
 });
 
 
-// -------------------- LOGIN -> POST /api/auth/login --------------------
+// -------------------- LOGIN -> POST /api/auth/login (com verificação de status) --------------------
 router.post('/login', async (req, res) => {
     const { email, senha } = req.body;
     if (!email || !senha) return res.status(400).json({ message: "Email e senha são obrigatórios." });
@@ -57,25 +59,22 @@ router.post('/login', async (req, res) => {
             }
         });
 
-        if (!user) return res.status(401).json({ message: "Credenciais inválidas." });
-
-        // -------------------- <<< ALTERAÇÃO 2: Bloquear usuários pendentes >>> --------------------
+        if (!user || !user.senha_hash) {
+            return res.status(401).json({ message: "Credenciais inválidas." });
+        }
+        
+        // <<<  Bloqueia usuários que não estão ativos >>>
         if (user.status !== 'ATIVO') {
             return res.status(403).json({ message: "Sua conta está pendente de aprovação ou inativa. Fale com um gestor." });
         }
-        // -----------------------------------------------------------------------------------------
 
-        // O schema define senha_hash, então vamos usar esse nome de campo
         const isMatch = await bcrypt.compare(senha, user.senha_hash);
-        if (!isMatch) return res.status(401).json({ message: "Credenciais inválidas." });
+        if (!isMatch) {
+            return res.status(401).json({ message: "Credenciais inválidas." });
+        }
 
         const userRoles = user.cargos.map(uc => uc.cargo.nome);
         const userProducts = user.produtos.map(up => up.produto.nome);
-        
-        // O objeto de permissões não foi fornecido, então esta parte pode precisar de ajuste
-        // Se `permissions` for o mesmo que `PERMISSIONS` de `constants.js`, está ok.
-        let userPermissions = [];
-        // ... (sua lógica de permissões)
 
         req.session.user = {
             id: user.id,
@@ -93,7 +92,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-// -------------------- LOGOUT e SESSÃO (permanecem iguais) --------------------
+// -------------------- LOGOUT e SESSÃO --------------------
 router.post('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) return res.status(500).json({ message: "Não foi possível fazer logout." });
@@ -103,15 +102,10 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/session', async (req, res) => {
-    try {
-        if (req.session.user) {
-            res.status(200).json({ user: req.session.user });
-        } else {
-            res.status(401).json({ message: "Não autenticado." });
-        }
-    } catch (error) {
-        console.error("Erro na rota de sessão:", error);
-        res.status(500).json({ message: "Erro interno ao buscar sessão." });
+    if (req.session.user) {
+        res.status(200).json({ user: req.session.user });
+    } else {
+        res.status(401).json({ message: "Não autenticado." });
     }
 });
 

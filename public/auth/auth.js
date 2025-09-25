@@ -9,42 +9,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginErrorMessage = document.getElementById('login-error-message');
     const registerErrorMessage = document.getElementById('register-error-message');
 
-    // Lógica para a animação de transição
-    signUpButton.addEventListener('click', () => {
-        container.classList.add("right-panel-active");
-    });
+    // Lógica para a animação de transição 
+    if (signUpButton) {
+        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+    }
+    if (signInButton) {
+        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
+    }
 
-    signInButton.addEventListener('click', () => {
-        container.classList.remove("right-panel-active");
-    });
-
-    // Lógica para o formulário de Registro
+    // ===================================================================
+    // LÓGICA PARA O FORMULÁRIO DE PRÉ-CADASTRO 
+    // ===================================================================
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             registerErrorMessage.textContent = ''; 
 
+            // Coleta apenas os dados necessários do novo formulário
             const data = {
                 nome: document.getElementById('nome').value,
                 email: document.getElementById('email-register').value,
-                senha: document.getElementById('senha-register').value,
-                whatsapp: document.getElementById('whatsapp').value,
-                regional: document.getElementById('regional').value,
-                cargo: document.getElementById('cargo').value,
-                produto: document.getElementById('produto').value
+                whatsapp: document.getElementById('whatsapp').value
             };
+            // Removemos a coleta de senha, regional, cargo e produto
 
             try {
-                const response = await fetch('/api/auth/register', {
+                // Envia para a nova rota de pré-cadastro
+                const response = await fetch('/api/auth/pre-cadastro', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
                 const result = await response.json();
+
                 if (response.ok) {
-                    alert('Cadastro realizado com sucesso! Agora você pode fazer login.');
-                    container.classList.remove("right-panel-active"); // Volta para o painel de login
+                    // Exibe a mensagem de sucesso do backend e volta para a tela de login
+                    alert(result.message);
+                    registerForm.reset(); // Limpa o formulário
+                    signInButton.click(); // Anima a volta para o painel de login
                 } else {
                     registerErrorMessage.textContent = result.message;
                 }
@@ -54,7 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Lógica para o formulário de Login
+    // ===================================================================
+    // LÓGICA PARA O FORMULÁRIO DE LOGIN 
+    // ===================================================================
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -74,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const result = await response.json();
                 if (response.ok) {
-                    window.location.href = '/'; 
+                    window.location.href = '/'; // Redireciona para a página principal após o login
                 } else {
                     loginErrorMessage.textContent = result.message;
                 }

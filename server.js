@@ -17,6 +17,7 @@ import ecoRoutes from './routes/eco.routes.js';
 import prioridadesRoutes from './routes/prioridades.routes.js';
 import escalasRoutes from './routes/escalas.routes.js';
 import reguladorRoutes from './routes/regulador.routes.js';
+import usuariosRoutes from './routes/users.routes.js'; // <<< ADIÇÃO 1: Importar as novas rotas de usuário
 
 import { atualizarStatusGuias } from './services/atualizadorStatus.js'; 
 
@@ -43,6 +44,7 @@ app.use('/api/protocolos', protocoloRoutes);
 app.use('/api/relatorios', relatorioRoutes);
 app.use('/api/painel', painelRoutes);
 app.use('/api/eco', ecoRoutes);
+app.use('/api/usuarios', usuariosRoutes); 
 
 app.use('/api/prioridades', (req, res, next) => {
     // --- Início do nosso "espião" ---
@@ -52,7 +54,7 @@ app.use('/api/prioridades', (req, res, next) => {
     console.log("-----------------------------------------------------");
     // --- Fim do "espião" ---
 
-    next(); // ESSA LINHA É MUITO IMPORTANTE: ela envia a requisição para o destino correto (prioridadesRoutes)
+    next();
 }, prioridadesRoutes);
 app.use('/api/regulador', reguladorRoutes);     
 app.use('/api/escalas', escalasRoutes);
@@ -72,11 +74,9 @@ app.listen(PORT, async () => {
     try {
         console.log('⏰ Iniciando atualização automática de status...');
         
-        // Executar imediatamente ao iniciar
         await atualizarStatusGuias();
         
-        // Agendar para executar a cada 10 minutos
-        setInterval(atualizarStatusGuias, 10 * 60 * 1000);
+        setInterval(atualizadorStatusGuias, 10 * 60 * 1000);
         
         console.log('✅ Atualização automática agendada (a cada 10 minutos)');
     } catch (err) {
