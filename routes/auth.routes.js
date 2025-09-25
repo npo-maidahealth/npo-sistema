@@ -6,11 +6,10 @@ import prisma from '../db/prisma.js';
 
 const router = express.Router();
 
-// -------------------- Rota de PRÉ-CADASTRO (Substitui o antigo /register) --------------------
+// -------------------- Rota de PRÉ-CADASTRO --------------------
 router.post('/pre-cadastro', async (req, res) => {
     const { nome, email, whatsapp } = req.body;
 
-    // Validações básicas
     if (!nome || !email || !whatsapp) {
         return res.status(400).json({ message: "Nome, e-mail e WhatsApp são obrigatórios." });
     }
@@ -24,30 +23,30 @@ router.post('/pre-cadastro', async (req, res) => {
             return res.status(409).json({ message: "Este e-mail já está em uso ou aguardando aprovação." });
         }
 
-        // Cria o usuário com status PENDENTE e sem senha
         await prisma.usuario.create({
-            data: {
-                nome,
-                email,
-                whatsapp,
-                status: 'PENDENTE' 
-            }
+            data: { nome, email, whatsapp, status: 'PENDENTE' }
         });
 
         res.status(201).json({
-            message: "Pré-cadastro realizado com sucesso! Aguarde a aprovação de um gestor para acessar o sistema."
+            message: "Pré-cadastro realizado com sucesso! Aguarde a aprovação de um gestor."
         });
-
     } catch (error) {
         console.error("Erro no pré-cadastro:", error);
         res.status(500).json({ message: "Erro interno ao criar usuário." });
     }
 });
 
-
-// -------------------- LOGIN -> POST /api/auth/login (com verificação de status) --------------------
+// -------------------- Rota de LOGIN  --------------------
 router.post('/login', async (req, res) => {
     const { email, senha } = req.body;
+
+    // --- Início dos Espiões ---
+    console.log("===================================");
+    console.log("Tentativa de login recebida no servidor");
+    console.log("Email recebido:", email);
+    console.log("Senha recebida:", senha);
+    // --- Fim dos Espiões ---
+
     if (!email || !senha) return res.status(400).json({ message: "Email e senha são obrigatórios." });
 
     try {
@@ -59,19 +58,30 @@ router.post('/login', async (req, res) => {
             }
         });
 
-        if (!user || !user.senha_hash) {
+        // 1. Primeira verificação: O usuário existe?
+        if (!user) {
+            console.log("--> Usuário NÃO encontrado no DB.");
+            return res.status(401).json({ message: "Credenciais inválidas." });
+        }
+        console.log("Usuário encontrado no DB:", user.email);
+
+        // 2. Segunda verificação: O status do usuário é ATIVO?
+        if (user.status !== 'ATIVO') {
+            console.log("--> Tentativa de login falhou: Status do usuário é", user.status);
+            return res.status(403).json({ message: "Sua conta está pendente de aprovação ou inativa." });
+        }
+
+        // 3. Terceira verificação: A senha bate com o hash salvo?
+        console.log("Hash salvo no DB:", user.senha_hash);
+        const isMatch = await bcrypt.compare(senha, user.senha_hash);
+        console.log("Resultado da comparação bcrypt:", isMatch);
+
+        if (!isMatch) {
+            console.log("--> Senhas NÃO batem.");
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
         
-        // <<<  Bloqueia usuários que não estão ativos >>>
-        if (user.status !== 'ATIVO') {
-            return res.status(403).json({ message: "Sua conta está pendente de aprovação ou inativa. Fale com um gestor." });
-        }
-
-        const isMatch = await bcrypt.compare(senha, user.senha_hash);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Credenciais inválidas." });
-        }
+        console.log("✅ Login bem-sucedido. Criando sessão...");
 
         const userRoles = user.cargos.map(uc => uc.cargo.nome);
         const userProducts = user.produtos.map(up => up.produto.nome);
@@ -85,14 +95,14 @@ router.post('/login', async (req, res) => {
         };
         
         res.status(200).json({ message: "Login realizado com sucesso!", user: req.session.user });
+
     } catch (error) {
         console.error("Erro no login:", error);
         res.status(500).json({ message: "Erro interno ao realizar login." });
     }
 });
 
-
-// -------------------- LOGOUT e SESSÃO --------------------
+// -------------------- LOGOUT e SESSÃO--------------------
 router.post('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) return res.status(500).json({ message: "Não foi possível fazer logout." });
