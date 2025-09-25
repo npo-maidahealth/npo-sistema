@@ -44,7 +44,6 @@ router.post('/login', async (req, res) => {
     console.log("===================================");
     console.log("Tentativa de login recebida no servidor");
     console.log("Email recebido:", email);
-    console.log("Senha recebida:", senha);
     // --- Fim dos Espiões ---
 
     if (!email || !senha) return res.status(400).json({ message: "Email e senha são obrigatórios." });
