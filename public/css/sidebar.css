@@ -89,14 +89,6 @@ input[type="checkbox"] { display: none; }
 .vertical-sidebar :checked ~ nav { width: var(--expanded); }
 .vertical-sidebar :not(:checked) ~ nav { width: var(--collapsed); }
 
-.main-content {
-    margin-left: var(--collapsed);
-    transition: margin-left 300ms ease-out;
-    width: calc(100% - var(--collapsed));
-    height: 100vh;
-    overflow-y: auto;
-    box-sizing: border-box;
-}
 
 .vertical-sidebar header {
     display: flex;
@@ -372,4 +364,17 @@ input[type="checkbox"] { display: none; }
 .day-night input:checked + div:after {
   transform: scale(1);
   transition: transform .5s ease .15s;
+}
+.vertical-sidebar :checked ~ .main-content {
+    margin-left: var(--expanded);
+}
+.vertical-sidebar :not(:checked) ~ .main-content {
+    margin-left: var(--collapsed);
+}
+
+.main-content {
+    margin-left: var(--collapsed); /* Valor inicial (já existe, mas confirme) */
+    padding: 2rem;
+    box-sizing: border-box;
+    transition: margin-left 300ms ease-out; /* Adicione isso para transição suave */
 }

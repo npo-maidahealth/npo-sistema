@@ -5,26 +5,11 @@ body {
     background-color: var(--cinza-claro-fundo);
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color .3s; /* Adiciona transição suave de cor de fundo */
-
-    /* Define as larguras da sidebar para uso no padding */
-    --sidebar-collapsed: 4.5rem;
-    --sidebar-expanded: 16.875rem;
-    
-    /* Padding inicial para a sidebar recolhida */
-    padding-left: var(--sidebar-collapsed);
-    transition: padding-left 300ms ease-out;
+    transition: background-color .3s;
 }
 
-/* Define o fundo escuro quando a classe .light NÃO está presente */
 body:not(.light) {
     background-color: #18181B;
-}
-
-
-/* Quando a sidebar estiver expandida (classe adicionada via JS) */
-body.sidebar-expanded {
-    padding-left: var(--sidebar-expanded);
 }
 
 .content-container {

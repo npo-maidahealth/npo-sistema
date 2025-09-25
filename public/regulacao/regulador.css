@@ -53,16 +53,8 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     transition: background-color 0.3s, color 0.3s;
-    
-    --sidebar-collapsed: 4.5rem;
-    --sidebar-expanded: 16.875rem;
-    padding-left: var(--sidebar-collapsed);
-    transition: padding-left 300ms ease-out;
 }
 
-body.sidebar-expanded {
-    padding-left: var(--sidebar-expanded);
-}
 
 .content-area {
     padding: 25px;
