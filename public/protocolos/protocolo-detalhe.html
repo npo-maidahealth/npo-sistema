@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Protocolo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/tags.css">
+  <link rel="stylesheet" href="../css/modals.css">
+  <link rel="stylesheet" href="protocolo-detalhe.css">
+</head>
+<body>
+
+  <div id="sidebar-placeholder" class="vertical-sidebar"></div>
+
+  <main class="main-content protocolo-detalhe-container">
+    <button id="voltar-btn" class="voltar-btn">
+      <i class="fas fa-arrow-left"></i> Voltar
+    </button>
+
+    <div class="protocolo-header">
+      <h1>Protocolo <span id="protocolo-uid"></span></h1>
+      <div class="status-badge" id="status-badge"></div>
+    </div>
+
+    <div class="protocolo-tags" id="tags-container"></div>
+
+    <div class="protocolo-info-card">
+      <h3>Informações do Protocolo</h3>
+      <p><strong>Descrição:</strong> <span id="descricao-texto"></span></p>
+      <p><strong>Solicitante:</strong> <span id="solicitante-nome"></span></p>
+      <p><strong>Data de Criação:</strong> <span id="data-criacao"></span></p>
+      <p><strong>Analista Responsável:</strong> <span id="analista-responsavel">Não atribuído</span></p>
+      <p><strong>Tipo de Automação:</strong> <span id="tipo-automacao"></span></p>
+    </div>
+
+    <div id="resolucao-final-card" class="resolucao-final-card" style="display:none; margin-bottom: 30px;">
+      <h3>Descrição da Resolução Final</h3>
+      <p id="resolucao-texto-final"></p>
+    </div>
+
+    <div class="tratativas-section">
+      <h2>Histórico de Tratativas</h2>
+      <div id="tratativas-list" class="tratativas-list"></div>
+    </div>
+
+    <div class="acoes-section" id="acoes-section"></div>
+  </main>
+
+    <div id="resolucao-modal-container" class="form-modal-container">
+      <div class="form-modal-content">
+        <button id="close-resolucao-modal-btn" class="fechar-form-btn">&times;</button>
+        <h2>Encaminhar Resolução</h2>
+        <textarea id="resolucao-text" placeholder="Descreva a resolução..." rows="6"></textarea>
+        <button id="enviar-resolucao-btn" class="submit-btn">Enviar Resolução</button>
+      </div>
+    </div>
+
+    <div id="encerrar-modal-container" class="form-modal-container">
+      <div class="form-modal-content">
+        <button id="close-encerrar-modal-btn" class="fechar-form-btn">&times;</button>
+        <h2>Encerrar Protocolo</h2>
+        <textarea id="encerramento-text" placeholder="Descreva a resolução final..." rows="6"></textarea>
+        <button id="confirmar-encerramento-btn" class="submit-btn">Confirmar Encerramento</button>
+      </div>
+    </div>
+
+    <div id="analise-modal-container" class="form-modal-container">
+      <div class="form-modal-content">
+        <button id="close-analise-modal-btn" class="fechar-form-btn">&times;</button>
+        <h3>Analisar Resolução</h3>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button id="aprovar-btn" class="action-button success">Aprovar</button>
+          <button id="ponto-melhoria-btn" class="action-button danger">Ponto de melhoria</button>
+        </div>
+        <div id="motivo-melhoria-container" style="display:none; margin-top:15px;">
+          <textarea id="motivo-melhoria-text" placeholder="Digite o motivo do ponto de melhoria..." rows="4" style="width:100%;"></textarea>
+          <button id="confirmar-melhoria-btn" class="action-button warning" style="margin-top:10px;">OK</button>
+        </div>
+      </div>
+    </div>
+
+  <script src="/js/shared.js"></script>
+  <script type="module" src="/js/protocolo-detalhe.js"></script>
+
+</body>
+</html>

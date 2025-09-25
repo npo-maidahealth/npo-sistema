@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Filas</title>
+    <link rel="stylesheet" href="painel.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo-titulo-container">
+            <img src="maida-logo.png" alt="Logo Maida" class="header-logo">
+            <h1> Monitor de Filas</h1>
+        </div>
+
+           <div class="header-indicadores-container">
+                <div class="header-indicador">
+                    <span id="indicador-tma" class="valor">--:--</span>
+                    <span class="label">TMA</span>
+                </div>
+                <div class="header-indicador">
+                    <span id="indicador-tme" class="valor">--:--</span>
+                    <span class="label">TME</span>
+                </div>
+
+                <div class="header-indicador">
+                    <span id="indicador-abandono-principal" class="valor">--%</span>
+                    
+                    <div class="label-com-variacao">
+                        <span class="label">% Abandono (Dia)</span>
+                        <span id="indicador-abandono-variacao" class="variacao"></span>
+                    </div>
+                </div>
+            </div>
+        <div class="header-controls">
+            <div class="filter-container">
+                <label for="select-grupo">Selecione o Grupo:</label>
+                <select id="select-grupo"></select>
+            </div>
+            <div class="settings-container">
+            <button id="settings-button" class="settings-button" title="Configurações de Exibição">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M19.829 15.171a3.952 3.952 0 0 0 0-6.342l-1.414-1.414a3.952 3.952 0 0 0-6.342 0L8.829 10.29a3.952 3.952 0 0 0 0 6.342l1.414 1.414a3.952 3.952 0 0 0 6.342 0l3.243-3.243zM12 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7.414-10.329a.999.999 0 0 0-1.414 0l-1.06 1.06a8.013 8.013 0 0 0-1.785-1.071l-.318-1.428a1 1 0 0 0-1.944-.434l-.318 1.428A7.957 7.957 0 0 0 10.8 4.793l-1.06-1.06a.999.999 0 1 0-1.414 1.414l1.06 1.06A7.957 7.957 0 0 0 4.793 10.8l-1.06 1.06a.999.999 0 1 0 1.414 1.414l1.06-1.06c.361.64.81 1.233 1.341 1.764l-1.428.318a1 1 0 0 0-.434 1.944l1.428.318a8.013 8.013 0 0 0 1.785 1.071l1.06 1.06a.999.999 0 1 0 1.414-1.414l-1.06-1.06a7.957 7.957 0 0 0 3.593-3.593l1.06 1.06a.999.999 0 1 0 1.414-1.414l-1.06-1.06a8.013 8.013 0 0 0 1.071-1.785l1.428-.318a1 1 0 0 0 .434-1.944l-1.428-.318a7.957 7.957 0 0 0-1.764-1.341l1.06-1.06a.999.999 0 0 0 0-1.414z"/>
+                </svg>
+            </button>
+            <div id="settings-dropdown" class="settings-dropdown">
+                <h4>Exibir Cards:</h4>
+                <ul>
+                    <li><label><input type="checkbox" data-card-id="card-espera" checked> Chamadas em Espera</label></li>
+                    <li><label><input type="checkbox" data-card-id="card-ativas" checked> Chamadas Ativas</label></li>
+                    <li><label><input type="checkbox" data-card-id="card-pausados" checked> Operadores Pausados</label></li>
+                    <li><label><input type="checkbox" data-card-id="card-livres" checked> Operadores Livres</label></li>
+                    <li><label><input type="checkbox" data-card-id="card-indisponiveis" checked> Operadores Indisponíveis</label></li>
+                </ul>
+            </div>
+        </div>   
+    </header>
+
+    <div class="container-principal">
+
+        
+
+        <main class="painel">
+            <div class="card" id="card-espera">
+                <h2>Chamadas em espera: <span id="qtd-espera">0</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Originador</th>
+                            <th>Fila</th>
+                            <th>Duração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-espera"></tbody>
+                </table>
+            </div>
+
+            <div class="card" id="card-ativas">
+                <h2>Chamadas Ativas: <span id="qtd-ativas">0</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operador / Originador</th>
+                            <th>Fila</th>
+                            <th>Duração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-ativas"></tbody>
+                </table>
+            </div>
+
+            <div class="card" id="card-pausados">
+                <h2>Operadores Pausados: <span id="qtd-pausados">0</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Motivo da Pausa</th>
+                            <th>Duração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-pausados"></tbody>
+                </table>
+            </div>
+
+            <div class="card" id="card-livres">
+                <h2>Operadores Livres: <span id="qtd-livres">0</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Ramal</th>
+                            <th>Online</th>
+                            <th>Última Chamada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-livres"></tbody>
+                </table>
+            </div>
+
+            <div class="card" id="card-indisponiveis">
+                <h2>Operadores Indisponíveis: <span id="qtd-indisponiveis">0</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Fila Atendendo</th>
+                            <th>Duração</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-indisponiveis"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

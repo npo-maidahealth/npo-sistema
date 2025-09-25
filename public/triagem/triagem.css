@@ -1,0 +1,207 @@
+/* ================= Seções e Layout ================= */
+.content-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.protocol-section h2 {
+    color: var(--maida-cinza-escuro);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 40px;
+}
+
+.protocol-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* ===== CARDS DE PROTOCOLO ===== */
+.protocolo-card {
+    background-color: var(--maida-branco);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-left: 5px solid var(--maida-azul);
+    transition: var(--transicao-padrao);
+    cursor: pointer;
+}
+
+.protocolo-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.protocolo-uid {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--maida-cinza-escuro);
+    margin-bottom: 10px;
+}
+
+.protocolo-tags {
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 25px;
+}
+
+.protocolo-info {
+    font-size: 0.85em;
+    color: var(--maida-cinza-escuro);
+    margin-bottom: 15px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.protocolo-info span { margin-right: 15px; }
+
+.protocolo-status {
+    font-weight: bold;
+    text-transform: capitalize;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    color: white;
+}
+.status-pendente_triagem { background-color: #ffc107; color: #333; }
+
+/* ================= Botões ================= */
+.protocolo-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.action-button {
+    background-color: var(--maida-branco);
+    border: 2px solid var(--maida-azul);
+    color: var(--maida-azul);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: var(--transicao-padrao);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-button:hover {
+    background-color: var(--maida-azul);
+    color: var(--maida-branco);
+}
+
+.action-button.triage {
+    background-color: #ffc107;
+    border: 2px solid #ffc107;
+    color: #333;
+}
+
+.action-button.triage:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+    color: #333;
+}
+
+/* ================= Sistema de Tags ================= */
+.form-group.tag-search-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Tags selecionadas */
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.selected-tags .tag {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transicao-padrao);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.selected-tags .tag:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+.tag-remove {
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 50%;
+}
+
+.tag-remove:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ================= CARDS DE FERRAMENTAS ================= */
+.ferramentas-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.ferramentas-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 5px 0 15px 0;
+}
+
+.ferramenta-card {
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ferramenta-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.ferramenta-card.selecionada {
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 2px var(--maida-azul), 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.ferramentas-placeholder {
+    text-align: center;
+    color: var(--maida-cinza-medio);
+    font-style: italic;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Ajuste para o modal de triagem */
+#triage-modal-container .form-modal-content {
+    max-height: 85vh;
+    overflow-y: auto;
+    min-height: 500px;
+}

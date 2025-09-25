@@ -1,0 +1,37 @@
+{
+  "name": "painel-evolux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JennyGD1/Painel-de-Filas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JennyGD1/Painel-de-Filas/issues"
+  },
+  "homepage": "https://github.com/JennyGD1/Painel-de-Filas#readme",
+  "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "express-validator": "^7.2.1",
+    "luxon": "^3.7.2",
+    "node-cache": "^5.1.2",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.15.0"
+  }
+}

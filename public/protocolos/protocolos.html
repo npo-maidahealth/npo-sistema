@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Protocolos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="../css/tags.css">
+    <link rel="stylesheet" href="protocolos.css">
+</head>
+<body>
+
+    <div id="sidebar-placeholder" class="vertical-sidebar"></div>
+
+    <main class="main-content">
+        <h1>Protocolos de Automação</h1>
+        <h2 id="protocolos-title">Todos</h2>
+        <div class="protocol-filter-container">
+            <button id="filter-btn">Filtrar <i class="fas fa-filter"></i></button>
+            <div id="filter-dropdown" class="filter-dropdown" style="display:none;">
+                <button class="filter-option" data-status="all">Todos</button>
+                <button class="filter-option" data-status="pendente_triagem">Pendentes de Triagem</button>
+                <button class="filter-option" data-status="aberto">Em Aberto</button>
+                <button class="filter-option" data-status="em_andamento">Em Andamento</button>
+                <button class="filter-option" data-status="pendente">Pendentes de Análise</button>
+                <button class="filter-option" data-status="fechado">Fechado</button>
+            </div>
+        </div>
+
+        <section id="admin-view" class="protocol-section" style="display: none;">
+            <div id="all-protocols-list" class="protocol-list"></div>
+        </section>
+
+        <section id="client-view" class="protocol-section" style="display: none;">
+            <div id="my-protocols-list" class="protocol-list"></div>
+        </section>
+    </main>
+
+    <template id="protocolo-card-template">
+        <div class="protocolo-card">
+            <div class="protocolo-uid"></div>
+            <div class="protocolo-tags"></div>
+            <div class="protocolo-info">
+                <span class="solicitante"></span>
+                <span class="data-criacao"></span>
+            </div>
+            <div class="protocolo-descricao"></div>
+            <div class="protocolo-status"></div>
+            <div class="protocolo-actions"></div>
+        </div>
+    </template>
+
+    <div id="triage-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-triage-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Triagem de Protocolo</h2>
+            <form id="triage-form">
+                <input type="hidden" id="triage-protocol-id">
+                <div class="form-group">
+                    <label for="triage-dificuldade">Nível de Dificuldade:</label>
+                    <select id="triage-dificuldade" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="1">1 - Fácil</option>
+                        <option value="2">2 - Médio</option>
+                        <option value="3">3 - Difícil</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="triage-ferramentas">Ferramentas Indicadas:</label>
+                    <input type="text" id="triage-ferramentas" placeholder="Digite para buscar tags...">
+                </div>
+                <button type="submit" class="submit-btn">Salvar Triagem</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="assign-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-assign-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Atribuir Protocolo</h2>
+            <form id="assign-form">
+                <input type="hidden" id="assign-protocol-id">
+                <div class="form-group">
+                    <label for="assign-analista">Atribuir a:</label>
+                    <select id="assign-analista" required>
+                        <option value="" disabled selected>Selecione um analista</option>
+                    </select>
+                </div>
+                <div id="assign-error-message" class="error-message"></div>
+                <button type="submit" class="submit-btn">Atribuir</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="resolucao-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-resolucao-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Descrever Resolução</h2>
+            <form id="resolucao-form">
+                <input type="hidden" id="resolucao-protocol-id">
+                <div class="form-group">
+                    <label for="resolucao-descricao">Descrição da Resolução:</label>
+                    <textarea id="resolucao-descricao" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Resolução</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="analise-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-analise-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Analisar Resolução</h2>
+            <p><strong>Descrição do Analista:</strong></p>
+            <div id="analise-descricao-resolucao" class="analise-text-area"></div>
+            <div id="analise-actions">
+                <button id="aprovar-btn" class="action-button success">Aprovar</button>
+                <button id="ponto-melhoria-btn" class="action-button danger">Ponto de Melhoria</button>
+            </div>
+            <div id="ponto-melhoria-area" style="display: none;">
+                <p><strong>Motivo do Ponto de Melhoria:</strong></p>
+                <textarea id="ponto-melhoria-input" rows="4" required></textarea>
+                <button id="enviar-melhoria-btn" class="submit-btn">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-chat-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Histórico do Protocolo <span id="chat-protocol-uid"></span></h2>
+            <div id="chat-messages" class="chat-messages"></div>
+        </div>
+    </div>
+
+    <div id="encerrar-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-encerrar-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Encerrar Protocolo</h2>
+            <form id="encerrar-form">
+                <input type="hidden" id="encerrar-protocol-id">
+                <div class="form-group">
+                    <label for="encerrar-descricao">Descrição Final da Resolução:</label>
+                    <textarea id="encerrar-descricao" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Encerrar Protocolo</button>
+            </form>
+        </div>
+    </div>
+    <div id="resolucao-final-modal-container" class="form-modal-container" style="display: none;">
+        <div class="form-modal-content">
+            <button id="close-resolucao-final-modal-btn" class="fechar-form-btn">&times;</button>
+            <h2>Resolução do Protocolo <span id="resolucao-protocol-uid"></span></h2>
+            <div id="resolucao-final-text" class="analise-text-area">
+                </div>
+        </div>
+    </div>
+    
+    <script src="/js/shared.js"></script>
+    <script type="module" src="/js/protocolos.js"></script>
+
+</body>
+</html>

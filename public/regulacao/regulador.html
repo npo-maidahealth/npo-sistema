@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regulador - Maida Health</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="regulador.css">
+</head>
+<body class="light">
+
+  <aside class="vertical-sidebar">
+      <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+      <nav>
+          <header>
+              <div class="sidebar__toggle-container">
+                  <label tabindex="0" for="checkbox-input" class="nav__toggle">
+                      <span class="toggle--icons" aria-hidden="true">
+                          <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                              <path fill="currentColor" d="M9.295 18.295l6-6-6-6-1.414 1.414 4.586 4.586-4.586 4.586z"></path>
+                          </svg>
+                          <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                              <path fill="currentColor" d="M14.705 5.705l-6 6 6 6 1.414-1.414-4.586-4.586 4.586-4.586z"></path>
+                          </svg>
+                      </span>
+                  </label>
+              </div>
+              <figure>
+                  <img class="codepen-logo" src="/img/npologo.png" alt="Logo NPO" />
+                  <figcaption>
+                      <p class="user-id" id="sidebar-user-name">Carregando...</p>
+                      <p class="user-role" id="sidebar-user-role"></p>
+                  </figcaption>
+              </figure>
+          </header>
+          <section class="sidebar__wrapper">
+              <ul class="sidebar__list" id="sidebar-nav-links"></ul>
+          </section>
+      </nav>
+  </aside>
+
+  <main class="content-area">
+    <div class="tabs">
+      <div class="tab active" data-view="pendentes">
+        <i class="fas fa-list-ul"></i> Pedidos de Prioridade
+      </div>
+      <div class="tab" data-view="reguladas">
+        <i class="fas fa-check-circle"></i> Guias Reguladas
+      </div>
+    </div>
+
+    <div class="content-header">
+      <h3 id="view-title">Guias</h3>
+      <div class="stats-info">
+        <span id="total-count">0</span> guias encontradas
+      </div>
+    </div>
+    
+    <div id="cards-container" class="cards-grid"></div>
+  </main>
+
+  <div id="modal-observacao" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Observações do Operador</h3>
+      <p id="modal-text"></p>
+    </div>
+  </div>
+
+  <script src="/js/shared.js"></script>
+  <script src="regulador.js"></script>
+</body>
+</html>

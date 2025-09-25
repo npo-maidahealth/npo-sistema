@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Ferramentas - Maida Health</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/tags.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/cards.css">
+</head>
+<body class="light"> <aside class="vertical-sidebar">
+        <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+        <nav>
+            <header>
+                <div class="sidebar__toggle-container">
+                    <label tabindex="0" for="checkbox-input" class="nav__toggle">
+                        <span class="toggle--icons" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
+                                <path fill="currentColor" d="M9.295 18.295l6-6-6-6-1.414 1.414 4.586 4.586-4.586 4.586z"></path>
+                            </svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
+                                <path fill="currentColor" d="M14.705 5.705l-6 6 6 6 1.414-1.414-4.586-4.586 4.586-4.586z"></path>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
+                <figure>
+                    <img class="codepen-logo" src="/img/npologo.png" alt="Logo NPO" />
+                    <figcaption>
+                        <p class="user-id" id="sidebar-user-name">Carregando...</p>
+                        <p class="user-role" id="sidebar-user-role"></p>
+                    </figcaption>
+                </figure>
+            </header>
+            <section class="sidebar__wrapper">
+                <ul class="sidebar__list" id="sidebar-nav-links"></ul>
+            </section>
+        </nav>
+    </aside>
+
+    <main class="content-container">
+        <h1>Ferramentas Disponíveis</h1>
+        <div class="features-grid">
+
+            <div class="feature-card" 
+                data-url="/regulacao/regulacao.html" 
+                data-feature="pedido-prioridade"
+                data-allowed-roles="atendente,regulacao,coordenador,admin">
+                
+                <span class="feature-category">Call Center</span>
+                <span class="icon"><i class="fas fa-tasks"></i></span>
+                <h3>Pedido de Prioridade</h3>
+                <p>Solicitação de prioridades para guias dos sistemas ECO e SISWEB.</p>
+
+                <div class="shine"></div>
+                <div class="background">
+                  <div class="tiles">
+                    <div class="tile tile-1"></div><div class="tile tile-2"></div><div class="tile tile-3"></div><div class="tile tile-4"></div>
+                    <div class="tile tile-5"></div><div class="tile tile-6"></div><div class="tile tile-7"></div><div class="tile tile-8"></div>
+                    <div class="tile tile-9"></div><div class="tile tile-10"></div>
+                  </div>
+                  <div class="line line-1"></div><div class="line line-2"></div><div class="line line-3"></div>
+                </div>
+            </div>
+
+            <div class="feature-card" 
+                data-url="/regulacao/regulador.html" 
+                data-feature="regulacao"
+                data-allowed-roles="regulacao,coordenador,admin">
+                
+                <span class="feature-category">Call Center</span>
+                <span class="icon"><i class="fas fa-gavel"></i></span>
+                <h3>Regulação de Guias</h3>
+                <p>Visualize e regulamente as prioridades que estão pendentes.</p>
+                
+                <div class="shine"></div>
+                <div class="background">
+                  <div class="tiles">
+                    <div class="tile tile-1"></div><div class="tile tile-2"></div><div class="tile tile-3"></div><div class="tile tile-4"></div>
+                    <div class="tile tile-5"></div><div class="tile tile-6"></div><div class="tile tile-7"></div><div class="tile tile-8"></div>
+                    <div class="tile tile-9"></div><div class="tile tile-10"></div>
+                  </div>
+                  <div class="line line-1"></div><div class="line line-2"></div><div class="line line-3"></div>
+                </div>
+            </div>
+            
+            <div class="feature-card" 
+                data-url="/painel.html" 
+                data-allowed-roles="analista,gestor,admin">
+                
+                <span class="feature-category">Call Center</span>
+                <span class="icon"><i class="fas fa-chart-bar"></i></span>
+                <h3>Painel de Filas</h3>
+                <p>Monitoramento em tempo real das filas de atendimento do Call Center.</p>
+                
+                <div class="shine"></div>
+                <div class="background">
+                  <div class="tiles">
+                    <div class="tile tile-1"></div><div class="tile tile-2"></div><div class="tile tile-3"></div><div class="tile tile-4"></div>
+                    <div class="tile tile-5"></div><div class="tile tile-6"></div><div class="tile tile-7"></div><div class="tile tile-8"></div>
+                    <div class="tile tile-9"></div><div class="tile tile-10"></div>
+                  </div>
+                  <div class="line line-1"></div><div class="line line-2"></div><div class="line line-3"></div>
+                </div>
+            </div>
+            
+            <div class="feature-card" 
+                 data-url="/relatorios/relatorios.html" 
+                 data-allowed-roles="analista,gestor,admin">
+                
+                <span class="feature-category">Call Center</span>
+                <span class="icon"><i class="fas fa-chart-line"></i></span>
+                <h3>Análise Avançada</h3>
+                <p>Relatórios detalhados e comparações históricas de performance.</p>
+                
+                <div class="shine"></div>
+                <div class="background">
+                  <div class="tiles">
+                    <div class="tile tile-1"></div><div class="tile tile-2"></div><div class="tile tile-3"></div><div class="tile tile-4"></div>
+                    <div class="tile tile-5"></div><div class="tile tile-6"></div><div class="tile tile-7"></div><div class="tile tile-8"></div>
+                    <div class="tile tile-9"></div><div class="tile tile-10"></div>
+                  </div>
+                  <div class="line line-1"></div><div class="line line-2"></div><div class="line line-3"></div>
+                </div>
+            </div>
+
+            <div class="feature-card" 
+                data-url="/regulacao/escalas.html" 
+                data-allowed-roles="coordenador,admin">
+                
+                <span class="feature-category">Gestão</span>
+                <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                <h3>Gestão de Escalas</h3>
+                <p>Gerenciamento de escalas e turnos dos reguladores da operação.</p>
+                
+                <div class="shine"></div>
+                <div class="background">
+                  <div class="tiles">
+                    <div class="tile tile-1"></div><div class="tile tile-2"></div><div class="tile tile-3"></div><div class="tile tile-4"></div>
+                    <div class="tile tile-5"></div><div class="tile tile-6"></div><div class="tile tile-7"></div><div class="tile tile-8"></div>
+                    <div class="tile tile-9"></div><div class="tile tile-10"></div>
+                  </div>
+                  <div class="line line-1"></div><div class="line line-2"></div><div class="line line-3"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="index.js"></script>
+    <script src="/js/shared.js"></script>
+</body>
+</html>

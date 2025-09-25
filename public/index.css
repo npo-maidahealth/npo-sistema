@@ -1,0 +1,100 @@
+@import url('css/base.css');
+@import url('css/modals.css');
+
+body {
+    background-color: var(--cinza-claro-fundo);
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color .3s; /* Adiciona transição suave de cor de fundo */
+
+    /* Define as larguras da sidebar para uso no padding */
+    --sidebar-collapsed: 4.5rem;
+    --sidebar-expanded: 16.875rem;
+    
+    /* Padding inicial para a sidebar recolhida */
+    padding-left: var(--sidebar-collapsed);
+    transition: padding-left 300ms ease-out;
+}
+
+/* Define o fundo escuro quando a classe .light NÃO está presente */
+body:not(.light) {
+    background-color: #18181B;
+}
+
+
+/* Quando a sidebar estiver expandida (classe adicionada via JS) */
+body.sidebar-expanded {
+    padding-left: var(--sidebar-expanded);
+}
+
+.content-container {
+    max-width: 1300px;
+    margin: 40px auto; /* Centraliza o conteúdo */
+    padding: 0 20px;
+    position: relative; /* Necessário para z-index */
+    z-index: 1;
+}
+
+.content-container h1 {
+    /* Faz o elemento ter a largura do seu conteúdo */
+    width: fit-content;
+    display: block; /* Mantém como bloco para permitir a centralização */
+
+    /* Centraliza o bloco na página */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 30px; /* Mantém o espaçamento inferior */
+
+    /* Estilos visuais para o efeito de pílula */
+    background: var(--content-container-h1); /* Sugestão para usar a cor do card principal */
+    color: var(--card-heading-color); /* Cor do texto principal do tema */
+    padding: 10px 25px; /* Padding simétrico para um visual equilibrado */
+    border-radius: 30px; /* Mais arredondado para o efeito pílula */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    text-align: center;
+    transition: color .3s, background-color .3s;
+}
+
+/* --- ESTILOS PARA OS CARDS DA PÁGINA INICIAL --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+
+.feature-category {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--maida-azul);
+    margin-bottom: 15px;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+.feature-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--maida-rosa);
+    color: var(--maida-branco);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    z-index: 3;
+}
+
+.notification-badge {
+    background-color: var(--maida-rosa);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 8px;
+    vertical-align: middle;
+}
