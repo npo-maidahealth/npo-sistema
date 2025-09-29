@@ -126,6 +126,7 @@ input[type="checkbox"] { display: none; }
     transition: opacity 0.2s ease, color 0.3s ease;
     color: var(--sidebar-icon-color);
     font-size: 1.5rem;
+    white-space: nowrap;
 }
 
 .nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
@@ -269,8 +270,8 @@ input[type="checkbox"] { display: none; }
 .submenu__item a::before { content: ''; position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: var(--sidebar-icon-color); }
 
 /* --- EFEITOS DE ANIMAÇÃO E TOOLTIPS --- */
-.vertical-sidebar:not(:has(:checked)) .toggle--close,
-.vertical-sidebar:has(:checked) .toggle--open { opacity: 0; }
+.vertical-sidebar:not(:has(#sidebar-toggle:checked)) .toggle--close,
+.vertical-sidebar:has(#sidebar-toggle:checked) .toggle--open { opacity: 0; }
 .vertical-sidebar:not(:has(:checked)) :where(figcaption, .text, .sidebar__item.has-submenu > .sidebar__link::after) { opacity: 0; width: 0; pointer-events: none; }
 .vertical-sidebar:has(:checked) :where(figcaption, .text, .sidebar__item.has-submenu > .sidebar__link::after) { transition: opacity 300ms ease-in 200ms; }
 .vertical-sidebar:not(:has(:checked)) .sidebar__submenu { display: none; }
