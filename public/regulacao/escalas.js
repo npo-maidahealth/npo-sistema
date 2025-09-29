@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) throw new Error('Não autenticado');
         
         const { user } = await res.json();
-        if (!user.cargos.includes('coordenador') && !user.cargos.includes('admin')) {
+        if (!user.cargos.includes('coordenador') && !user.cargos.includes('Administrador')) {
             alert('Você não tem permissão para acessar esta página.');
             window.location.href = '/regulador.html';
             return;

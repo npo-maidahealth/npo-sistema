@@ -53,6 +53,6 @@ export function debugUserPermissions(user) {
     console.log('Cargos:', user.cargos);
     console.log('Permissões:', user.permissoes);
     console.log('Tem triage_protocol:', hasPermission(user, 'triage_protocol'));
-    console.log('Tem admin:', hasPermission(user, 'admin'));
+    console.log('Tem Administrador:', hasPermission(user, 'Administrador'));
     console.log('===========================');
 }

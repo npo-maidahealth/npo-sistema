@@ -13,7 +13,7 @@ async function main() {
     'supervisor_callcenter',
     'gestor',
     'NPO', 
-    'admin', 
+    'Administrador', 
     'atendente_callcenter',
     'atendente_recepcao', 
     'regulacao', 

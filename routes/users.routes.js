@@ -8,7 +8,7 @@ import { isAuthenticated, hasPermission } from '../middleware/auth.middleware.js
 
 const router = express.Router();
 
-const requiredPermissions = ['admin', 'gestor_ti', 'coordenador'];
+const requiredPermissions = ['Administrador', 'gestor_ti', 'coordenador'];
 
 // Middleware de validação para a rota de atualização de usuário
 const validateUserUpdate = [

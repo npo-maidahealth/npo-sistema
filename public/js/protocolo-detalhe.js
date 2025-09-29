@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             exibirResolucaoFinal(protocolo);
             
             // Renderiza o histórico de tratativas
-            const cargosPermitidos = ['analista', 'gestor_ti', 'admin'];
+            const cargosPermitidos = ['analista', 'gestor_ti', 'Administrador'];
             const tratativasSection = document.querySelector('.tratativas-section');
             const usuarioTemAcesso = currentUser.cargos?.some(cargo => 
                 cargosPermitidos.includes(cargo.toLowerCase()));
@@ -111,12 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         tratativas.forEach(t => {
             const isAnalista = t.usuario?.cargos?.some(c => c.cargo?.nome === 'analista');
-            const isAdmin = t.usuario?.cargos?.some(c => c.cargo?.nome === 'admin');
+            const isAdministrador = t.usuario?.cargos?.some(c => c.cargo?.nome === 'Administrador');
             let roleLabel = '';
             if (isAnalista) {
                 roleLabel = 'Analista';
-            } else if (isAdmin) {
-                roleLabel = 'Admin';
+            } else if (isAdministrador) {
+                roleLabel = 'Administrador';
             }
             const userNameHtml = roleLabel ? 
                 `<span class="tratativa-usuario">${t.usuario?.nome || 'Usuário'}</span> <span class="tratativa-role-label">(${roleLabel})</span>` :

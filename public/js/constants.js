@@ -37,7 +37,7 @@ export const PERMISSIONS = {
                 'aprovar_resolucao',
                 'ponto_melhoria'
             ],
-            admin: [
+            Administrador: [
                 'view_tools_description',
                 'request_module',
                 'view_own_protocols',

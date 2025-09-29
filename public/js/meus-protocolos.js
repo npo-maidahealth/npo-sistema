@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gestor: ['view_tools_description', 'request_module', 'view_own_protocols', 'filter_own_protocols', 'access_panel_links'],
         analista: ['view_tools_description', 'view_all_protocols'], // Apenas permissões relevantes
         gestor_ti: ['view_tools_description', 'view_all_protocols'],
-        admin: ['view_tools_description', 'view_all_protocols']
+        Administrador: ['view_tools_description', 'view_all_protocols']
     };
 
     const TAGS = [

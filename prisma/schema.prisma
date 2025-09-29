@@ -37,7 +37,7 @@ model Usuario {
 
 model Cargo {
   id        Int               @id @default(autoincrement())
-  nome      String            @unique // 'cliente', 'analista', 'gestor', 'admin', 'atendente', 'regulacao', 'coordenador'
+  nome      String            @unique // 'cliente', 'analista', 'gestor', 'Administrador', 'atendente', 'regulacao', 'coordenador'
 
   usuarios  CargosDoUsuario[]
   

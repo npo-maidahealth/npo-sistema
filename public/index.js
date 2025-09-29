@@ -38,7 +38,7 @@ document.addEventListener('userReady', (event) => {
         if (hasPermission) {
             // Regra especial: pedido de prioridade
             if (feature === 'pedido-prioridade') {
-                const canAccess = userCargos.some(role => ['regulacao', 'coordenador', 'admin'].includes(role)) || 
+                const canAccess = userCargos.some(role => ['regulacao', 'coordenador', 'Administrador'].includes(role)) || 
                                   (userCargos.includes('atendente') && userProdutos.includes('ISSEC'));
                 if (!canAccess) {
                     card.style.display = 'none';
