@@ -45,7 +45,7 @@ document.addEventListener('userReady', (event) => {
         if (hasPermission) {
             // Regra especial para o card "pedido-prioridade"
             if (feature === 'pedido-prioridade') {
-                const canAccess = userCargos.some(role => ['regulacao', 'coordenador', 'Administrador'].includes(role)) || 
+                const canAccess = userCargos.some(role => ['regulacao', 'coordenador', 'administrador'].includes(role)) || 
                                   (userCargos.includes('atendente') && userProdutos.includes('ISSEC'));
                 if (!canAccess) {
                     hasPermission = false; // Invalida a permissão se a condição especial não for atendida

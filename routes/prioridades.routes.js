@@ -204,7 +204,7 @@ router.patch('/:id/voltar', isAuthenticated, async (req, res) => {
 });
 
 // ==========================
-// Listar todas as prioridades (para relatórios/Administrador)
+// Listar todas as prioridades (para relatórios/administrador)
 // ==========================
 router.get('/', isAuthenticated, async (req, res) => {
   try {

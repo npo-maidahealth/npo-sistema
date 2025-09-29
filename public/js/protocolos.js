@@ -94,9 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initializePage() {
         try {
             allProtocols = await ProtocolService.getAllProtocols();
-            const AdministradorView = document.getElementById('Administrador-view');
+            const administradorView = document.getElementById('administrador-view');
             const clientView = document.getElementById('client-view');
-            if (AdministradorView) AdministradorView.style.display = 'block';
+            if (administradorView) administradorView.style.display = 'block';
             if (clientView) clientView.style.display = 'none';
 
             displayProtocols(allProtocols);

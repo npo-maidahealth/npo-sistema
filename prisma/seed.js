@@ -10,21 +10,25 @@ async function main() {
 
   // 1. GARANTIR QUE OS CARGOS EXISTEM
   // ===================================
-  const cargos = [
-    'Supervisor',
-    'analista',
-    'supervisor_callcenter',
-    'gestor',
-    'NPO',
-    'administrador',
-    'atendente_callcenter',
-    'atendente_recepcao',
-    'regulacao',
-    'coordenador',
-    'gerente',
-    'gestor_ti',
-    'desenvolvedor'
-  ];
+// Dentro de prisma/seed.js
+
+const cargos = [
+  'administrador',
+  'npo',
+  'gerente',
+  'coordenador',
+  'supervisor_call_center',
+  'atendente_recepcao',    
+  'atendente_call_center',  
+  'faturamento',            
+  'regulacao',             
+  'supervisor',
+  'analista',
+  'gestor',
+  'gestor_ti',
+  'desenvolvedor',
+  'cliente'               
+];
 
   console.log('Verificando/Criando cargos essenciais...');
   for (const cargoNome of cargos) {
@@ -36,19 +40,19 @@ async function main() {
     console.log(`- Cargo "${cargoNome}" OK.`);
   }
 
-  // 2. CRIAR UM USUÁRIO ADMINISTRADOR PADRÃO
+  // 2. CRIAR UM USUÁRIO administrador PADRÃO
   // ========================================
-  console.log('Verificando/Criando usuário Administrador...');
+  console.log('Verificando/Criando usuário administrador...');
   const salt = await bcrypt.genSalt(10);
   // Lembre-se de usar uma senha mais forte e guardá-la em um lugar seguro
   const hashedPassword = await bcrypt.hash('maida@ftz', salt);
 
   const adminUser = await prisma.usuario.upsert({
-    where: { email: 'npo@maida.health' },
+    where: { email: 'admin@maida.health' },
     update: {}, // Não atualiza nada se o usuário já existir
     create: {
-      nome: 'Administrador do Sistema',
-      email: 'npo@maida.health',
+      nome: 'administrador do Sistema',
+      email: 'admin@maida.health',
       senha_hash: hashedPassword,
       status: 'ATIVO',
     },
@@ -57,9 +61,9 @@ async function main() {
 
   // 3. ASSOCIAR O USUÁRIO ADMIN AO CARGO ADMIN
   console.log('Associando usuário Admin ao cargo...');
-  // Primeiro, pegamos o ID do cargo "Administrador" que garantimos que existe
+  // Primeiro, pegamos o ID do cargo "administrador" que garantimos que existe
   const adminRole = await prisma.cargo.findUnique({
-    where: { nome: 'Administrador' },
+    where: { nome: 'administrador' },
   });
 
   // Usamos upsert para criar a ligação na tabela CargosDoUsuario

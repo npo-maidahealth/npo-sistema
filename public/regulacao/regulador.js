@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = event.detail;
 
         // 1. Checa se o usuário tem permissão para esta página específica
-        const allowedRoles = ['regulacao', 'atendente', 'coordenador', 'Administrador'];
+        const allowedRoles = ['regulacao', 'atendente', 'coordenador', 'administrador'];
         const hasPermission = user.cargos.some(cargo => allowedRoles.includes(cargo));
         
         if (!hasPermission) {

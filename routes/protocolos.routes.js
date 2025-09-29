@@ -51,7 +51,7 @@ router.get('/meus-protocolos', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/analistas/disponiveis', isAuthenticated, hasPermission(['Administrador', 'gestor_ti']), async (req, res) => {
+router.get('/analistas/disponiveis', isAuthenticated, hasPermission(['administrador', 'gestor_ti']), async (req, res) => {
     try {
         const analistas = await prisma.usuario.findMany({
             where: { cargos: { some: { cargo: { nome: 'analista' } } } },
@@ -64,7 +64,7 @@ router.get('/analistas/disponiveis', isAuthenticated, hasPermission(['Administra
     }
 });
 
-router.put('/:id/assumir', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'Administrador']), async (req, res) => {
+router.put('/:id/assumir', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'administrador']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const userId = req.session.user.id;
     if (isNaN(protocoloId)) return res.status(400).json({ message: "ID inválido." });
@@ -86,7 +86,7 @@ router.put('/:id/assumir', isAuthenticated, hasPermission(['analista', 'gestor_t
     }
 });
 
-router.put('/:id/encaminhar-resolucao', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'Administrador']), async (req, res) => {
+router.put('/:id/encaminhar-resolucao', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'administrador']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const { descricao_resolucao } = req.body;
     const userId = req.session.user.id;
@@ -115,7 +115,7 @@ router.put('/:id/encaminhar-resolucao', isAuthenticated, hasPermission(['analist
     }
 });
 
-router.put('/:id/analisar', isAuthenticated, hasPermission(['gestor_ti', 'Administrador']), async (req, res) => {
+router.put('/:id/analisar', isAuthenticated, hasPermission(['gestor_ti', 'administrador']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const { acao, motivo_melhoria } = req.body;
     const userId = req.session.user.id;
@@ -146,7 +146,7 @@ router.put('/:id/analisar', isAuthenticated, hasPermission(['gestor_ti', 'Admini
     }
 });
 
-router.put('/:id/encerrar', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'Administrador']), async (req, res) => {
+router.put('/:id/encerrar', isAuthenticated, hasPermission(['analista', 'gestor_ti', 'administrador']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const { descricao_final } = req.body;
     const userId = req.session.user.id;
@@ -178,9 +178,9 @@ router.put('/:id/encerrar', isAuthenticated, hasPermission(['analista', 'gestor_
 router.get('/', isAuthenticated, async (req, res) => {
     const user = req.session.user;
     try {
-        const temPermissaoAdministrador = user.cargos.some(c => ['analista', 'gestor', 'Administrador', 'gestor_ti'].includes(c));
+        const temPermissaoadministrador = user.cargos.some(c => ['analista', 'gestor', 'administrador', 'gestor_ti'].includes(c));
         const includeRelations = { solicitante: { select: { nome: true } }, responsavel: { select: { nome: true } }, tratativas: { include: { usuario: { select: { nome: true } } } } };
-        const protocolos = temPermissaoAdministrador
+        const protocolos = temPermissaoadministrador
             ? await prisma.protocolo.findMany({ orderBy: { data_criacao: 'desc' }, include: includeRelations })
             : await prisma.protocolo.findMany({ where: { id_solicitante: user.id }, orderBy: { data_criacao: 'desc' }, include: includeRelations });
         res.status(200).json(protocolos);
@@ -190,7 +190,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     }
 });
 
-router.put('/:id/triage', isAuthenticated, hasPermission(['Administrador']), async (req, res) => {
+router.put('/:id/triage', isAuthenticated, hasPermission(['administrador']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const { nivel_dificuldade, ferramentas_indicadas } = req.body;
     if (isNaN(protocoloId)) return res.status(400).json({ message: "ID inválido." });
@@ -206,7 +206,7 @@ router.put('/:id/triage', isAuthenticated, hasPermission(['Administrador']), asy
     }
 });
 
-router.put('/:id/assign', isAuthenticated, hasPermission(['Administrador', 'gestor_ti']), async (req, res) => {
+router.put('/:id/assign', isAuthenticated, hasPermission(['administrador', 'gestor_ti']), async (req, res) => {
     const protocoloId = parseInt(req.params.id, 10);
     const { analistaId } = req.body;
     if (isNaN(protocoloId)) return res.status(400).json({ message: "ID inválido." });

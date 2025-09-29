@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔐 Permissões do usuário:', currentUser.permissoes);
             
             console.log('🔍 Tem permissão triage_protocol:', hasPermission(currentUser, 'triage_protocol'));
-            console.log('🔍 Tem permissão Administrador:', hasPermission(currentUser, 'Administrador'));
+            console.log('🔍 Tem permissão administrador:', hasPermission(currentUser, 'administrador'));
             
             initializePage();
             setupTagSystemListeners();

@@ -21,7 +21,7 @@ export const hasPermission = (requiredPermission) => {
     return (req, res, next) => {
         const userRoles = req.session.user.cargos;
 
-        if (userRoles.includes('Administrador')) return next();
+        if (userRoles.includes('administrador')) return next();
 
         const allowed = userRoles.some(role => permissions[role]?.includes(requiredPermission));
         if (allowed) return next();

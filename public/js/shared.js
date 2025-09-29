@@ -76,13 +76,13 @@ async function renderSidebarAndSession() {
         );
         
         const submenuItems = [];
-        const managementRoles = ['Administrador', 'analista', 'gestor_ti'];
+        const managementRoles = ['administrador', 'analista', 'gestor_ti'];
         const isManagement = user.cargos.some(cargo => managementRoles.includes(cargo));
         const isRegularUser = user.cargos.includes('cliente') || user.cargos.includes('gestor');
-        const userIsAdministrador = user.cargos.includes('Administrador');
+        const userIsadministrador = user.cargos.includes('administrador');
 
         submenuItems.push(createSubmenuLink({ id: 'open-solicitacao-btn-sidebar', href: '#', text: 'Nova Solicitação' }));
-        if (userIsAdministrador) await addPendingProtocolsLink(submenuItems);
+        if (userIsadministrador) await addPendingProtocolsLink(submenuItems);
         if (isManagement) submenuItems.push(createSubmenuLink({ href: '/protocolos/protocolos.html', text: 'Gerenciar Protocolos' }));
         if (isManagement || isRegularUser) submenuItems.push(createSubmenuLink({ href: '/protocolos/meus-protocolos.html', text: 'Meus Protocolos' }));
         

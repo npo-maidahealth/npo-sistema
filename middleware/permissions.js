@@ -51,7 +51,7 @@ const permissions = {
         'self_assign_protocol',
         'view_analyst_indices'
     ],
-    Administrador: [
+    administrador: [
         'view_tools_description',
         'request_module',
         'view_own_protocols',
