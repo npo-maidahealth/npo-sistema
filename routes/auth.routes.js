@@ -93,7 +93,14 @@ router.post('/login', async (req, res) => {
             produtos: userProducts
         };
         
+        req.session.save((err) => {
+        if (err) {
+            console.error("Erro ao salvar a sessão:", err);
+            return res.status(500).json({ message: "Erro interno ao criar sessão." });
+        }
+        // A sessão foi salva com sucesso, agora podemos enviar a resposta.
         res.status(200).json({ message: "Login realizado com sucesso!", user: req.session.user });
+    });
 
     } catch (error) {
         console.error("Erro no login:", error);
