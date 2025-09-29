@@ -113,7 +113,6 @@ input[type="checkbox"] { display: none; }
     border-radius: var(--brad-inner);
     outline: 2px solid transparent;
     outline-offset: -2px;
-    overflow: hidden;
 }
 
 .toggle--icons {
