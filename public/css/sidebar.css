@@ -373,8 +373,25 @@ input[type="checkbox"] { display: none; }
 }
 
 .main-content {
-    margin-left: var(--collapsed); /* Valor inicial (já existe, mas confirme) */
+    margin-left: var(--collapsed); 
     padding: 2rem;
     box-sizing: border-box;
-    transition: margin-left 300ms ease-out; /* Adicione isso para transição suave */
+    transition: margin-left 300ms ease-out; 
+}
+/* =============================================================== */
+/* =========== ESTILOS PARA O CABEÇALHO SUPERIOR DO MENU ========= */
+/* =============================================================== */
+
+.sidebar__header-top {
+    display: flex;
+    justify-content: flex-end; /* ESSA LINHA ALINHA OS BOTÕES JUNTOS À DIREITA */
+    align-items: center;
+    gap: 0.5rem; /* Cria um pequeno espaço entre os botões */
+    height: var(--item);
+    padding: 0 0.5rem;
+}
+
+.theme-toggle-top {
+    display: flex;
+    align-items: center;
 }
