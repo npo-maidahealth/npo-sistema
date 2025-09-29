@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,183 +6,184 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-enum UserStatus {
-  PENDENTE
-  ATIVO
-  INATIVO
-}
+
 model Usuario {
-  id                      Int               @id @default(autoincrement())
+  id                      Int                 @id @default(autoincrement())
   nome                    String
-  email                   String            @unique
-  senha_hash              String?           // <<< ALTERAÇÃO: Senha agora é opcional
+  email                   String              @unique
+  senha_hash              String?
   whatsapp                String?
   regional                String?
-  status                  UserStatus        @default(PENDENTE) // <<< NOVO CAMPO: Status do usuário
-
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @default(now()) @updatedAt
+  status                  UserStatus          @default(PENDENTE)
+  regional_id             Int?
+  cargo_id                Int?
   cargos                  CargosDoUsuario[]
-  produtos                ProdutosDoUsuario[]
-  protocolos_solicitados  Protocolo[]         @relation("Solicitante")
-  protocolos_responsaveis Protocolo[]         @relation("Responsavel")
-  tratativas              Tratativa[]
-
   prioridadesSolicitadas  Prioridade[]        @relation("PrioridadeSolicitada")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  produtos                ProdutosDoUsuario[]
+  protocolos_responsaveis Protocolo[]         @relation("Responsavel")
+  protocolos_solicitados  Protocolo[]         @relation("Solicitante")
+  tratativas              Tratativa[]
+  Cargo                   Cargo?              @relation(fields: [cargo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  regional                regional?           @relation(fields: [regional_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
-
 
 model Cargo {
   id        Int               @id @default(autoincrement())
-  nome      String            @unique // 'cliente', 'analista', 'gestor', 'Administrador', 'atendente', 'regulacao', 'coordenador'
-
+  nome      String            @unique
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
   usuarios  CargosDoUsuario[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  Usuario   Usuario[]
 }
 
 model CargosDoUsuario {
   id        Int      @id @default(autoincrement())
   usuarioId Int
   cargoId   Int
-
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
-  cargo     Cargo   @relation(fields: [cargoId], references: [id])
-
-  @@unique([usuarioId, cargoId])
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  cargo     Cargo    @relation(fields: [cargoId], references: [id])
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@unique([usuarioId, cargoId])
 }
 
 model Protocolo {
-  id                  Int       @id @default(autoincrement())
-  protocolo_uid       String    @unique
-  descricao           String    @db.Text
-  tipo_automacao      String
-  status              String    // 'pendente_triagem', 'aberto', 'em_andamento', 'pendente', 'fechado'
-  nivel_dificuldade   Int?
-  ferramentas_indicadas String? @db.Text
-  data_criacao        DateTime  @default(now())
-  data_fechamento     DateTime?
-
-  solicitante         Usuario   @relation("Solicitante", fields: [id_solicitante], references: [id])
-  id_solicitante      Int
-
-  responsavel         Usuario?  @relation("Responsavel", fields: [id_responsavel], references: [id])
-  id_responsavel      Int?
-
-  tratativas          Tratativa[]
-  descricao_resolucao String?   @db.Text
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id                    Int         @id @default(autoincrement())
+  protocolo_uid         String      @unique
+  descricao             String
+  tipo_automacao        String
+  status                String
+  nivel_dificuldade     Int?
+  ferramentas_indicadas String?
+  data_criacao          DateTime    @default(now())
+  data_fechamento       DateTime?
+  id_solicitante        Int
+  id_responsavel        Int?
+  descricao_resolucao   String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @default(now()) @updatedAt
+  responsavel           Usuario?    @relation("Responsavel", fields: [id_responsavel], references: [id])
+  solicitante           Usuario     @relation("Solicitante", fields: [id_solicitante], references: [id])
+  tratativas            Tratativa[]
 }
 
 model Tratativa {
-  id           Int      @id @default(autoincrement())
-  id_protocolo Int
-  id_usuario   Int
-  descricao    String   @db.Text
-  tipo_mensagem String   // 'resolucao_analista', 'ponto_melhoria', 'aprovacao', 'encerramento', 'mensagem'
-  data_criacao DateTime @default(now())
-
-  protocolo    Protocolo @relation(fields: [id_protocolo], references: [id])
-  usuario      Usuario   @relation(fields: [id_usuario], references: [id])
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id            Int       @id @default(autoincrement())
+  id_protocolo  Int
+  id_usuario    Int
+  descricao     String
+  data_criacao  DateTime  @default(now())
+  tipo_mensagem String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  protocolo     Protocolo @relation(fields: [id_protocolo], references: [id])
+  usuario       Usuario   @relation(fields: [id_usuario], references: [id])
 }
 
 model Produto {
-  id        Int           @id @default(autoincrement())
-  nome      String        @unique    // 'ISSEC', 'SASSEP', 'Planserv'
-  usuarios  ProdutosDoUsuario[]
+  id          Int                 @id @default(autoincrement())
+  nome        String              @unique
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @default(now()) @updatedAt
   prioridades Prioridade[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  usuarios    ProdutosDoUsuario[]
 }
 
 model ProdutosDoUsuario {
   id        Int      @id @default(autoincrement())
   usuarioId Int
   produtoId Int
-
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
-  produto   Produto @relation(fields: [produtoId], references: [id])
-
-  @@unique([usuarioId, produtoId])
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  produto   Produto  @relation(fields: [produtoId], references: [id])
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@unique([usuarioId, produtoId])
 }
 
 model Prioridade {
-  id                      Int       @id @default(autoincrement())
-  numeroGuia              String
-  tipoGuia                String
-  status                  String
-  caracterAtendimento     String?    // Urgência, Emergência, Prorrogação etc
-  observacao              String?    @db.Text
-  produtoId               Int
-  usuarioId               Int        // quem criou a prioridade (Atendente ou Regulação)
-  reguladorId             Int?       // quem gerenciou a prioridade (Regulação)
-  dataCriacao             DateTime   @default(now())
-  dataAtualizacao         DateTime?  @updatedAt
-  capturada               Boolean    @default(false) // ECO: sai do sistema quando capturada
-  vencimento              DateTime?  // SISWEB: expira após 30 dias
-  autorizada              Boolean    @default(false)
-  regulada                Boolean    @default(false) // marca se a guia foi regulada/revalidada
-  fonte                   String?    @default("ECO") // "ECO" ou "SISWEB"
-  vezesSolicitado         Int?       @default(1)      // Quantidade de vezes que foi solicitado prioridade
-
-  beneficiario            String?
-  beneficiarioNomeSocial  String?
-  cartaoBeneficiario      String?
-  cpfBeneficiario         String?
-  dataHoraSolicitacao     DateTime?
-  dataPausaSla            DateTime?
-  dataRegulacao           DateTime?
-  dataSolicitacao         DateTime?
-  dataVencimentoSla       DateTime?
-  fila                    String?
-  atrasada                Boolean?  
-  atrasoRegulacao         String?
-  area                    String?
-
-  produto                 Produto    @relation(fields: [produtoId], references: [id])
-  usuario                 Usuario    @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
-  regulador               Regulador? @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id                     Int        @id @default(autoincrement())
+  numeroGuia             String
+  tipoGuia               String
+  status                 String
+  caracterAtendimento    String?
+  observacao             String?
+  produtoId              Int
+  usuarioId              Int
+  reguladorId            Int?
+  dataCriacao            DateTime   @default(now())
+  dataAtualizacao        DateTime?  @updatedAt
+  capturada              Boolean    @default(false)
+  vencimento             DateTime?
+  autorizada             Boolean    @default(false)
+  regulada               Boolean    @default(false)
+  area                   String?
+  atrasada               Boolean?
+  atrasoRegulacao        String?
+  beneficiario           String?
+  beneficiarioNomeSocial String?
+  cartaoBeneficiario     String?
+  cpfBeneficiario        String?
+  dataHoraSolicitacao    DateTime?
+  dataPausaSla           DateTime?
+  dataRegulacao          DateTime?
+  dataSolicitacao        DateTime?
+  dataVencimentoSla      DateTime?
+  fila                   String?
+  fonte                  String?    @default("ECO")
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @default(now()) @updatedAt
+  vezesSolicitado        Int?       @default(1)
+  produto                Produto    @relation(fields: [produtoId], references: [id])
+  regulador              Regulador? @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
+  usuario                Usuario    @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
 }
 
 model Regulador {
-  id          Int          @id @default(autoincrement())
-  nome        String       @unique
-  ativo       Boolean      @default(true)
-  escalas     Escala[]
-  prioridades Prioridade[] @relation("PrioridadeRegulador")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now()) @updatedAt
+  id               Int                @id @default(autoincrement())
+  nome             String             @unique
+  ativo            Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  Escala_Regulacao Escala_Regulacao[]
+  prioridades      Prioridade[]       @relation("PrioridadeRegulador")
 }
 
-model Escala {
-  id          Int      @id @default(autoincrement())
+model Escala_Regulacao {
+  id          Int       @id(map: "Escala_pkey") @default(autoincrement())
   reguladorId Int
-  diaSemana   Int      // 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado, 7=Domingo
-  turno       String   // MANHÃ, TARDE
-  horaInicio  String   // Formato "HH:MM"
-  horaFim     String   // Formato "HH:MM"
-  filas       String   // Filas que o regulador atende (separadas por vírgula)
-  observacao  String?  // Observações adicionais
-  regulador   Regulador @relation(fields: [reguladorId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  diaSemana   Int
+  turno       String
+  horaInicio  String
+  horaFim     String
+  filas       String
+  observacao  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  Regulador   Regulador @relation(fields: [reguladorId], references: [id], map: "Escala_reguladorId_fkey")
 
-  @@unique([reguladorId, diaSemana, turno])
+  @@unique([reguladorId, diaSemana, turno], map: "Escala_reguladorId_diaSemana_turno_key")
+}
+
+model regional {
+  id      Int       @id @default(autoincrement())
+  nome    String    @db.VarChar(50)
+  Usuario Usuario[]
+}
+
+model user_sessions {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_user_sessions_expire")
+}
+
+enum UserStatus {
+  PENDENTE
+  ATIVO
+  INATIVO
 }
