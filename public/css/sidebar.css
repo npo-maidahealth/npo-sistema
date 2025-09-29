@@ -389,22 +389,19 @@ input[type="checkbox"] { display: none; }
 
 .sidebar__header-top {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
     height: var(--item);
     padding: 0 0.5rem;
+    transition: justify-content 0ms linear 300ms;
 }
+.vertical-sidebar:has(:checked) .sidebar__header-top {
+    justify-content: space-between;
+    transition: justify-content 0ms;
+}
+
 .theme-toggle-top {
     display: flex;
     align-items: center;
-    transition: opacity 300ms, width 300ms;
-    opacity: 1;
-    width: auto;
-    overflow: hidden;
-}
-.vertical-sidebar:not(:has(:checked)) .theme-toggle-top {
-    opacity: 0;
-    width: 0;
-    pointer-events: none;
 }
