@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
                 produtos: { include: { produto: true } }
             }
         });
-
+        console.log("DADOS COMPLETOS DO USUÁRIO VINDOS DO BANCO:", JSON.stringify(user, null, 2));
         // 1. Primeira verificação: O usuário existe?
         if (!user) {
             console.log("--> Usuário NÃO encontrado no DB.");
