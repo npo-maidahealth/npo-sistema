@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSidebarAndSession(); 
 });
 
-// A função injectSolicitacaoModal permanece a mesma...
 function injectSolicitacaoModal() {
     if (document.getElementById('form-modal-container')) {
         return;
@@ -99,17 +98,8 @@ async function renderSidebarAndSession() {
         navLinksContainer.appendChild(createSidebarLink({ href: '#', tooltip: 'Perfil (em breve)', text: 'Perfil', disabled: true, iconSvg: `<path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />`}));
         navLinksContainer.appendChild(createSidebarLink({ href: '#', tooltip: 'Configurações (em breve)', text: 'Configurações', disabled: true, iconSvg: `<path d="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.5,21.9 9.3,21.7L4.3,16.7C4.1,16.5 4,16.25 4,16V8C4,6.9 4.9,6 6,6H18C19.1,6 20,6.9 20,8V16C20,16.25 19.9,16.5 19.7,16.7L14.7,21.7C14.5,21.9 14.25,22 14,22H10Z" />`}));
         navLinksContainer.appendChild(createSidebarLink({ id: 'logout-btn-sidebar', href: '#', tooltip: 'Sair', text: 'Sair', iconSvg: `<path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" />`}));
+      
         
-        const themeToggleItem = document.createElement('li');
-        themeToggleItem.className = 'sidebar__item sidebar__item--theme-toggle';
-        themeToggleItem.innerHTML = `
-            <label class="day-night">
-                <input type="checkbox" />
-                <div></div>
-            </label>
-        `;
-        navLinksContainer.appendChild(themeToggleItem);
-        // após a criação garantida de todos os elementos.
         setupGlobalEventListeners();
         setupSidebarInteractivity();
         
@@ -250,17 +240,22 @@ function setupGlobalEventListeners() {
 }
 
 function setupSidebarInteractivity() {
-    const checkbox = document.getElementById('checkbox-input');
+    // 1.  Alvo agora é 'sidebar-toggle'
+    const sidebarToggle = document.getElementById('sidebar-toggle');
     const body = document.body;
 
-    if (checkbox) {
-        const updateBodyClass = () => {
-            body.classList.toggle('sidebar-expanded', checkbox.checked);
-        };
-        checkbox.addEventListener('change', updateBodyClass);
-        updateBodyClass();
+    if (sidebarToggle) {
+        // 2. Salva o estado 'open' ou 'closed' no sessionStorage a cada mudança
+        sidebarToggle.addEventListener('change', () => {
+            if (sidebarToggle.checked) {
+                sessionStorage.setItem('sidebarState', 'open');
+            } else {
+                sessionStorage.setItem('sidebarState', 'closed');
+            }
+        });
     }
     
+    // Expande o submenu ao clicar
     document.querySelectorAll('.has-submenu > .sidebar__link').forEach(link => {
         link.addEventListener('click', (event) => {
             event.preventDefault();
@@ -270,13 +265,34 @@ function setupSidebarInteractivity() {
             }
         });
     });
-    const themeToggle = document.querySelector('.day-night input');
-    if (themeToggle) {
-        // Sincroniza o botão com o estado atual da página
-        themeToggle.checked = body.classList.contains('light');
 
-        themeToggle.addEventListener('change', () => {
-            body.classList.toggle('light', themeToggle.checked);
+    // 3. Lógica do Tema agora salva a preferência
+    const themeToggles = document.querySelectorAll('.day-night input');
+
+    // Função para aplicar o tema salvo
+    const applySavedTheme = () => {
+        const savedTheme = localStorage.getItem('theme') || 'light'; // Padrão 'light'
+        body.classList.toggle('light', savedTheme === 'light');
+        themeToggles.forEach(toggle => {
+            toggle.checked = savedTheme !== 'light';
         });
-    }
-}   
+    };
+
+    // Aplica o tema assim que a página carrega
+    applySavedTheme();
+
+    // Adiciona o evento de mudança a todos os botões de tema
+    themeToggles.forEach(toggle => {
+        toggle.addEventListener('change', () => {
+            const isDark = toggle.checked;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            body.classList.toggle('light', !isDark);
+            // Sincroniza os outros botões de tema, caso existam
+            themeToggles.forEach(otherToggle => {
+                if (otherToggle !== toggle) {
+                    otherToggle.checked = isDark;
+                }
+            });
+        });
+    });
+}
