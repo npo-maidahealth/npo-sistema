@@ -395,7 +395,9 @@ input[type="checkbox"] { display: none; }
     height: var(--item);
     padding: 0 0.5rem;
 }
-
+.vertical-sidebar:has(:checked) .sidebar__header-top {
+    justify-content: space-between;
+}
 .theme-toggle-top {
     display: flex;
     align-items: center;
