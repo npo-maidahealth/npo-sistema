@@ -7,25 +7,36 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="/css/sidebar.css">
   <link rel="stylesheet" href="regulador.css">
+  <link rel="stylesheet" href="/css/cursor-effect.css">
 </head>
 <body class="light">
 
   <aside class="vertical-sidebar">
-      <input type="checkbox" role="switch" id="checkbox-input" class="checkbox-input" checked />
+      <input type="checkbox" role="switch" id="sidebar-toggle" class="checkbox-input" />
+      <script>
+        (function() {
+          const savedState = sessionStorage.getItem('sidebarState');
+          if (savedState === null || savedState === 'open') {
+            document.getElementById('sidebar-toggle').checked = true;
+          }
+        })();
+      </script>
+
       <nav>
-          <header>
-              <div class="sidebar__toggle-container">
-                  <label tabindex="0" for="checkbox-input" class="nav__toggle">
-                      <span class="toggle--icons" aria-hidden="true">
-                          <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--open">
-                              <path fill="currentColor" d="M9.295 18.295l6-6-6-6-1.414 1.414 4.586 4.586-4.586 4.586z"></path>
-                          </svg>
-                          <svg width="24" height="24" viewBox="0 0 24 24" class="toggle-svg-icon toggle--close">
-                              <path fill="currentColor" d="M14.705 5.705l-6 6 6 6 1.414-1.414-4.586-4.586 4.586-4.586z"></path>
-                          </svg>
-                      </span>
+          <div class="sidebar__header-top">
+              <div class="theme-toggle-top">
+                  <label class="day-night">
+                      <input type="checkbox" />
+                      <div></div>
                   </label>
               </div>
+              <label for="sidebar-toggle" class="nav__toggle">  
+                  <span class="toggle--icons toggle--open">☰›</span>
+                  <span class="toggle--icons toggle--close">‹☰</span>
+              </label>
+          </div>
+          
+          <header>
               <figure>
                   <img class="codepen-logo" src="/img/npologo.png" alt="Logo NPO" />
                   <figcaption>
@@ -34,6 +45,7 @@
                   </figcaption>
               </figure>
           </header>
+          
           <section class="sidebar__wrapper">
               <ul class="sidebar__list" id="sidebar-nav-links"></ul>
           </section>
@@ -70,5 +82,7 @@
 
   <script src="/js/shared.js"></script>
   <script src="regulador.js"></script>
+  <script src="/js/sidebar.js"></script>
+  <script src="/js/cursor-effect.js"></script>
 </body>
 </html>
