@@ -19,40 +19,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 });
 
+// Substitua o código existente por este em index.js
 document.addEventListener('userReady', (event) => {
     const userCargos = event.detail.cargos;
     const userProdutos = event.detail.produtos;
+
+    // Use o console para verificar se os cargos estão corretos (opcional)
+    console.log("Cargos do usuário para verificação:", userCargos);
 
     document.querySelectorAll('.feature-card').forEach(card => {
         const allowedRolesAttr = card.dataset.allowedRoles;
         const feature = card.dataset.feature;
 
+        // Esconda todos os cards por padrão para garantir um estado inicial limpo
+        card.style.display = 'none'; 
+
         if (!allowedRolesAttr) {
-            card.style.display = 'none';
-            return;
+            return; // Pula para o próximo card se não tiver roles definidas
         }
 
         const allowedRoles = allowedRolesAttr.split(',');
-        const hasPermission = userCargos.some(cargo => allowedRoles.includes(cargo));
+        let hasPermission = userCargos.some(cargo => allowedRoles.includes(cargo));
 
+        // --- LÓGICA DE EXIBIÇÃO ---
         if (hasPermission) {
-            // Regra especial: pedido de prioridade
+            // Regra especial para o card "pedido-prioridade"
             if (feature === 'pedido-prioridade') {
                 const canAccess = userCargos.some(role => ['regulacao', 'coordenador', 'Administrador'].includes(role)) || 
                                   (userCargos.includes('atendente') && userProdutos.includes('ISSEC'));
                 if (!canAccess) {
-                    card.style.display = 'none';
+                    hasPermission = false; // Invalida a permissão se a condição especial não for atendida
                 }
             }
 
-            card.addEventListener('click', () => {
-                const url = card.dataset.url;
-                if (url) window.location.href = url;
-            });
-        } else {
-            card.style.display = 'none';
+            // Se, após todas as verificações, a permissão for válida, MOSTRE o card
+            if (hasPermission) {
+                card.style.display = 'block'; 
+                card.addEventListener('click', () => {
+                    const url = card.dataset.url;
+                    if (url) window.location.href = url;
+                });
+            }
         }
     });
-
-    // A função de hover antiga foi removida pois o CSS agora cuida de tudo.
 });
