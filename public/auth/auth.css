@@ -178,18 +178,18 @@ input {
 }
 
 .overlay {
-	background: var(--maida-azul);
-	background: -webkit-linear-gradient(to right, var(--maida-azul), var(--maida-amarelo));
-	background: linear-gradient(to right, var(--maida-azul), var(--maida-amarelo));
+
+	background: linear-gradient(135deg,  var(--maida-azul), var(--maida-amarelo), var(--maida-rosa));
+	
+	background-size: 400% 400%; 
+	animation: gradientAnimation 15s ease infinite; 
 	background-repeat: no-repeat;
-	background-size: cover;
-	background-position: 0 0;
 	color: var(--maida-branco);
 	position: relative;
 	left: -100%;
 	height: 100%;
 	width: 200%;
-    transform: translateX(0);
+	transform: translateX(0);
 	transition: var(--transicao-padrao);
 }
 

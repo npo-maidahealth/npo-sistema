@@ -302,8 +302,9 @@ input[type="checkbox"] { display: none; }
     margin-top: auto;
     margin-bottom: 10px;
     display: flex;
-    justify-content: flex-end;
-    padding-right: 0.8rem;
+    justify-content: flex-start;
+    padding-left: 0.8rem; 
+    padding-right: 0; 
     height: var(--item);
     align-items: center;
 }
@@ -366,12 +367,6 @@ input[type="checkbox"] { display: none; }
 /* ========= SELETORES CORRIGIDOS PARA O CONTEÚDO PRINCIPAL ====== */
 /* =============================================================== */
 /* Seleciona o .content-container que é IRMÃO do .vertical-sidebar */
-.vertical-sidebar:has(:checked) + .content-container {
-    margin-left: var(--expanded);
-}
-.vertical-sidebar:not(:has(:checked)) + .content-container {
-    margin-left: var(--collapsed);
-}
 
 /* O seletor foi trocado de .main-content para .content-container para bater com o HTML */
 .content-container {
@@ -389,19 +384,21 @@ input[type="checkbox"] { display: none; }
 
 .sidebar__header-top {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start; /* Alterado para alinhar à esquerda sempre */
     align-items: center;
     gap: 0.5rem;
     height: var(--item);
     padding: 0 0.5rem;
-    transition: justify-content 0ms linear 300ms;
+    padding-left: 0.5rem; /* Adicionado para espaçamento à esquerda */
+    /* Removidas transições de justify-content para evitar movimento */
 }
-.vertical-sidebar:has(:checked) .sidebar__header-top {
-    justify-content: space-between;
-    transition: justify-content 0ms;
-}
-
 .theme-toggle-top {
     display: flex;
     align-items: center;
+    transition: opacity 300ms; /* Mantida só opacity para fade suave */
+    opacity: 1; /* Sempre visível */
+    width: auto;
+    flex-shrink: 0; /* Impede encolhimento */
+    margin-right: auto; /* Adicionado para fixar à esquerda e empurrar o resto para direita */
+    overflow: hidden;
 }
