@@ -389,16 +389,22 @@ input[type="checkbox"] { display: none; }
 
 .sidebar__header-top {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
     height: var(--item);
     padding: 0 0.5rem;
 }
-.vertical-sidebar:has(:checked) .sidebar__header-top {
-    justify-content: space-between;
-}
 .theme-toggle-top {
     display: flex;
     align-items: center;
+    transition: opacity 300ms, width 300ms;
+    opacity: 1;
+    width: auto;
+    overflow: hidden;
+}
+.vertical-sidebar:not(:has(:checked)) .theme-toggle-top {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
 }
