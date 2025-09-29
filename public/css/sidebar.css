@@ -85,8 +85,12 @@ input[type="checkbox"] { display: none; }
     box-shadow: 0 3px 5px #1233, 0 5px 17px #0003;
 }
 
-.vertical-sidebar :checked ~ nav { width: var(--expanded); }
-.vertical-sidebar :not(:checked) ~ nav { width: var(--collapsed); }
+/* =============================================================== */
+/* ========= SELETORES DE EXPANSÃO CORRIGIDOS COM :has() ========= */
+/* =============================================================== */
+.vertical-sidebar:has(:checked) nav { width: var(--expanded); }
+.vertical-sidebar:not(:has(:checked)) nav { width: var(--collapsed); }
+/* =============================================================== */
 
 
 .vertical-sidebar header {
@@ -105,12 +109,9 @@ input[type="checkbox"] { display: none; }
     justify-content: end;
 }
 
-/* ===================================================== */
-/* ========= AJUSTE PARA EMPILHAR OS ÍCONES ============ */
-/* ===================================================== */
 .nav__toggle {
-    display: grid; /* 1. Transforma o container em um grid */
-    place-items: center; /* 2. Centraliza os ícones dentro dele */
+    display: grid;
+    place-items: center;
     block-size: 100%;
     background: none;
     border: none;
@@ -121,13 +122,11 @@ input[type="checkbox"] { display: none; }
 }
 
 .toggle--icons {
-    grid-area: 1 / 1; /* 3. Coloca AMBOS os ícones na mesma célula do grid (empilhando-os) */
-    transition: opacity 200ms ease-in; /* 4. Adiciona uma transição suave para o efeito de fade */
+    grid-area: 1 / 1;
+    transition: opacity 200ms ease-in;
     color: var(--sidebar-icon-color);
     font-size: 1.5rem;
 }
-/* ===================================================== */
-
 
 .nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
 .nav__toggle:hover .toggle--icons { color: var(--sidebar-heading-color); }
@@ -362,19 +361,28 @@ input[type="checkbox"] { display: none; }
   transform: scale(1);
   transition: transform .5s ease .15s;
 }
-.vertical-sidebar :checked ~ .main-content {
+
+/* =============================================================== */
+/* ========= SELETORES CORRIGIDOS PARA O CONTEÚDO PRINCIPAL ====== */
+/* =============================================================== */
+/* Seleciona o .content-container que é IRMÃO do .vertical-sidebar */
+.vertical-sidebar:has(:checked) + .content-container {
     margin-left: var(--expanded);
 }
-.vertical-sidebar :not(:checked) ~ .main-content {
+.vertical-sidebar:not(:has(:checked)) + .content-container {
     margin-left: var(--collapsed);
 }
 
-.main-content {
+/* O seletor foi trocado de .main-content para .content-container para bater com o HTML */
+.content-container {
     margin-left: var(--collapsed); 
     padding: 2rem;
     box-sizing: border-box;
     transition: margin-left 300ms ease-out; 
 }
+/* =============================================================== */
+
+
 /* =============================================================== */
 /* =========== ESTILOS PARA O CABEÇALHO SUPERIOR DO MENU ========= */
 /* =============================================================== */
