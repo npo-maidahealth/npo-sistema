@@ -89,7 +89,7 @@ label {
 /* ================= CAMPOS DE ENTRADA ================= */
 input[type="text"], input[type="time"], textarea, select {
     width: 100%;
-    padding: 12px 15px;
+    padding: 10px 15px;
     font-size: 1rem;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -125,7 +125,6 @@ button {
 
 button:hover {
     background-color: #0056cc;
-    transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 112, 255, 0.2);
 }
 

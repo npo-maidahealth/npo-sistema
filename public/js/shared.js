@@ -282,7 +282,8 @@ function setupSidebarInteractivity() {
 
     // Adiciona o evento de mudança a todos os botões de tema
     themeToggles.forEach(toggle => {
-        toggle.addEventListener('change', () => {
+        toggle.addEventListener('change', (event) => {
+            event.stopPropagation();
             const isDark = toggle.checked;
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             body.classList.toggle('light', !isDark);

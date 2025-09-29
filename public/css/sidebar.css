@@ -88,8 +88,8 @@ input[type="checkbox"] { display: none; }
 /* =============================================================== */
 /* ========= SELETORES DE EXPANSÃO CORRIGIDOS COM :has() ========= */
 /* =============================================================== */
-.vertical-sidebar:has(:checked) nav { width: var(--expanded); }
-.vertical-sidebar:not(:has(:checked)) nav { width: var(--collapsed); }
+.vertical-sidebar:has(#sidebar-toggle:checked) nav { width: var(--expanded); }
+.vertical-sidebar:not(:has(#sidebar-toggle:checked)) nav { width: var(--collapsed); }
 /* =============================================================== */
 
 
@@ -115,7 +115,7 @@ input[type="checkbox"] { display: none; }
     block-size: 100%;
     background: none;
     border: none;
-    transition: all 233ms ease-in;
+    transition: background-color 0.3s ease;
     border-radius: var(--brad-inner);
     outline: 2px solid transparent;
     outline-offset: -2px;
@@ -123,7 +123,7 @@ input[type="checkbox"] { display: none; }
 
 .toggle--icons {
     grid-area: 1 / 1;
-    transition: opacity 200ms ease-in;
+    transition: opacity 0.2s ease, color 0.3s ease;
     color: var(--sidebar-icon-color);
     font-size: 1.5rem;
 }
@@ -375,7 +375,6 @@ input[type="checkbox"] { display: none; }
     box-sizing: border-box;
     transition: margin-left 300ms ease-out; 
 }
-/* =============================================================== */
 
 
 /* =============================================================== */
@@ -384,21 +383,47 @@ input[type="checkbox"] { display: none; }
 
 .sidebar__header-top {
     display: flex;
-    justify-content: flex-start; /* Alterado para alinhar à esquerda sempre */
+    justify-content: flex-start; 
     align-items: center;
     gap: 0.5rem;
     height: var(--item);
     padding: 0 0.5rem;
-    padding-left: 0.5rem; /* Adicionado para espaçamento à esquerda */
-    /* Removidas transições de justify-content para evitar movimento */
+    padding-left: 0.5rem;
+    transition: none; 
 }
 .theme-toggle-top {
     display: flex;
     align-items: center;
-    transition: opacity 300ms; /* Mantida só opacity para fade suave */
-    opacity: 1; /* Sempre visível */
+    transition: opacity 300ms; 
+    opacity: 1; 
     width: auto;
     flex-shrink: 0; /* Impede encolhimento */
-    margin-right: auto; /* Adicionado para fixar à esquerda e empurrar o resto para direita */
+    margin-right: auto; 
     overflow: hidden;
+}
+.vertical-sidebar:not(:has(#sidebar-toggle:checked)) figcaption {
+    opacity: 0 !important; 
+    width: 0 !important;
+    height: 0 !important; 
+    overflow: hidden;
+    transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease; 
+}
+.vertical-sidebar:has(#sidebar-toggle:checked) figcaption {
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    transition: opacity 0.3s ease-in 0.2s; 
+}
+/* Isolando transições do botão de tema para não afetar outros ícones */
+.day-night input + div,
+.day-night input + div:before,
+.day-night input + div:after {
+    transition: box-shadow 0.5s ease, transform 0.4s ease, background-color 0.3s ease; /* Limita a transições específicas do tema */
+}
+
+/* Garantindo que mudança de tema não afete opacidade de ícones de expansão */
+body.light .toggle--icons,
+body:not(.light) .toggle--icons {
+    opacity: 1 !important; /* Força visível, independentemente do tema */
+    transition: color 0.3s ease; /* Só cor muda com tema */
 }
