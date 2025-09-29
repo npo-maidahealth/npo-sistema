@@ -105,7 +105,12 @@ input[type="checkbox"] { display: none; }
     justify-content: end;
 }
 
+/* ===================================================== */
+/* ========= AJUSTE PARA EMPILHAR OS ÍCONES ============ */
+/* ===================================================== */
 .nav__toggle {
+    display: grid; /* 1. Transforma o container em um grid */
+    place-items: center; /* 2. Centraliza os ícones dentro dele */
     block-size: 100%;
     background: none;
     border: none;
@@ -116,24 +121,16 @@ input[type="checkbox"] { display: none; }
 }
 
 .toggle--icons {
-    block-size: inherit;
-    aspect-ratio: 1;
-    display: inline-grid;
-    place-content: center;
-    grid-template-areas: "svg";
-    z-index: 10;
-    color: var(--sidebar-icon-color); /* Adicionado para garantir que o ícone tenha cor */
-    font-size: 1.5rem; /* Adicionado para garantir que o ícone tenha tamanho */
+    grid-area: 1 / 1; /* 3. Coloca AMBOS os ícones na mesma célula do grid (empilhando-os) */
+    transition: opacity 200ms ease-in; /* 4. Adiciona uma transição suave para o efeito de fade */
+    color: var(--sidebar-icon-color);
+    font-size: 1.5rem;
 }
+/* ===================================================== */
 
-.toggle-svg-icon {
-    grid-area: svg;
-    fill: var(--sidebar-icon-color);
-    transition: fill 233ms ease-in, opacity 200ms ease-out;
-}
 
 .nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
-.nav__toggle:hover .toggle--icons { color: var(--sidebar-heading-color); } /* Adicionado para hover */
+.nav__toggle:hover .toggle--icons { color: var(--sidebar-heading-color); }
 
 .vertical-sidebar figure {
     display: flex;
