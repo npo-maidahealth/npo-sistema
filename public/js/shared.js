@@ -240,18 +240,11 @@ function setupGlobalEventListeners() {
 }
 
 function setupSidebarInteractivity() {
-    // 1.  Alvo agora é 'sidebar-toggle'
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    const savedState = sessionStorage.getItem('sidebarState');
-    if (savedState === 'closed') {
-        sidebarToggle.checked = false;
-    } else {
-        sidebarToggle.checked = true;
-    }
     const body = document.body;
 
     if (sidebarToggle) {
-        // 2. Salva o estado 'open' ou 'closed' no sessionStorage a cada mudança
+        // AÇÃO: Salva o estado 'open' ou 'closed' no sessionStorage a cada mudança
         sidebarToggle.addEventListener('change', () => {
             if (sidebarToggle.checked) {
                 sessionStorage.setItem('sidebarState', 'open');
@@ -272,7 +265,7 @@ function setupSidebarInteractivity() {
         });
     });
 
-    // 3. Lógica do Tema agora salva a preferência
+    // Lógica do Tema agora salva a preferência
     const themeToggles = document.querySelectorAll('.day-night input');
 
     // Função para aplicar o tema salvo
