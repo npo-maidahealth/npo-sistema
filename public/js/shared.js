@@ -242,6 +242,12 @@ function setupGlobalEventListeners() {
 function setupSidebarInteractivity() {
     // 1.  Alvo agora é 'sidebar-toggle'
     const sidebarToggle = document.getElementById('sidebar-toggle');
+    const savedState = sessionStorage.getItem('sidebarState');
+    if (savedState === 'closed') {
+        sidebarToggle.checked = false;
+    } else {
+        sidebarToggle.checked = true;
+    }
     const body = document.body;
 
     if (sidebarToggle) {

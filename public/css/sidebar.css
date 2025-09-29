@@ -77,7 +77,6 @@ input[type="checkbox"] { display: none; }
     background: var(--sidebar-bg);
     display: flex;
     flex-flow: column;
-    /* <<< ALTERAÇÃO AQUI: Usamos 'width' em vez de 'flex-basis' >>> */
     width: var(--collapsed);
     border-radius: 0;
     transition: width 300ms ease-out, background-color .3s;
@@ -124,6 +123,8 @@ input[type="checkbox"] { display: none; }
     place-content: center;
     grid-template-areas: "svg";
     z-index: 10;
+    color: var(--sidebar-icon-color); /* Adicionado para garantir que o ícone tenha cor */
+    font-size: 1.5rem; /* Adicionado para garantir que o ícone tenha tamanho */
 }
 
 .toggle-svg-icon {
@@ -133,7 +134,7 @@ input[type="checkbox"] { display: none; }
 }
 
 .nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
-.nav__toggle:hover .toggle-svg-icon { fill: var(--sidebar-heading-color); }
+.nav__toggle:hover .toggle--icons { color: var(--sidebar-heading-color); } /* Adicionado para hover */
 
 .vertical-sidebar figure {
     display: flex;
@@ -192,7 +193,7 @@ input[type="checkbox"] { display: none; }
     flex-flow: column;
     gap: 0.25rem;
     overflow: hidden;
-    height: 100%; /* Faz a lista ocupar toda a altura do wrapper */
+    height: 100%;
 }
 
 .sidebar__item { border-radius: var(--brad-inner); }
@@ -272,7 +273,7 @@ input[type="checkbox"] { display: none; }
 .submenu__item a:hover { color: var(--maida-azul); background-color: var(--sidebar-active-bg); }
 .submenu__item a::before { content: ''; position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; border-radius: 50%; background-color: var(--sidebar-icon-color); }
 
-/* --- EFEITOS DE ANIMAÇÃO E TOOLTIPS (sem alteração) --- */
+/* --- EFEITOS DE ANIMAÇÃO E TOOLTIPS --- */
 .vertical-sidebar:not(:has(:checked)) .toggle--close,
 .vertical-sidebar:has(:checked) .toggle--open { opacity: 0; }
 .vertical-sidebar:not(:has(:checked)) :where(figcaption, .text, .sidebar__item.has-submenu > .sidebar__link::after) { opacity: 0; width: 0; pointer-events: none; }
@@ -303,11 +304,11 @@ input[type="checkbox"] { display: none; }
 /* =============  ESTILOS PARA O BOTÃO DE TEMA      ============== */
 /* =============================================================== */
 .sidebar__item--theme-toggle {
-    margin-top: auto; /* Empurra para o final do menu */
+    margin-top: auto;
     margin-bottom: 10px;
     display: flex;
-    justify-content: flex-end; /* Alinha o ícone à direita */
-    padding-right: 0.8rem; /* Adiciona um pequeno espaço da borda */
+    justify-content: flex-end;
+    padding-right: 0.8rem;
     height: var(--item);
     align-items: center;
 }
@@ -315,7 +316,7 @@ input[type="checkbox"] { display: none; }
 .day-night {
   cursor: pointer;
   position: relative;
-  transform: scale(0.9); /* Deixa o botão um pouco menor para caber melhor */
+  transform: scale(0.9);
 }
 .day-night input {
   display: none;
@@ -384,9 +385,9 @@ input[type="checkbox"] { display: none; }
 
 .sidebar__header-top {
     display: flex;
-    justify-content: flex-end; /* ESSA LINHA ALINHA OS BOTÕES JUNTOS À DIREITA */
+    justify-content: flex-end;
     align-items: center;
-    gap: 0.5rem; /* Cria um pequeno espaço entre os botões */
+    gap: 0.5rem;
     height: var(--item);
     padding: 0 0.5rem;
 }
