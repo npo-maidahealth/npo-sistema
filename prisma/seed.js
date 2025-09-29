@@ -1,44 +1,90 @@
 // prisma/seed.js
-const { PrismaClient } = require('@prisma/client');
+
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
 const prisma = new PrismaClient();
 
 async function main() {
   console.log(`Iniciando o processo de seeding...`);
 
-  // Lista de cargos essenciais para o sistema
+  // 1. GARANTIR QUE OS CARGOS EXISTEM
+  // ===================================
   const cargos = [
-    'cliente', 
-    'supervisor',
-    'analista', 
+    'Supervisor',
+    'analista',
     'supervisor_callcenter',
     'gestor',
-    'NPO', 
-    'Administrador', 
+    'NPO',
+    'administrador',
     'atendente_callcenter',
-    'atendente_recepcao', 
-    'regulacao', 
+    'atendente_recepcao',
+    'regulacao',
     'coordenador',
-    'gerente', 
-    'gestor_ti'
+    'gerente',
+    'gestor_ti',
+    'desenvolvedor'
   ];
 
-  // Loop para criar cada cargo
+  console.log('Verificando/Criando cargos essenciais...');
   for (const cargoNome of cargos) {
-    // upsert: cria o cargo se ele não existir, ou não faz nada se já existir.
     await prisma.cargo.upsert({
       where: { nome: cargoNome },
       update: {},
       create: { nome: cargoNome },
     });
-    console.log(`- Cargo "${cargoNome}" criado ou já existente.`);
+    console.log(`- Cargo "${cargoNome}" OK.`);
   }
 
-  console.log(`Seeding finalizado com sucesso.`);
+  // 2. CRIAR UM USUÁRIO ADMINISTRADOR PADRÃO
+  // ========================================
+  console.log('Verificando/Criando usuário Administrador...');
+  const salt = await bcrypt.genSalt(10);
+  // Lembre-se de usar uma senha mais forte e guardá-la em um lugar seguro
+  const hashedPassword = await bcrypt.hash('maida@ftz', salt);
+
+  const adminUser = await prisma.usuario.upsert({
+    where: { email: 'npo@maida.health' },
+    update: {}, // Não atualiza nada se o usuário já existir
+    create: {
+      nome: 'Administrador do Sistema',
+      email: 'npo@maida.health',
+      senha_hash: hashedPassword,
+      status: 'ATIVO',
+    },
+  });
+  console.log(`- Usuário "${adminUser.nome}" OK.`);
+
+  // 3. ASSOCIAR O USUÁRIO ADMIN AO CARGO ADMIN
+  console.log('Associando usuário Admin ao cargo...');
+  // Primeiro, pegamos o ID do cargo "Administrador" que garantimos que existe
+  const adminRole = await prisma.cargo.findUnique({
+    where: { nome: 'Administrador' },
+  });
+
+  // Usamos upsert para criar a ligação na tabela CargosDoUsuario
+  await prisma.cargosDoUsuario.upsert({
+    where: {
+      // Esta é a chave única que definimos no schema para a tabela de ligação
+      usuarioId_cargoId: {
+        usuarioId: adminUser.id,
+        cargoId: adminRole.id,
+      },
+    },
+    update: {}, // Não faz nada se a ligação já existir
+    create: {
+      usuarioId: adminUser.id,
+      cargoId: adminRole.id,
+    },
+  });
+  console.log(`- Associação OK.`);
+  console.log(`\nSeeding finalizado com sucesso!`);
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
+  .catch(async (e) => {
+    console.error('Ocorreu um erro durante o seeding:', e);
+    await prisma.$disconnect();
     process.exit(1);
   })
   .finally(async () => {

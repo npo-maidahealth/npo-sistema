@@ -1,3 +1,5 @@
+// Copie tudo a partir daqui para dentro do seu arquivo schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,35 +16,35 @@ model Usuario {
   senha_hash              String?
   whatsapp                String?
   createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @default(now()) @updatedAt
+  updatedAt               DateTime            @updatedAt // Removi o @default(now()) que era redundante com @updatedAt
   status                  UserStatus          @default(PENDENTE)
   regional_id             Int?
-  cargo_id                Int?
-  cargos                  CargosDoUsuario[]
-  prioridadesSolicitadas  Prioridade[]        @relation("PrioridadeSolicitada")
+
+  cargos                  CargosDoUsuario[]   // Relação correta com a tabela de ligação
   produtos                ProdutosDoUsuario[]
+
+  prioridadesSolicitadas  Prioridade[]        @relation("PrioridadeSolicitada")
   protocolos_responsaveis Protocolo[]         @relation("Responsavel")
   protocolos_solicitados  Protocolo[]         @relation("Solicitante")
   tratativas              Tratativa[]
-  Cargo                   Cargo?              @relation(fields: [cargo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  regional                regional?           @relation(fields: [regional_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  regional                Regional?           @relation(fields: [regional_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Cargo {
   id        Int               @id @default(autoincrement())
   nome      String            @unique
   createdAt DateTime          @default(now())
-  updatedAt DateTime          @default(now()) @updatedAt
+  updatedAt DateTime          @updatedAt // Removi o @default(now())
   usuarios  CargosDoUsuario[]
-  Usuario   Usuario[]
 }
 
+// Tabela de ligação para a relação Muitos-para-Muitos entre Usuario e Cargo
 model CargosDoUsuario {
   id        Int      @id @default(autoincrement())
   usuarioId Int
   cargoId   Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt // Removi o @default(now())
   cargo     Cargo    @relation(fields: [cargoId], references: [id])
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
@@ -63,21 +65,21 @@ model Protocolo {
   id_responsavel        Int?
   descricao_resolucao   String?
   createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @default(now()) @updatedAt
+  updatedAt             DateTime    @updatedAt // Removi o @default(now())
   responsavel           Usuario?    @relation("Responsavel", fields: [id_responsavel], references: [id])
   solicitante           Usuario     @relation("Solicitante", fields: [id_solicitante], references: [id])
   tratativas            Tratativa[]
 }
 
 model Tratativa {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   id_protocolo  Int
   id_usuario    Int
   descricao     String
-  data_criacao  DateTime  @default(now())
+  data_criacao  DateTime @default(now())
   tipo_mensagem String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt // Removi o @default(now())
   protocolo     Protocolo @relation(fields: [id_protocolo], references: [id])
   usuario       Usuario   @relation(fields: [id_usuario], references: [id])
 }
@@ -86,7 +88,7 @@ model Produto {
   id          Int                 @id @default(autoincrement())
   nome        String              @unique
   createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @default(now()) @updatedAt
+  updatedAt   DateTime            @updatedAt // Removi o @default(now())
   prioridades Prioridade[]
   usuarios    ProdutosDoUsuario[]
 }
@@ -96,7 +98,7 @@ model ProdutosDoUsuario {
   usuarioId Int
   produtoId Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt // Removi o @default(now())
   produto   Produto  @relation(fields: [produtoId], references: [id])
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
@@ -104,7 +106,7 @@ model ProdutosDoUsuario {
 }
 
 model Prioridade {
-  id                     Int        @id @default(autoincrement())
+  id                     Int         @id @default(autoincrement())
   numeroGuia             String
   tipoGuia               String
   status                 String
@@ -113,12 +115,12 @@ model Prioridade {
   produtoId              Int
   usuarioId              Int
   reguladorId            Int?
-  dataCriacao            DateTime   @default(now())
-  dataAtualizacao        DateTime?  @updatedAt
-  capturada              Boolean    @default(false)
+  dataCriacao            DateTime    @default(now())
+  dataAtualizacao        DateTime?   @updatedAt
+  capturada              Boolean     @default(false)
   vencimento             DateTime?
-  autorizada             Boolean    @default(false)
-  regulada               Boolean    @default(false)
+  autorizada             Boolean     @default(false)
+  regulada               Boolean     @default(false)
   area                   String?
   atrasada               Boolean?
   atrasoRegulacao        String?
@@ -132,13 +134,13 @@ model Prioridade {
   dataSolicitacao        DateTime?
   dataVencimentoSla      DateTime?
   fila                   String?
-  fonte                  String?    @default("ECO")
-  createdAt              DateTime   @default(now())
-  updatedAt              DateTime   @default(now()) @updatedAt
-  vezesSolicitado        Int?       @default(1)
-  produto                Produto    @relation(fields: [produtoId], references: [id])
-  regulador              Regulador? @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
-  usuario                Usuario    @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
+  fonte                  String?     @default("ECO")
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt // Removi o @default(now())
+  vezesSolicitado        Int?        @default(1)
+  produto                Produto     @relation(fields: [produtoId], references: [id])
+  regulador              Regulador?  @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
+  usuario                Usuario     @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
 }
 
 model Regulador {
@@ -146,7 +148,7 @@ model Regulador {
   nome             String             @unique
   ativo            Boolean            @default(true)
   createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @default(now()) @updatedAt
+  updatedAt        DateTime           @updatedAt // Removi o @default(now())
   Escala_Regulacao Escala_Regulacao[]
   prioridades      Prioridade[]       @relation("PrioridadeRegulador")
 }
@@ -161,13 +163,13 @@ model Escala_Regulacao {
   filas       String
   observacao  String?
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   Regulador   Regulador @relation(fields: [reguladorId], references: [id], map: "Escala_reguladorId_fkey")
 
   @@unique([reguladorId, diaSemana, turno], map: "Escala_reguladorId_diaSemana_turno_key")
 }
 
-model regional {
+model Regional {
   id      Int       @id @default(autoincrement())
   nome    String    @db.VarChar(50)
   Usuario Usuario[]
