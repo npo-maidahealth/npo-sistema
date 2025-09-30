@@ -1,7 +1,5 @@
-// Arquivo: /services/escalaService.js
-
 import { DateTime } from 'luxon';
-import prisma from '../db/prisma.js'; // Importa a conexão centralizada
+import prisma from '../db/prisma.js'; 
 
 export async function getReguladorAtual(fila = null, fonte = null) {
   try {
@@ -9,7 +7,7 @@ export async function getReguladorAtual(fila = null, fonte = null) {
     const diaSemana = agora.weekday;
     const horaAtual = agora.toFormat('HH:mm');
 
-    const escalas = await prisma.escala.findMany({
+    const escalas = await prisma.escala_Regulacao.findMany({
       where: {
         regulador: { ativo: true },
         diaSemana,

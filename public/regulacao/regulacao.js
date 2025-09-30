@@ -1,29 +1,22 @@
 document.addEventListener('DOMContentLoaded', async () => { 
     
-    // Tabs
+    // Tabs (sem alterações)
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
 
     // Lógica unificada para gerenciamento de abas
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove 'active' de todas as abas
             tabs.forEach(t => t.classList.remove('active'));
-            // Adiciona 'active' na aba clicada
             tab.classList.add('active');
-
-            // Remove 'active' de todo o conteúdo e o esconde
             tabContents.forEach(c => c.classList.remove('active'));
-
-            // Adiciona 'active' no conteúdo correspondente para a transição
             const target = tab.dataset.tab;
             document.getElementById(`${target}-content`).classList.add('active');
         });
     });
 
     const ecoForm = document.getElementById('eco-form');
-    const ecoPrioridadeForm = document.getElementById('eco-prioridade-form');
-    const enviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
+    const ecoPrioridadeContainer = document.getElementById('eco-prioridade-form'); 
     let guiaSelecionado = null;
 
     function exibirErro(mensagem) {
@@ -39,8 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             erroDiv.style.borderRadius = '5px';
             ecoContent.appendChild(erroDiv);
         }
-        erroDiv.textContent = mensagem;
-        ecoPrioridadeForm.style.display = 'none'; 
+        erroDiv.textContent = mensagem; 
     }
     
     function limparErro() {
@@ -49,84 +41,108 @@ document.addEventListener('DOMContentLoaded', async () => {
             erroDiv.remove();
         }
     }
-    //função para habilitar/desabilitar botão de enviar prioridade
-    function toggleEnviarPrioridadeBtn(habilitar, motivo = '') {
-        if (habilitar) {
-            enviarPrioridadeBtn.disabled = false;
-            enviarPrioridadeBtn.style.backgroundColor = 'var(--maida-azul)';
-            enviarPrioridadeBtn.style.cursor = 'pointer';
-            enviarPrioridadeBtn.title = '';
-        } else {
-            enviarPrioridadeBtn.disabled = true;
-            enviarPrioridadeBtn.style.backgroundColor = 'var(--maida-azul)';
-            enviarPrioridadeBtn.style.cursor = 'not-allowed';
-            enviarPrioridadeBtn.title = motivo || 'Guia não pode ser enviada para prioridade';
-        }
-    }
-    //Função para verificar status que não permitem prioridade. 
+    
     function verificarStatusGuia(status) {
         const statusUpperCase = status?.toUpperCase() || '';
-        const statusInvalidos = ['AUTORIZADA', 'CAPTURADA', 'NEGADA', 'CANCELADA', 'EXECUTADA'];
+        
+        const statusBloqueadores = [
+            'AUTORIZADA', 
+            'CAPTURADA', 
+            'NEGADA', 
+            'CANCELADA', 
+            'EXECUTADA', 
+            'AGUARDANDO_DOCUMENTACAO_PRESTADOR'
+        ];
+        
+        const invalido = statusBloqueadores.includes(statusUpperCase);
+        
+        let statusDisplay = status || 'EM ANÁLISE'; // Valor padrão para exibição
+        
+        // Lógica de substituição visual
+        if (statusUpperCase === 'AGUARDANDO_DOCUMENTACAO_PRESTADOR') {
+            statusDisplay = 'Documentação pendente';
+        } else if (statusUpperCase === 'EM_REANALISE') {
+            statusDisplay = 'Em Reanálise';
+        }
         
         return {
-            invalido: statusInvalidos.includes(statusUpperCase),
-            motivo: statusInvalidos.includes(statusUpperCase) ? 
-                    `Status "${status}" não permite envio para prioridade` : ''
+            invalido: invalido,
+            motivo: invalido ? `Status "${statusDisplay}" não permite envio para prioridade` : '',
+            statusDisplay: statusDisplay
         };
     }
 
-    ecoForm.addEventListener('submit', async (e) => {
+    function getStatusStyles(statusDisplay) {
+        const statusUpper = statusDisplay.toUpperCase();
+        let styles;
+        
+        if (statusUpper.includes('AUTORIZADA') || statusUpper.includes('EXECUTADA')) {
+            styles = { background: '#DFF3E2', color: '#34A648' }; // Verde Sucesso
+        } else if (statusUpper.includes('NEGADA') || statusUpper.includes('CANCELADA')) {
+            styles = { background: '#FDE1DF', color: '#DB3C31' }; // Vermelho Erro
+        } else if (statusUpper.includes('DOCUMENTAÇÃO PENDENTE')) {
+            styles = { background: '#FFF2D6', color: '#E59500' }; // Amarelo Aviso
+        } else {
+            // Padrão: EM ANÁLISE, EM REANÁLISE (status que permitem o envio de prioridade)
+            styles = { background: '#D6ECF8', color: '#0079C6' }; // Azul (Reanálise/Análise)
+        }
+        
+        return styles;
+    }
+
+    function renderizarCardDetalhes(guia, statusDisplay, permitirEnvio) {
+        const styles = getStatusStyles(statusDisplay);
+        
+        const tipoGuiaDisplay = guia.tipoDeGuia ? guia.tipoDeGuia.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Guia Desconhecida';
+        
+        const dataDate = guia.dataHoraSolicitacao ? new Date(guia.dataHoraSolicitacao) : null;
+        const dataEmissao = dataDate && !isNaN(dataDate.getTime()) ? dataDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+        
+        const cardHtml = `
+            <h3>Detalhes da Guia</h3>
+            <div class="card-guia-container">
+                
+                <div class="detalhes-header">
+                    <span class="detalhes-tipo-guia">Guia de ${tipoGuiaDisplay} - Número da guia: ${guia.autorizacaoGuia || guia.numeroGuia || '-'}</span>
+                    <span class="detalhes-data">Data de emissão da guia: ${dataEmissao}</span>
+                </div>
+                
+                <div class="detalhes-body">
+                    <p class="status-prestador-row">
+                        <span class="status-visual" style="background-color: ${styles.background}; color: ${styles.color};">${statusDisplay}</span>
+                        <span class="prestador-info">Prestador: ${guia.prestador || 'Não Informado'}</span>
+                    </p>
+                    <p class="beneficiario-info">
+                        <strong>Beneficiário:</strong> ${guia.beneficiario || '-'} 
+                        | <strong>CPF:</strong> ${guia.cpfBeneficiario || '-'} 
+                        | <strong>Cartão do beneficiário:</strong> ${guia.cartaoBeneficiario || '-'}
+                    </p>
+                </div>
+            </div>
+            
+            <textarea id="eco-observacao" placeholder="Observações (opcional)"></textarea>
+            
+            <button 
+                id="eco-enviar-prioridade" 
+                type="button" 
+                title="${permitirEnvio ? 'Enviar para prioridade' : 'Status não permite envio'}"
+                ${!permitirEnvio ? 'disabled' : ''}
+            >
+                Enviar para Prioridade
+            </button>
+        `;
+
+        return cardHtml;
+    }
+    // Enviar prioridade ECO (Handler de Envio)
+    async function enviarPrioridadeHandler(e) {
         e.preventDefault();
-        const numeroGuia = document.getElementById('eco-guia').value;
-        limparErro();
-        ecoPrioridadeForm.style.display = 'none';
-        toggleEnviarPrioridadeBtn(false); 
-
-        try {
-            const res = await fetch(`/api/eco/${numeroGuia}`);
-            if (!res.ok) throw new Error('Erro ao buscar guia');
-            const data = await res.json();
-
-            if (data.content && data.content.length > 0) {
-                guiaSelecionado = data.content[0];
-                const statusGuia = guiaSelecionado.statusRegulacao || '';
-
-                const statusInfo = verificarStatusGuia(statusGuia);
-                
-                if (statusInfo.invalido) {
-                    exibirErro(statusInfo.motivo);
-                    return; 
-                }
-
-                ecoPrioridadeForm.style.display = 'block';
-                toggleEnviarPrioridadeBtn(true);
-                
-                document.getElementById('eco-numero-guia').textContent = guiaSelecionado.autorizacaoGuia;
-                document.getElementById('eco-nome-paciente').textContent = guiaSelecionado.beneficiario || '-';
-                document.getElementById('eco-tipo-guia').textContent = guiaSelecionado.tipoDeGuia || '-';
-                document.getElementById('eco-carater').textContent = guiaSelecionado.fila || '-';
-                document.getElementById('eco-status').textContent = statusGuia || '-';
-
-            } else {
-                exibirErro('Guia não encontrada.');
-            }
-        } catch (err) {
-            console.error(err);
-            exibirErro('Erro ao consultar guia ECO.');
-        }
-    });
-
-    // Enviar prioridade ECO
-    enviarPrioridadeBtn.addEventListener('click', async () => {
-        // Adiciona o bloqueio de duplo clique
-        if (enviarPrioridadeBtn.disabled) {
-            return;
-        }
-
+        
+        const currentEnviarBtn = document.getElementById('eco-enviar-prioridade');
+        if (currentEnviarBtn.disabled) return;
         if (!guiaSelecionado) {
             mostrarNotificacao('Nenhuma guia selecionada', 'erro');
             return;
-    
         }
 
         const statusGuia = guiaSelecionado.statusRegulacao || '';
@@ -137,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        enviarPrioridadeBtn.disabled = true;    
+        currentEnviarBtn.disabled = true;    
 
         const data = {
             numeroGuia: guiaSelecionado.autorizacaoGuia,
@@ -175,17 +191,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             mostrarNotificacao('Prioridade ECO enviada com sucesso!');
             ecoForm.reset();
-            ecoPrioridadeForm.style.display = 'none';
+            ecoPrioridadeContainer.style.display = 'none';
             limparErro(); 
             guiaSelecionado = null;
         } catch (err) {
             console.error(err);
             mostrarNotificacao(`Erro ao enviar prioridade ECO: ${err.message}`, 'erro');    
         } finally {
-            enviarPrioridadeBtn.disabled = false;    
+            currentEnviarBtn.disabled = false;    
+        }
+    }
+
+    ecoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const numeroGuia = document.getElementById('eco-guia').value;
+        limparErro();
+        ecoPrioridadeContainer.style.display = 'none';
+
+        try {
+            const res = await fetch(`/api/eco/${numeroGuia}`);
+            if (!res.ok) throw new Error('Erro ao buscar guia');
+            const data = await res.json();
+
+            if (data.content && data.content.length > 0) {
+                guiaSelecionado = data.content[0];
+                const statusGuia = guiaSelecionado.statusRegulacao || 'EM ANÁLISE';
+                const statusInfo = verificarStatusGuia(statusGuia);
+                const cardHtml = renderizarCardDetalhes(guiaSelecionado, statusInfo.statusDisplay, !statusInfo.invalido);
+                
+                // 🆕 Usa o container renomeado
+                ecoPrioridadeContainer.innerHTML = cardHtml;
+                ecoPrioridadeContainer.style.display = 'block';
+        
+                const novoEnviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
+
+                // 🆕 Re-anexa o listener de envio
+                novoEnviarPrioridadeBtn.addEventListener('click', enviarPrioridadeHandler);
+
+                if (statusInfo.invalido) {
+                    exibirErro(statusInfo.motivo);
+                }
+
+            } else {
+                exibirErro('Guia não encontrada.');
+            }
+        } catch (err) {
+            console.error(err);
+            exibirErro('Erro ao consultar guia ECO.');
         }
     });
-    
+
     // SISWEB: enviar prioridade manual
     const siswebForm = document.getElementById('sisweb-form');
     siswebForm.addEventListener('submit', async (e) => {
@@ -255,9 +310,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error('Erro ao buscar a prioridade. Verifique o número da guia e tente novamente.');
             }
 
-            const data = await res.json();  // {quantidade, numeroGuia, beneficiario, status, ...}
+            const data = await res.json();
             
-            // Função para formatar data (como em regulador.js)
             const formatarData = (dataISO) => {
                 if (!dataISO) return 'Não informado';
                 const data = new Date(dataISO);
@@ -317,5 +371,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         notificacaoDiv.classList.remove('show');
     }, 4000); // Esconde a notificação após 4 segundos
 }
+    
     
 });

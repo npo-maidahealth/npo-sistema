@@ -82,6 +82,10 @@ router.post('/', isAuthenticated, async (req, res) => {
     const filaNormalizada = normalize(fila || caracterAtendimento || ''); // Usa fila ou caracterAtendimento como fallback.
     console.log('Fila normalizada para busca de regulador:', filaNormalizada);
 
+    console.log('Fila normalizada:', filaNormalizada); 
+    console.log('Fonte recebida:', fonte);
+    console.log('Fila normalizada para busca de regulador:', filaNormalizada);
+
     let reguladorDePlantaoId = null;
     const reguladorData = await getReguladorAtual(filaNormalizada, fonte); // Passa normalizada.
     console.log('Regulador encontrado:', reguladorData ? reguladorData.nome : 'Nenhum'); 
@@ -92,17 +96,17 @@ router.post('/', isAuthenticated, async (req, res) => {
     } else {
       console.log(`Nenhum regulador de plantão encontrado para a fila: ${filaNormalizada}`);
     }
-        let produtoIdFinal = produtoId;
-        if (!produtoIdFinal && nomeProduto) {
-            console.log('Buscando produto por nome:', nomeProduto);
-            let produto = await prisma.produto.findFirst({ where: { nome: { contains: nomeProduto, mode: 'insensitive' } } });
-            if (!produto) {
-                console.log('Produto não encontrado, criando novo:', nomeProduto);
-                produto = await prisma.produto.create({ data: { nome: nomeProduto } });
-            } else {
-                console.log('Produto encontrado:', produto);
-            }
-            produtoIdFinal = produto.id;
+        let produtoIdFinal = produtoId || 1;
+        let produtoNome = nomeProduto || 'Produto Default';
+        let produto = await prisma.produto.findUnique({ where: { id: produtoIdFinal } });
+        if (!produto) {
+          console.log(`Produto ID ${produtoIdFinal} não encontrado. Criando novo com nome: ${produtoNome}`);
+          produto = await prisma.produto.create({
+            data: { id: produtoIdFinal, nome: produtoNome }  
+          });
+          produtoIdFinal = produto.id;  // Atualiza se ID foi gerado automaticamente
+        } else {
+          console.log('Produto encontrado:', produto.nome);
         }
 
         console.log('Produto ID final:', produtoIdFinal);
