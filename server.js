@@ -45,7 +45,8 @@ app.use(cookieParser());
 // Configuração do Session Store com PostgreSQL
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    max: 20 
 });
 const PgSession = connectPgSimple(session);
 

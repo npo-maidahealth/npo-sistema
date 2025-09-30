@@ -199,8 +199,6 @@ button:hover {
 /* ================= CONTEÚDO DAS ABAS ================= */
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-
-/* O restante dos estilos de status, etc, permanecem os mesmos */
 [class^="status-"] {
     font-weight: 600;
     padding: 4px 10px;
@@ -215,8 +213,8 @@ button:hover {
 .status-rejeitado { background-color: var(--maida-rosa); }
 
 .card-guia-container .detalhes-body {
-    background-color: #fff; /* Garante que o corpo é branco */
-    color: #333; /* Cor padrão do texto */
+    background-color: #fff;
+    color: #333; 
 }
 .detalhes-body {
     padding: 15px;
@@ -262,4 +260,126 @@ button:hover {
 .detalhes-data {
     font-size: 0.9rem;
     opacity: 0.8;
+}
+.detalhes-header.novo-header {
+    padding: 15px;
+}
+
+.detalhes-tipo-guia {
+    font-size: 1.1rem; 
+    font-weight: 700; 
+}
+
+.detalhes-contador {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--maida-rosa); 
+}
+
+.detalhes-body.novo-body {
+    padding: 15px;
+    background-color: var(--card-bg-color); 
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.detalhes-body.novo-body p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.status-sla-row {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+
+.sla-info {
+    font-weight: 600;
+    color: var(--maida-azul);
+    font-size: 0.95rem;
+}
+
+.beneficiario-info, .fila-info, .data-emissao-info {
+    font-size: 0.95rem;
+    padding-left: 5px;
+}
+
+.beneficiario-info strong, .fila-info strong, .data-emissao-info strong {
+    font-weight: 700;
+}
+
+.procedimentos-section {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.procedimentos-section h4 {
+    display: flex; 
+    align-items: center;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    cursor: pointer; 
+}
+.procedimentos-section h4 .toggle-icon {
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+    min-width: 15px;
+    color: var(--maida-azul);
+    font-size: 0.9rem;
+}
+.status-prestador-row {
+    display: none; 
+}
+/* ================= NOVOS ESTILOS PARA PROCEDIMENTOS ================= */
+
+/* Remove ou desativa estilos antigos de item individual */
+.procedimento-item, .item-header, .procedimento-details-content {
+    display: none !important; 
+}
+
+
+/*  estilo para o item de procedimento SIMPLIFICADO (sem toggle individual) */
+.procedimento-item-simples {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 6px 10px; 
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 0.95rem;
+    color: #6c757d; /* Cor acinzentada solicitada */
+}
+
+.procedimento-item-simples:last-child {
+    border-bottom: none;
+}
+
+.procedimento-status {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 15px;
+    font-weight: 600;
+}
+
+.procedimento-status.status-em-analise,
+.procedimento-status.status-em-análise,
+.procedimento-status.status-em-reanalise { 
+    background-color: #D6ECF8; 
+    color: #0079C6; 
+}
+.procedimento-status.status-pendente { 
+    background-color: #fff2d6; 
+    color: #E59500; 
+}
+.procedimento-status.status-negada,
+.procedimento-status.status-cancelada {
+    background: #FDE1DF;
+    color: #DC414D;
 }

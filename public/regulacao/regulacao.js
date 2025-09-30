@@ -58,12 +58,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         let statusDisplay = status || 'EM ANÁLISE'; // Valor padrão para exibição
         
-        // Lógica de substituição visual
         if (statusUpperCase === 'AGUARDANDO_DOCUMENTACAO_PRESTADOR') {
             statusDisplay = 'Documentação pendente';
         } else if (statusUpperCase === 'EM_REANALISE') {
             statusDisplay = 'Em Reanálise';
-        }
+        } else if (statusUpperCase === 'EM_ANALISE') {
+            statusDisplay = 'Em Análise';
+        } 
         
         return {
             invalido: invalido,
@@ -83,40 +84,96 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (statusUpper.includes('DOCUMENTAÇÃO PENDENTE')) {
             styles = { background: '#FFF2D6', color: '#E59500' }; // Amarelo Aviso
         } else {
-            // Padrão: EM ANÁLISE, EM REANÁLISE (status que permitem o envio de prioridade)
             styles = { background: '#D6ECF8', color: '#0079C6' }; // Azul (Reanálise/Análise)
         }
         
         return styles;
     }
 
-    function renderizarCardDetalhes(guia, statusDisplay, permitirEnvio) {
+    function formatarStatusItem(status) {
+        const statusUpper = status?.toUpperCase() || 'PENDENTE';
+        
+        if (statusUpper === 'EM_ANALISE' || statusUpper === 'EM ANÁLISE') {
+            return 'Em Análise';
+        } else if (statusUpper === 'PENDENTE') {
+            return 'Pendente';
+        } else if (statusUpper === 'AUTORIZADA') {
+            return 'Autorizada';
+        }
+        return statusUpper.charAt(0) + statusUpper.slice(1).toLowerCase();
+    }
+    function renderizarCardDetalhes(guia, statusDisplay, permitirEnvio, statusInfo) {
         const styles = getStatusStyles(statusDisplay);
         
-        const tipoGuiaDisplay = guia.tipoDeGuia ? guia.tipoDeGuia.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Guia Desconhecida';
+        let tipoGuiaDisplay = guia.tipoDeGuia ? guia.tipoDeGuia.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Guia Desconhecida';
+        if (tipoGuiaDisplay === 'Solicitacao De Opme') {
+            tipoGuiaDisplay = 'Anexo OPME';
+        } else if (tipoGuiaDisplay === 'Sp/sadt') {
+            tipoGuiaDisplay = 'SP/SADT';
+        } else if (tipoGuiaDisplay === 'Internacao Eletiva') {
+            tipoGuiaDisplay = 'Internação Eletiva';
+        }
         
         const dataDate = guia.dataHoraSolicitacao ? new Date(guia.dataHoraSolicitacao) : null;
         const dataEmissao = dataDate && !isNaN(dataDate.getTime()) ? dataDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-';
+        
+        // SLA de vencimento para a Linha 2
+        const dataVencimentoSla = guia.dataVencimentoSla ? new Date(guia.dataVencimentoSla) : null;
+        const slaDisplay = dataVencimentoSla && !isNaN(dataVencimentoSla.getTime()) ? dataVencimentoSla.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Não informado';
+        
+        // Placeholder para a quantidade de solicitações de prioridade
+        const qtdPrioridades = guia.quantidadeSolicitacoes || 0; 
         
         const cardHtml = `
             <h3>Detalhes da Guia</h3>
             <div class="card-guia-container">
                 
-                <div class="detalhes-header">
-                    <span class="detalhes-tipo-guia">Guia de ${tipoGuiaDisplay} - Número da guia: ${guia.autorizacaoGuia || guia.numeroGuia || '-'}</span>
-                    <span class="detalhes-data">Data de emissão da guia: ${dataEmissao}</span>
+                <div class="detalhes-header novo-header">
+                    <span class="detalhes-tipo-guia">Guia de ${tipoGuiaDisplay} - Nº Guia: ${guia.autorizacaoGuia || guia.numeroGuia || '-'}</span>
+                    <span class="detalhes-contador">${qtdPrioridades > 0 ? `Solicitado Prioridade ${qtdPrioridades}x` : ''}</span>
                 </div>
                 
-                <div class="detalhes-body">
-                    <p class="status-prestador-row">
+                <div class="detalhes-body novo-body">
+                    <p class="status-sla-row">
                         <span class="status-visual" style="background-color: ${styles.background}; color: ${styles.color};">${statusDisplay}</span>
-                        <span class="prestador-info">Prestador: ${guia.prestador || 'Não Informado'}</span>
+                        <span class="sla-info">SLA: ${slaDisplay}</span>
                     </p>
+                    
                     <p class="beneficiario-info">
                         <strong>Beneficiário:</strong> ${guia.beneficiario || '-'} 
                         | <strong>CPF:</strong> ${guia.cpfBeneficiario || '-'} 
-                        | <strong>Cartão do beneficiário:</strong> ${guia.cartaoBeneficiario || '-'}
+                        | <strong>Cartão:</strong> ${guia.cartaoBeneficiario || '-'}
                     </p>
+                    
+                    <p class="fila-info">
+                        <strong>Fila:</strong> ${guia.fila || 'Não Informada'}
+                    </p>
+                    
+                    <p class="data-emissao-info">
+                        <strong>Data de emissão da guia:</strong> ${dataEmissao}
+                    </p>
+
+                    <div class="procedimentos-section" id="procedimentos-toggle-header">
+                                <h4 style="cursor: pointer;">
+                                    <i class="fas fa-chevron-right toggle-icon" id="procedimentos-main-toggle"></i>
+                                    Procedimentos Solicitados:
+                                </h4>
+                                <ul id="procedimentos-list" style="display: none;"> ${guia.itensSolicitados ? guia.itensSolicitados.map((item, index) => {
+                                    
+                                    const statusDisplayItem = formatarStatusItem(item.status);
+                                    const statusClass = statusDisplayItem.toLowerCase().replace(' ', '-');
+                                    
+                                    return `
+                                        <li class="procedimento-item-simples">
+                                            <span>${item.descricao || 'Item sem descrição'} (${item.codigo || '-'})</span>
+                                            <span class="procedimento-status status-${statusClass}">${statusDisplayItem}</span>
+                                        </li>
+                                    `;
+                                }).join('') : '<p>Nenhum procedimento encontrado.</p>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -125,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <button 
                 id="eco-enviar-prioridade" 
                 type="button" 
-                title="${permitirEnvio ? 'Enviar para prioridade' : 'Status não permite envio'}"
+                title="${permitirEnvio ? 'Enviar para prioridade' : statusInfo.motivo}"
                 ${!permitirEnvio ? 'disabled' : ''}
             >
                 Enviar para Prioridade
@@ -217,17 +274,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 guiaSelecionado = data.content[0];
                 const statusGuia = guiaSelecionado.statusRegulacao || 'EM ANÁLISE';
                 const statusInfo = verificarStatusGuia(statusGuia);
-                const cardHtml = renderizarCardDetalhes(guiaSelecionado, statusInfo.statusDisplay, !statusInfo.invalido);
+                const cardHtml = renderizarCardDetalhes(guiaSelecionado, statusInfo.statusDisplay, !statusInfo.invalido, statusInfo);
                 
-                // 🆕 Usa o container renomeado
                 ecoPrioridadeContainer.innerHTML = cardHtml;
                 ecoPrioridadeContainer.style.display = 'block';
-        
-                const novoEnviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
 
-                // 🆕 Re-anexa o listener de envio
+                const novoEnviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
+                // Re-anexa o listener de envio
                 novoEnviarPrioridadeBtn.addEventListener('click', enviarPrioridadeHandler);
 
+               
+                const mainToggleHeader = document.querySelector('#procedimentos-toggle-header h4');
+                const procedimentosList = document.getElementById('procedimentos-list');
+                const mainIcon = document.getElementById('procedimentos-main-toggle');
+
+                if (mainToggleHeader) { 
+                    mainToggleHeader.addEventListener('click', () => {
+                        const isVisible = procedimentosList.style.display === 'block';
+
+                        if (isVisible) {
+                            procedimentosList.style.display = 'none';
+                            mainIcon.classList.replace('fa-chevron-down', 'fa-chevron-right'); // Seta para direita
+                        } else {
+                            procedimentosList.style.display = 'block';
+                            mainIcon.classList.replace('fa-chevron-right', 'fa-chevron-down'); // Seta para baixo
+                        } 
+                    });
+                }
+
+                
                 if (statusInfo.invalido) {
                     exibirErro(statusInfo.motivo);
                 }

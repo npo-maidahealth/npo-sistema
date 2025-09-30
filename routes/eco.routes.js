@@ -54,29 +54,70 @@ async function fetchComTokenRenovavel(url, options = {}) {
     }
 }
 
-// Endpoint para buscar guia ECO
 router.get('/:numero', async (req, res) => {
     const numero = req.params.numero;
 
     console.log(`🔍 Buscando guia ECO: ${numero}`);
 
     try {
-        const url = `https://regulacao-api.issec.maida.health/v3/historico-cliente?ordenarPor=DATA_SOLICITACAO&autorizacao=${numero}&page=0`;
+        const urlGuia = `https://regulacao-api.issec.maida.health/v3/historico-cliente?ordenarPor=DATA_SOLICITACAO&autorizacao=${numero}&page=0`;
         
-        const response = await fetchComTokenRenovavel(url);
+        // 1. REQUISIÇÃO PRINCIPAL DA GUIA
+        const responseGuia = await fetchComTokenRenovavel(urlGuia);
 
-        if (!response.ok) {
-            console.error(`❌ Erro API ECO: ${response.status} ${response.statusText}`);
-            return res.status(response.status).json({
-                message: 'Erro na API ECO',
-                statusText: response.statusText,
-                status: response.status
+        if (!responseGuia.ok) {
+            console.error(`❌ Erro API ECO (Guia): ${responseGuia.status} ${responseGuia.statusText}`);
+            return res.status(responseGuia.status).json({
+                message: 'Erro ao buscar a guia principal na API ECO',
+                statusText: responseGuia.statusText,
+                status: responseGuia.status
             });
         }
+        
+        const dataGuia = await responseGuia.json();
+        const guiaPrincipal = dataGuia.content && dataGuia.content.length > 0 ? dataGuia.content[0] : null;
 
-        const data = await response.json();
-        console.log(`✅ Guia ${numero} consultada com sucesso`);
-        res.json(data);
+        if (!guiaPrincipal) {
+            console.log(`❌ Guia ${numero} não encontrada no ECO.`);
+            return res.status(404).json({ message: 'Guia não encontrada.' });
+        }
+
+        // 2. REQUISIÇÃO DOS ITENS, SE A GUIA FOI ENCONTRADA
+        const idGuiaInterno = guiaPrincipal.id || guiaPrincipal.idGuia || guiaPrincipal.idSolicitacao; // Assume que o campo 'id' é o identificador interno
+        
+        console.log(`🔎 Buscando itens da guia interna ID: ${idGuiaInterno}`);
+        
+        if (!idGuiaInterno) {
+            console.warn('⚠️ ID interno da guia ausente. Não é possível buscar os itens.');
+            guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || [];
+            dataGuia.content = [guiaPrincipal]; 
+            return res.json(dataGuia);
+        }
+        
+        const urlItens = `https://regulacao-api.issec.maida.health/v3/guia/${idGuiaInterno}/itens`;
+        const responseItens = await fetchComTokenRenovavel(urlItens);
+        
+        if (!responseItens.ok) {
+            console.warn(`⚠️ Aviso: Erro ao buscar itens (${responseItens.status}). Retornando dados da guia sem itens.`);
+            // Neste caso, decidimos seguir, mas com a lista de itens vazia.
+            guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || [];
+            guiaPrincipal.idInterno = guiaPrincipal.idGuia;
+        } else {
+            const dataItens = await responseItens.json();
+            guiaPrincipal.itensSolicitados = dataItens.content || [];
+            
+            if (guiaPrincipal.itensSolicitados.length > 0) {
+                console.log('✅ Status dos primeiros 2 itens recebidos do ECO:');
+                guiaPrincipal.itensSolicitados.slice(0, 2).forEach((item, index) => {
+                    console.log(`  Item ${index + 1}: Código: ${item.codigo}, Status: ${item.status}`);
+                });
+            }
+        }
+
+        // 3. RETORNA O OBJETO COMPLETO
+        dataGuia.content = [guiaPrincipal]; 
+        console.log(`✅ Guia ${numero} consultada e enriquecida com ${guiaPrincipal.itensSolicitados.length} item(s).`);
+        res.json(dataGuia);
 
     } catch (err) {
         console.error('❌ Erro ao consultar ECO:', err.message);
@@ -85,7 +126,8 @@ router.get('/:numero', async (req, res) => {
             error: err.message 
         });
     }
-});
+})
+
 
 // Endpoint para verificar status do token
 router.get('/debug/token', async (req, res) => {
