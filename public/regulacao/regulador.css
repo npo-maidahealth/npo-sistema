@@ -293,9 +293,6 @@ body {
     gap: 8px; /* Botões um ao lado do outro na linha 1 */
     align-items: center;
 }
-.btn.observacao-btn {
-    /* Mantém o estilo, mas agora fica sozinho */
-}
 .btn.acao-secundaria-group {
     display: flex;
     gap: 8px;
