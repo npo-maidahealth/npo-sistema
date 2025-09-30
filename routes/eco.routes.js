@@ -82,6 +82,19 @@ router.get('/:numero', async (req, res) => {
             return res.status(404).json({ message: 'Guia não encontrada.' });
         }
 
+        if (guiaPrincipal.dataVencimentoSla) {
+            try {
+                const slaOriginal = new Date(guiaPrincipal.dataVencimentoSla);
+                const slaCorrigidoMs = slaOriginal.getTime() - (24 * 60 * 60 * 1000);
+                const slaCorrigido = new Date(slaCorrigidoMs);
+
+                guiaPrincipal.dataVencimentoSla = slaCorrigido.toISOString();
+                
+                console.log(`✅ SLA Corrigido: ${slaCorrigido.toISOString()}`);
+            } catch (error) {
+                console.error("❌ Erro ao subtrair 24h do SLA:", error.message);
+            }
+        }
         // 2. REQUISIÇÃO DOS ITENS, SE A GUIA FOI ENCONTRADA
         const idGuiaInterno = guiaPrincipal.id || guiaPrincipal.idGuia || guiaPrincipal.idSolicitacao; // Assume que o campo 'id' é o identificador interno
         
@@ -93,7 +106,7 @@ router.get('/:numero', async (req, res) => {
             dataGuia.content = [guiaPrincipal]; 
             return res.json(dataGuia);
         }
-        
+
         const urlItens = `https://regulacao-api.issec.maida.health/v3/guia/${idGuiaInterno}/itens`;
         const responseItens = await fetchComTokenRenovavel(urlItens);
         
@@ -101,11 +114,14 @@ router.get('/:numero', async (req, res) => {
             console.warn(`⚠️ Aviso: Erro ao buscar itens (${responseItens.status}). Retornando dados da guia sem itens.`);
             // Neste caso, decidimos seguir, mas com a lista de itens vazia.
             guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || [];
-            guiaPrincipal.idInterno = guiaPrincipal.idGuia;
+            guiaPrincipal.idInterno = guiaPrincipal.id;
         } else {
             const dataItens = await responseItens.json();
             guiaPrincipal.itensSolicitados = dataItens.content || [];
-            
+            dataGuia.content = [guiaPrincipal]; 
+            console.log(`✅ Guia ${numero} consultada e enriquecida com ${guiaPrincipal.itensSolicitados.length} item(s).`);
+            res.json(dataGuia);
+
             if (guiaPrincipal.itensSolicitados.length > 0) {
                 console.log('✅ Status dos primeiros 2 itens recebidos do ECO:');
                 guiaPrincipal.itensSolicitados.slice(0, 2).forEach((item, index) => {

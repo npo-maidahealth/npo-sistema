@@ -119,9 +119,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // SLA de vencimento para a Linha 2
         const dataVencimentoSla = guia.dataVencimentoSla ? new Date(guia.dataVencimentoSla) : null;
-        const slaDisplay = dataVencimentoSla && !isNaN(dataVencimentoSla.getTime()) ? dataVencimentoSla.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Não informado';
+        const slaTooltip = dataVencimentoSla && !isNaN(dataVencimentoSla.getTime()) 
+            ? dataVencimentoSla.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) 
+            : 'Não informado';
+        const slaContador = formatarTempoRestante(guia.dataVencimentoSla);
         
-        // Placeholder para a quantidade de solicitações de prioridade
         const qtdPrioridades = guia.quantidadeSolicitacoes || 0; 
         
         const cardHtml = `
@@ -135,8 +137,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 <div class="detalhes-body novo-body">
                     <p class="status-sla-row">
+                        <p class="status-sla-row">
                         <span class="status-visual" style="background-color: ${styles.background}; color: ${styles.color};">${statusDisplay}</span>
-                        <span class="sla-info">SLA: ${slaDisplay}</span>
+                        
+                        <span 
+                            class="status-visual status-sla-visual sla-info" 
+                            style="background-color: ${styles.background}; color: ${styles.color};" 
+                            title="SLA: ${slaTooltip}"
+                        >
+                            <i class="far fa-clock"></i> ${slaContador}
+                        </span> 
                     </p>
                     
                     <p class="beneficiario-info">
@@ -144,7 +154,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         | <strong>CPF:</strong> ${guia.cpfBeneficiario || '-'} 
                         | <strong>Cartão:</strong> ${guia.cartaoBeneficiario || '-'}
                     </p>
-                    
+
+                    ${guia.pacienteInternado ? `
+                        <p class="internacao-info-row">
+                            <span class="status-visual internacao-visual status-internado">
+                                <i class="fas fa-bed"></i> PACIENTE INTERNADO
+                            </span>
+                        </p>
+                    ` : ''}
                     <p class="fila-info">
                         <strong>Fila:</strong> ${guia.fila || 'Não Informada'}
                     </p>
@@ -159,8 +176,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     Procedimentos Solicitados:
                                 </h4>
                                 <ul id="procedimentos-list" style="display: none;"> ${guia.itensSolicitados ? guia.itensSolicitados.map((item, index) => {
-                                    
-                                    const statusDisplayItem = formatarStatusItem(item.status);
+                            
+                                    const statusItem = item.ultimaSituacao || item.status;
+                                    const statusDisplayItem = formatarStatusItem(statusItem);
                                     const statusClass = statusDisplayItem.toLowerCase().replace(' ', '-');
                                     
                                     return `
@@ -190,6 +208,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
 
         return cardHtml;
+    }
+    function formatarTempoRestante(dataVencimentoSla) {
+        if (!dataVencimentoSla) {
+            return 'SLA Não Informado';
+        }
+
+        const agora = new Date();
+        const vencimento = new Date(dataVencimentoSla);
+        let diferencaMs = vencimento.getTime() - agora.getTime();
+
+        if (diferencaMs <= 0) {
+            return 'SLA Vencido';
+        }
+
+        const totalSegundos = Math.floor(diferencaMs / 1000);
+        const dias = Math.floor(totalSegundos / (3600 * 24));
+        const segundosRestantes = totalSegundos % (3600 * 24);
+        const horas = Math.floor(segundosRestantes / 3600);
+        const minutos = Math.floor((segundosRestantes % 3600) / 60);
+
+        let tempoDisplay = '';
+        
+        if (dias > 0) {
+            tempoDisplay += `${dias} dia${dias !== 1 ? '(s)' : ''}, `;
+        }
+        
+        tempoDisplay += `${horas}h e ${minutos}min`;
+
+        return `Dentro do prazo de ${tempoDisplay}`;
     }
     // Enviar prioridade ECO (Handler de Envio)
     async function enviarPrioridadeHandler(e) {

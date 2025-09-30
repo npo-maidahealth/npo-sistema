@@ -205,7 +205,6 @@ button:hover {
     border-radius: 15px;
     color: var(--maida-branco);
     font-size: 0.85rem;
-    text-transform: uppercase;
 }
 .status-pendente { background-color: #ffc107; }
 .status-em-analise, .status-em-análise { background-color: var(--maida-azul); }
@@ -290,11 +289,11 @@ button:hover {
 }
 
 .status-sla-row {
-    display: flex;
-    justify-content: space-between; 
+    display: flex; 
     align-items: center;
-    padding-bottom: 5px;
-    border-bottom: 1px dashed var(--border-color);
+    justify-content: flex-start; 
+    width: 100%; 
+    margin: 5px 0; 
 }
 
 
@@ -302,6 +301,9 @@ button:hover {
     font-weight: 600;
     color: var(--maida-azul);
     font-size: 0.95rem;
+    cursor: help; 
+    border-bottom: 1px dashed var(--maida-azul); 
+    padding-bottom: 1px; 
 }
 
 .beneficiario-info, .fila-info, .data-emissao-info {
@@ -336,36 +338,47 @@ button:hover {
 }
 .status-prestador-row {
     display: none; 
-}
-/* ================= NOVOS ESTILOS PARA PROCEDIMENTOS ================= */
 
-/* Remove ou desativa estilos antigos de item individual */
+}
+
+/*SLA*/
 .procedimento-item, .item-header, .procedimento-details-content {
     display: none !important; 
 }
 
-
-/*  estilo para o item de procedimento SIMPLIFICADO (sem toggle individual) */
 .procedimento-item-simples {
     display: flex;
     justify-content: space-between; 
-    align-items: center;
-    padding: 6px 10px; 
+    align-items: flex-start;
+    padding: 8px 10px;
     border-bottom: 1px dashed var(--border-color);
-    font-size: 0.95rem;
-    color: #6c757d; /* Cor acinzentada solicitada */
+    font-size: 0.85rem; 
+    color: #6c757d; 
 }
 
 .procedimento-item-simples:last-child {
     border-bottom: none;
 }
 
+.procedimento-item-simples > span:first-child {
+    white-space: normal; 
+    word-break: break-word; 
+    margin-right: 10px; 
+    
+    line-height: 1.4; 
+}
+.procedimento-item-simples:not(:last-child) {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03); 
+}
 .procedimento-status {
-    font-size: 0.75rem;
-    padding: 3px 6px;
-    border-radius: 4px;
-    margin-left: 15px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 10px; 
+    
     font-weight: 600;
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    font-size: 0.75rem; 
 }
 
 .procedimento-status.status-em-analise,
@@ -373,6 +386,7 @@ button:hover {
 .procedimento-status.status-em-reanalise { 
     background-color: #D6ECF8; 
     color: #0079C6; 
+    font-size: 0.75rem; 
 }
 .procedimento-status.status-pendente { 
     background-color: #fff2d6; 
@@ -382,4 +396,47 @@ button:hover {
 .procedimento-status.status-cancelada {
     background: #FDE1DF;
     color: #DC414D;
+}
+.status-sla-visual {
+    display: inline-flex;
+    align-items: center;
+    
+    margin-left: 8px; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    cursor: help; 
+    border-bottom: none !important; 
+    text-transform: none !important;
+    font-size: 0.85rem; 
+}
+
+.status-sla-visual .fa-clock {
+    margin-right: 5px; 
+}
+
+.status-sla-row {
+    display: flex;
+    align-items: center;
+}
+/* Estilo para a linha que contém a tag de internação */
+.internacao-info-row {
+    margin: 5px 0 10px 0; /* Espaçamento acima e abaixo da tag */
+}
+
+/* Estilo específico para a tag visual de internação */
+.internacao-visual {
+    
+    /* Cores de destaque para INTERNADO  */
+    background-color: #FFF2D6;
+    color: #E59500; 
+    
+    font-weight: 700;
+    font-size: 0.9rem;
+    
+    display: inline-flex;
+    align-items: center;
+}
+
+.internacao-visual .fa-bed {
+    margin-right: 7px;
 }
