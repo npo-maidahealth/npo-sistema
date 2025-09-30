@@ -62,6 +62,10 @@ router.post('/login', async (req, res) => {
             console.log("--> Usuário NÃO encontrado no DB.");
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
+        if (!user.senha_hash) {
+            console.log("--> Tentativa de login falhou: Usuário não tem senha definida (PENDENTE/pré-cadastro).");
+            return res.status(403).json({ message: "Sua conta está pendente de aprovação ou inativa." });
+        }
         console.log("Usuário encontrado no DB:", user.email);
 
         // 2. Segunda verificação: O status do usuário é ATIVO?
