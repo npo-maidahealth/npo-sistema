@@ -2,7 +2,6 @@
 import express from 'express';
 import prisma from '../db/prisma.js'; 
 import { isAuthenticated } from '../middleware/auth.middleware.js';
-import { atualizarStatusGuias } from '../services/atualizadorStatus.js';
 
 const router = express.Router();
 
@@ -12,7 +11,6 @@ const router = express.Router();
 router.get('/pendentes', isAuthenticated, async (req, res) => {
     try {
         console.log('=== ACESSANDO /api/regulador/pendentes ===');
-        
         const usuarioId = req.session.user?.id;
         if (!usuarioId) {
             console.log('Usuário não autenticado');
@@ -20,7 +18,6 @@ router.get('/pendentes', isAuthenticated, async (req, res) => {
         }
 
         console.log('Buscando prioridades pendentes...');
-        await atualizarStatusGuias(); 
         
         const prioridades = await prisma.prioridade.findMany({
             where: { 

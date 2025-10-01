@@ -1,3 +1,4 @@
+/* ================= VARIÁVEIS MAIDA ================= */
 :root {
     --maida-branco: #ffffff;
     --maida-amarelo: #ffcc00;
@@ -5,41 +6,86 @@
     --maida-azul: #0070ff;
     --maida-cinza-escuro: #585958;
     --cinza-claro-fundo: #f8f9fa;
+    --transicao-padrao: all 0.3s ease;
 }
 
-/* =============================================================== */
-/* =================== VARIÁVEIS DE TEMA ========================= */
-/* =============================================================== */
+/* ================= VARIÁVEIS DE TEMA (CONSOLIDADAS) ================= */
 body.light {
-    --page-bg-color: var(--cinza-claro-fundo);
-    --card-bg-color: var(--maida-branco);
-    --card-item-bg-color: var(--cinza-claro-fundo);
-    --text-color: var(--maida-cinza-escuro);
-    --heading-color: var(--maida-cinza-escuro);
-    --border-color: #e0e0e0;
-    --modal-bg-color: var(--maida-branco);
-    --tab-hover-bg: #f1f1f1;
-    --stats-info-bg: var(--maida-branco);
-    --numeroguiacolor: var(--maida-azul);
-    --backgroundsla-info-bg: #f0f7ff;
+    --page-bg-color: #F0F0F0;
+    --card-bg-color: #FFFFFF;
+    --text-color: #0E3658;
+    --border-color: #ddd;
+    --input-bg-color: #ffffff;
+    --input-text-color: var(--maida-cinza-escuro);
+    --tab-hover-bg: #e9ecef;
+    --color-brancopreto: #FFFFFF; 
+    
+    /* SLA */
+    --backgroung-sla: #EEF0FC;
+    --colorfont-sla: #606FE1;
+    
+    /* Internação */
+    --backgroung-internacao: #FFF2D6;
+    --colorfont-internacao: #E59500;
+    
+    /* STATUS */
+    --background-azul: #D6ECF8;
+    --colorfonte-azul: #228CCB;
+    --background-amarelo: #FFF2D6;
+    --colorfonte-amarelo: #E59500;
+    --background-vermelho: #FDE1DF;
+    --colorfonte-vermelho: #DB3C31;
+    --background-verde: #DFF3E2;
+    --colorfonte-verde: #34A643;
+    
+    /* FOCO (AZUL) */
+    --azul-amarelo: #0070FF;
+    --azul-amarelo-sombra: #0056cc;
+    --focus-shadow-color: rgba(0, 112, 255, 0.2); 
+
+    /* PROCEDIMENTOS */
+    --color-procedimentos: #6c757d;
 }
 
 body:not(.light) {
-    --page-bg-color: #18181B;
-    --card-bg-color: #1f1f23;
-    --card-item-bg-color: #2a2a2e;
-    --text-color: #A1A1AA;
-    --heading-color: var(--cinza-claro-fundo);
-    --border-color: #2d2d30;
-    --modal-bg-color: #1f1f23;
+    --page-bg-color: #011727;
+    --card-bg-color: #092339;
+    --text-color: #F8F8F8;
+    --border-color: #0B2D49;
+    --input-bg-color: #134977;
+    --input-text-color: #E6E6E8;
     --tab-hover-bg: #2a2a2e;
-    --stats-info-bg: #2d2d30;
-    --numeroguiacolor: var(--maida-amarelo);
-    --backgroundsla-info-bg: #545454;
+    --color-brancopreto: #011727; 
+
+    /* SLA */
+    --backgroung-sla: #606FE1;
+    --colorfont-sla: #EEF0FC;
+
+    /* Internação */
+    --backgroung-internacao: #E59500;
+    --colorfont-internacao: #FFF2D6;
+
+    /* STATUS */
+    --background-azul: #228CCB;
+    --colorfonte-azul: #D6ECF8;
+    --background-amarelo: #E59500;
+    --colorfonte-amarelo: #FFF2D6;
+    --background-vermelho: #DB3C31;
+    --colorfonte-vermelho: #FDE1DF;
+    --background-verde: #34A643;
+    --colorfonte-verde: #DFF3E2;
+    
+    /* FOCO (AMARELO) */
+    --azul-amarelo: #FFCB05;
+    --azul-amarelo-sombra: #D49A04;
+    --focus-shadow-color: rgba(255, 203, 5, 0.3); 
+
+    /* PROCEDIMENTOS */
+    --color-procedimentos: #FAFAFA;
 }
 
 /* =============================================================== */
-/* =================== ESTILOS GERAIS ============================ */
+/* =================== ESTILOS GERAIS E LAYOUT =================== */
 /* =============================================================== */
 * {
     margin: 0;
@@ -59,12 +105,13 @@ body {
     padding: 25px;
     margin: 40px auto;
     max-width: 1600px;
-    background: var(--card-bg-color);
+    background: var(--page-bg-color);
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
     transition: background-color 0.3s;
 }
 
+/* === ABAS === */
 .tabs {
     display: flex;
     gap: 0; 
@@ -121,6 +168,7 @@ body {
     font-size: 1.1rem;
 }
 
+/* === HEADER E ESTATÍSTICAS === */
 .content-header {
     display: flex;
     justify-content: space-between;
@@ -160,37 +208,33 @@ body {
 }
 
 /* =============================================================== */
-/* =================== NOVO LAYOUT DOS CARDS ===================== */
+/* =================== CARDS - ESTILOS COMPATÍVEIS =============== */
 /* =============================================================== */
 
 .prioridade-card {
-    background: var(--card-item-bg-color);
-    border-radius: 12px;
+    background: var(--card-bg-color);
+    border-radius: 8px;
     padding: 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
     border: 1px solid var(--border-color);
-    perspective: 1000px;
     width: 100%;
-    height: auto;
+    margin-bottom: 20px;
 }
 
 .prioridade-card:hover {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-    transform: translateY(-5px);
 }
 
 .prioridade-card.regulada {
-    border-left: 4px solid #28a745;
+    border-left: 4px solid var(--background-verde);
 }
 
 .prioridade-card-inner {
     position: relative;
     width: 100%;
-    height: auto; 
-    min-height: 140px; 
     transition: transform 0.6s;
     transform-style: preserve-3d;
 }
@@ -200,147 +244,215 @@ body {
 }
 
 .card-front, .card-back {
-    position: absolute;
+    position: relative;
     width: 100%;
-    height: 100%; 
-    min-height: 140px; 
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    padding: 15px;
-    top: 0; 
-    left: 0; 
 }
 
 .card-front {
-    display: flex;
+    display: block;
 }
 
 .card-back {
-    transform: rotateY(180deg); /* Garante que o verso comece escondido */
-    background: var(--card-item-bg-color); /* Garante que o fundo do verso cubra a frente quando virado */
-    z-index: 2;
-}
-.prioridade-card.flipped .card-front {
-    transform: rotateY(180deg); /* Gira a frente */
-}
-.prioridade-card.flipped .card-back {
-    transform: rotateY(0deg); /* Traz o verso para a frente */
-}
-
-
-/* Layout do card front em 3 colunas */
-.card-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column; 
-    gap: 20px;
+    transform: rotateY(180deg);
+    background: var(--card-bg-color);
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    min-height: 140px; 
-}
-.card-line-1 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; 
-    gap: 10px;
-}
-.guia-info-main {
-    flex-grow: 1;
-}
-.card-line-2 {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap; 
-}
-.status-guia {
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-weight: 600;
-    min-width: 100px;
-    text-align: center;
-}
-.caracteristicas-linha-2 {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-.info-item-line-2 {
-    font-size: 0.95rem;
-}
-.info-item-line-2 strong {
-    font-weight: 600;
-    margin-right: 4px;
-}
-.card-line-3 {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color); /* Separador visual */
-}
-.beneficiario-info-item {
-    font-size: 0.9rem;
-}
-.beneficiario-info-item strong {
-    font-weight: 600;
 }
 
-
-/* Reajuste de Botões - Agrupamento dos botões 'flip' e 'alterar status' */
-.card-buttons {
-    display: flex;
-    gap: 8px; /* Botões um ao lado do outro na linha 1 */
-    align-items: center;
-}
-.btn.acao-secundaria-group {
-    display: flex;
-    gap: 8px;
-}
-
-/* === REGRAS ANTIGAS REMOVIDAS/AJUSTADAS === */
-.guia-principal, .caracteristicas, .card-buttons:not(.card-buttons-line-1) {
-    display: none; /* Desativa estruturas antigas que usavam o GRID */
-}
-.info-linha { 
-    display: none; /* Desativa regras antigas para linhas */
-}
-/* Coluna 1: Informações principais da guia */
-.guia-principal {
+/* Layout do card front */
+.card-content {
+    padding: 15px 20px; 
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: auto; /* Novo: Dinâmico */
-    justify-content: flex-start; /* Alterado: Começa do topo, evita espaçamento forçado */
 }
 
-/* ... (o resto das regras para .guia-tipo-numero, .status-guia, etc., permanecem iguais) */
+/* Título igual ao regulacao.css */
+.card-content h3 {
+    color: var(--text-color);
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+    padding-left: 15px;
+    border-left: 5px solid var(--maida-amarelo);
+}
 
-/* Coluna 2: Características */
-.caracteristicas {
+.detalhes-header.novo-header {
+    padding: 12px 20px;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    margin: -20px -20px 12px -20px;
+}
+
+.detalhes-tipo-guia {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.detalhes-body.novo-body {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 8px 0;
-    height: auto; /* Novo: Dinâmico */
-    justify-content: flex-start; /* Alterado: Começa do topo */
+    gap: 8px; 
+    padding: 0 5px; 
 }
 
-/* ... (o resto das regras para .info-linha, .sla-info, etc., permanecem iguais) */
+.detalhes-body.novo-body p {
+    margin: 0;
+    line-height: 1.5;
+}
 
-/* Coluna 3: Botões */
+/* STATUS e SLA */
+.status-sla-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 10px;
+    margin: 5px 0;
+    flex-wrap: wrap;
+}
+
+.status-visual {
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.status-visual.status-sla-visual {
+    background-color: var(--backgroung-sla) !important;
+    color: var(--colorfont-sla) !important;
+    cursor: help;
+}
+
+.status-sla-visual .fa-clock {
+    margin-right: 5px;
+}
+
+/* Contador de Prioridade */
+.contador-prioridade {
+    background-color: var(--maida-rosa);
+    color: var(--maida-branco);
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+/* INFOS BENEFICIÁRIO, FILA, DATA */
+.beneficiario-info, .fila-info, .data-emissao-info {
+    font-size: 0.95rem;
+    padding-left: 5px;
+}
+
+.beneficiario-info strong, .fila-info strong, .data-emissao-info strong {
+    font-weight: 700;
+}
+
+/* INTERNAÇÃO */
+.internacao-visual {
+    background-color: var(--backgroung-internacao);
+    color: var(--colorfont-internacao);
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 5px;
+}
+
+.internacao-visual svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 7px;
+    vertical-align: middle;
+}
+
+.procedimentos-section {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.procedimentos-section h4 {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.procedimentos-section h4 .toggle-icon {
+    margin-right: 10px;
+    transition: transform 0.3s ease;
+    min-width: 15px;
+    color: var(--azul-amarelo);
+    font-size: 0.9rem;
+}
+
+.procedimentos-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.procedimento-item-simples {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 10px;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 0.85rem;
+    color: var(--color-procedimentos);
+}
+
+.procedimento-status {
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+}
+
+/* Cores de Status - Usam as variáveis de tema definidas no topo */
+.status-pendente { background-color: var(--background-amarelo); color: var(--colorfonte-amarelo); }
+.status-em-analise, .status-em-análise, .status-em-reanálise, .status-em-reanalise { background-color: var(--background-azul); color: var(--colorfonte-azul); }
+.status-concluido, .status-concluído, .status-autorizada, .status-autorizado { 
+    background-color: var(--background-verde); color: var(--colorfonte-verde); 
+}
+.status-rejeitado, .status-negada, .status-cancelada { 
+    background-color: var(--background-vermelho); color: var(--colorfonte-vermelho); 
+}
+
+/* === BOTÕES === */
 .card-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
-    justify-content: flex-start; /* Alterado: Começa do topo */
-    height: auto; /* Novo: Dinâmico */
-    padding: 8px 0;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 15px;
+    flex-wrap: wrap;
 }
 
 .btn {
-    padding: 8px 12px;
+    padding: 10px 16px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -350,37 +462,56 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 0.85rem;
+    text-decoration: none;
 }
+
 .btn.icon-only {
     width: 36px;
     height: 36px;
     border-radius: 6px;
+    padding: 0;
 }
+
 .btn.observacao-btn {
     background: var(--maida-amarelo);
     color: var(--maida-cinza-escuro);
 }
+
 .btn.observacao-btn:hover {
     background: #e6b800;
-    transform: translateY(-2px);
 }
+
 .btn.flip-btn {
     background: var(--maida-azul);
     color: white;
 }
+
 .btn.flip-btn:hover {
     background: #0056b3;
     transform: translateY(-2px);
 }
+
 .btn.marcar-regulada {
     background: var(--maida-rosa);
     color: white;
+    gap: 8px;
 }
+
 .btn.marcar-regulada:hover {
     background: #e0005a;
-    transform: translateY(-2px);
 }
-/* Estilo para o verso do card (histórico) */
+
+.btn.back-btn {
+    background: #6c757d;
+    color: white;
+    padding: 10px 20px;
+}
+
+.btn.back-btn:hover {
+    background: #545b62;
+}
+
+/* === VERSO DO CARD (HISTÓRICO) === */
 .historico-header {
     font-size: 1.1rem;
     font-weight: 600;
@@ -390,56 +521,52 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+
 .historico-count {
     background: var(--maida-azul);
-    color: white;
+    color: var(--maida-branco);
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
 }
+
 .historico-list {
     list-style: none;
     flex-grow: 1;
     overflow-y: auto;
+    max-height: 300px;
 }
+
 .historico-list li {
     padding: 10px 0;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.85rem;
     line-height: 1.5;
 }
+
 .historico-list li:last-child {
     border-bottom: none;
 }
+
 .historico-list i {
     margin-right: 5px;
     width: 16px;
     text-align: center;
 }
+
 .regulador-nome {
     color: var(--maida-azul);
     font-weight: 500;
 }
+
 .back-button-container {
     margin-top: 15px;
     display: flex;
     justify-content: center;
-    margin-top: 15px;
-}
-.btn.back-btn {
-    background: #6c757d;
-    color: white;
-    padding: 10px 20px;
-}
-.btn.back-btn:hover {
-    background: #545b62;
-    transform: translateY(-2px);
 }
 
-/* =============================================================== /
-/ =================== MODAL E OUTROS COMPONENTES ================ /
-/ =============================================================== */
+/* === MODAL E STATUS MENU === */
 .modal-content {
     background-color: var(--modal-bg-color);
     transition: background-color 0.3s;
@@ -452,6 +579,11 @@ body {
     position: relative;
     animation: modalopen 0.3s;
 }
+
+@keyframes modalopen {
+    from { opacity: 0; transform: translateY(-50px); }
+}
+
 .close {
     color: #aaa;
     position: absolute;
@@ -461,9 +593,11 @@ body {
     font-weight: bold;
     cursor: pointer;
 }
+
 .close:hover {
     color: var(--heading-color);
 }
+
 .status-menu-container {
     position: fixed;
     top: 0;
@@ -477,6 +611,7 @@ body {
     justify-content: center;
     z-index: 3000;
 }
+
 .status-menu {
     background: var(--modal-bg-color);
     border-radius: 15px;
@@ -486,6 +621,7 @@ body {
     max-width: 400px;
     animation: modalopen 0.3s;
 }
+
 .status-header {
     font-size: 1.2rem;
     font-weight: 600;
@@ -495,6 +631,7 @@ body {
     padding-bottom: 15px;
     border-bottom: 2px solid var(--border-color);
 }
+
 .status-option {
     display: block;
     width: 100%;
@@ -509,11 +646,13 @@ body {
     transition: all 0.2s ease;
     text-align: left;
 }
+
 .status-option:hover {
     background: var(--maida-azul);
     color: white;
     transform: translateY(-2px);
 }
+
 .status-cancel {
     display: block;
     width: 100%;
@@ -527,10 +666,12 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
 }
+
 .status-cancel:hover {
     background: #dc3545;
     color: white;
 }
+
 #modal-observacao {
     display: none;
     position: fixed;
@@ -542,43 +683,114 @@ body {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
 }
-/* Animações */
-@keyframes modalopen {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-/* Responsividade */
+
+/* =============================================================== */
+/* =================== RESPONSIVIDADE ============================ */
+/* =============================================================== */
 @media (max-width: 768px) {
+    .content-area {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    
     .card-content {
-        gap: 10px;
+        padding: 15px;
+        gap: 12px;
     }
-    .card-line-1 {
-        flex-direction: column; /* Empilha Guia e Botões em telas menores */
+    
+    .detalhes-header.novo-header {
+        flex-direction: column;
         align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+        margin: -15px -15px 12px -15px;
     }
+    
     .card-buttons {
-        width: 100%;
-        justify-content: flex-end; /* Alinha os botões à direita em mobile */
-        margin-top: 5px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
     }
-    .card-line-2 {
-        flex-direction: column; /* Empilha Status e Caracteristicas em mobile */
-        align-items: flex-start;
+    
+    .detalhes-body.novo-body {
         gap: 10px;
     }
-    .caracteristicas-linha-2 {
-        flex-direction: column; /* Empilha Características */
+    
+    .status-sla-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .beneficiario-info, .fila-info, .data-emissao-info {
+        font-size: 0.9rem;
+    }
+    
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .content-header h3 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-content h3 {
+        font-size: 1.5rem;
+        padding-left: 10px;
+    }
+    
+    .detalhes-tipo-guia {
+        font-size: 1rem;
+    }
+    
+    .status-visual {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .procedimento-item-simples {
+        flex-direction: column;
         gap: 5px;
+        align-items: flex-start;
     }
-    .card-line-3 {
-        flex-direction: column; /* Empilha as infos do Beneficiário */
-        gap: 5px;
+    
+    .procedimento-status {
+        margin-left: 0;
+        align-self: flex-end;
     }
-    .prioridade-card-inner,
-    .card-front,
-    .card-back,
-    .card-content {
-        height: auto; 
-        min-height: unset; 
-    }
+}
+
+.prioridade-card,
+.prioridade-card-inner,
+.card-front,
+.card-back {
+    height: auto !important;
+    min-height: auto !important;
+}
+
+.card-content {
+    min-height: auto;
+}
+
+.prioridade-card {
+    height: auto;
+    min-height: auto;
 }

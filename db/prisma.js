@@ -2,7 +2,20 @@
 
 import { PrismaClient } from '@prisma/client';
 
-// Cria a única instância que será usada em todo o projeto
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+    datasources: {
+        db: {
+            url: process.env.DATABASE_URL + 
+                 (process.env.DATABASE_URL.includes('?') ? '&' : '?') + 
+                 'statement_cache_size=0'
+        }
+    },
+    log: [
+        {
+            emit: 'event',
+            level: 'error',
+        },
+    ],
+});
 
 export default prisma;

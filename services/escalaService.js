@@ -9,7 +9,7 @@ export async function getReguladorAtual(fila = null, fonte = null) {
 
     const escalas = await prisma.escala_Regulacao.findMany({
       where: {
-        regulador: { ativo: true },
+        Regulador: { ativo: true },
         diaSemana,
         horaInicio: { lte: horaAtual },
         horaFim: { gte: horaAtual }

@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cron from 'node-cron'; 
 
 // Rotas
 import { isAuthenticated } from './middleware/auth.middleware.js';
@@ -21,7 +22,8 @@ import escalasRoutes from './routes/escalas.routes.js';
 import reguladorRoutes from './routes/regulador.routes.js';
 import usuariosRoutes from './routes/users.routes.js';
 
-import { atualizarStatusGuias } from './services/atualizadorStatus.js';
+// Importa a função que é autônoma e corrige o status das guias.
+import { atualizarStatusGuias } from './services/atualizadorStatus.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,7 +48,9 @@ app.use(cookieParser());
 const pgPool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    max: 20 
+    max: 20, 
+    idleTimeoutMillis: 5000,
+    connectionTimeoutMillis: 2000 
 });
 const PgSession = connectPgSimple(session);
 
@@ -90,12 +94,20 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
 
+    // ========================================================
+    // LÓGICA DE CRON JOB (TAREFA AGENDADA)
+    // ========================================================
     try {
-        console.log('⏰ Iniciando atualização automática de status...');
-        setInterval(() => {
-            atualizarStatusGuias().catch(err => console.error('❌ Erro durante a atualização agendada:', err));
-        }, 10 * 60 * 1000);
-        console.log('✅ Atualização automática agendada.');
+        console.log('⏰ Agendando atualização automática de status...');
+        
+        // Agendamento: Roda a função a cada 10 minutos (*/10)
+        cron.schedule('*/10 * * * *', () => {
+            console.log('❌ CRON: Executando atualização de status das guias...');
+            // Chama a função e trata erros para não travar o processo
+            atualizarStatusGuias().catch(err => console.error('❌ CRON JOB FAILED:', err));
+        });
+        
+        console.log('✅ Atualização automática agendada para rodar a cada 10 minutos.');
     } catch (err) {
         console.error('❌ Erro ao agendar a atualização automática:', err);
     }

@@ -1,23 +1,150 @@
+// services/atualizadorStatus.js
 import { PrismaClient } from '@prisma/client';
 import fetch from 'node-fetch';
 
 const prisma = new PrismaClient();
 
-// Função para atualizar status das guias a partir da API ECO
+// Variáveis de Ambiente (Lidas do .env)
+const ECO_AUTH_URL = process.env.ECO_AUTH_URL || 'https://auth.maida.health/oauth2/token';
+const ECO_CLIENT_ID = process.env.ECO_CLIENT_ID;
+const ECO_CLIENT_SECRET = process.env.ECO_CLIENT_SECRET;
+const ECO_BASE_URL = 'https://regulacao-api.issec.maida.health/v3';
+
+// Variável para o serviço de token do Apps Script
+const GAS_TOKEN_SERVICE_URL = process.env.GAS_TOKEN_SERVICE_URL; 
+
+let ecoToken = ''; 
+
+/**
+ * Tenta obter um novo token de autenticação. Prioriza o Serviço de Token do Apps Script (GAS).
+ * @returns {Promise<string>} O token.
+ */
+async function obterNovoTokenECO() {
+
+    // 1. TENTA AUTENTICAÇÃO VIA GOOGLE APPS SCRIPT (MÉTODO PRIORITÁRIO)
+    if (GAS_TOKEN_SERVICE_URL) {
+        console.log('🔗 URL do GAS encontrada. Solicitando token ao Web App...');
+        try {
+            // A chamada para a URL do GAS é sempre um GET simples (doGet)
+            const response = await fetch(GAS_TOKEN_SERVICE_URL);
+
+            if (!response.ok) {
+                // Tenta ler o corpo da resposta em JSON para pegar a mensagem de erro do GAS
+                const errorBody = await response.json().catch(() => ({ error: 'Resposta não é JSON' }));
+                throw new Error(`GAS Service falhou: ${response.status} - ${errorBody.error || response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.success && data.token) {
+                ecoToken = data.token;
+                console.log('✅ Token ECO obtido com sucesso via GAS Web App.');
+                return ecoToken;
+            } else {
+                throw new Error(data.error || "GAS Service retornou erro desconhecido.");
+            }
+        } catch (err) {
+            console.error('❌ Erro no serviço GAS/Token:', err.message);
+            // Se falhar, segue para o fallback OAuth 2.0
+        }
+    }
+
+    // 2. FALLBACK PARA OAUTH 2.0 (MÉTODO SECUNDÁRIO)
+    if (ECO_CLIENT_ID && ECO_CLIENT_SECRET) {
+        console.log('🔗 Serviço GAS falhou ou não configurado. Tentando renovação via OAuth 2.0...');
+        try {
+            const credentials = Buffer.from(`${ECO_CLIENT_ID}:${ECO_CLIENT_SECRET}`).toString('base64');
+            const response = await fetch(ECO_AUTH_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${credentials}`
+                },
+                body: 'grant_type=client_credentials'
+            });
+
+            if (!response.ok) {
+                 const errorText = await response.text();
+                 throw new Error(`Falha na renovação OAuth: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            const newToken = data.access_token;
+            ecoToken = newToken;
+            console.log('✅ Token ECO renovado com sucesso via OAuth 2.0.');
+            return newToken;
+        } catch (err) {
+            console.error('❌ Erro na renovação OAuth 2.0:', err.message);
+        }
+    }
+    
+    // 3. FALLBACK FINAL: USAR TOKEN ANTIGO
+    if (ecoToken) {
+        console.warn('⚠️ Usando token antigo pré-configurado. Nenhuma fonte de autenticação funcionou.');
+        return ecoToken;
+    }
+    
+    // 4. FALHA TOTAL
+    throw new Error('Nenhuma credencial de autenticação válida (GAS, OAuth 2.0 ou Token antigo) encontrada.');
+}
+
+/**
+ * Função para fazer requisição ao ECO com lógica de renovação de token.
+ */
+async function fetchECO(numeroGuia) {
+    const urlGuia = `${ECO_BASE_URL}/historico-cliente?ordenarPor=DATA_SOLICITACAO&autorizacao=${numeroGuia}&page=0`;
+    
+    const makeRequest = async (token) => {
+        const res = await fetch(urlGuia, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return res;
+    };
+    
+    // Inicializa o token se estiver vazio (apenas na primeira tentativa de chamada)
+    if (!ecoToken) ecoToken = await obterNovoTokenECO(); 
+    
+    let response = await makeRequest(ecoToken);
+
+    // Se falhar por 401/403 (Token inválido ou expirado)
+    if (response.status === 401 || response.status === 403) {
+        console.log('🔁 Token ECO expirado (401/403). Tentando renovar...');
+        
+        try {
+            ecoToken = await obterNovoTokenECO(); // Tenta obter um novo token
+        } catch (err) {
+            throw new Error('Falha crítica: Token expirou e não foi possível renovar.');
+        }
+        
+        response = await makeRequest(ecoToken); // Tenta a requisição novamente com o novo token
+    }
+    
+    return response;
+}
+
 export async function atualizarStatusGuias() {
     try {
         console.log('🔄 Iniciando atualização de status das guias...');
         
-        // Buscar todas as guias pendentes que não estão autorizadas/negadas
+        // Garante que temos um token (ou tentamos obter um) antes de começar
+        if (!ecoToken) {
+            await obterNovoTokenECO();
+        }
+
         const guiasPendentes = await prisma.prioridade.findMany({
             where: {
                 capturada: false,
                 regulada: false,
+                fonte: 'ECO',
                 NOT: {
                     OR: [
                         { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
                         { status: { contains: 'NEGAD', mode: 'insensitive' } },
-                        { status: { contains: 'CANCELAD', mode: 'insensitive' } }
+                        { status: { contains: 'CANCELAD', mode: 'insensitive' } },
+                        { status: { contains: 'CONCLUID', mode: 'insensitive' } } 
                     ]
                 }
             },
@@ -25,111 +152,61 @@ export async function atualizarStatusGuias() {
                 id: true,
                 numeroGuia: true,
                 status: true,
-                fonte: true
+                fila: true,
             }
         });
 
-        console.log(`📊 ${guiasPendentes.length} guias para verificar status`);
+        console.log(`📊 ${guiasPendentes.length} guias do ECO para verificar status`);
 
         let atualizadas = 0;
 
         for (const guia of guiasPendentes) {
+            let statusAtualizado = null;
+            let filaAtualizada = guia.fila; 
+            
             try {
-                // DEBUG ESPECÍFICO PARA A GUIA 228406
-                if (guia.numeroGuia === '228406') {
-                    console.log(`🔍 [DEBUG] Verificando guia 228406 - Status no BD: "${guia.status}"`);
-                }
+                const res = await fetchECO(guia.numeroGuia);
                 
-                let statusAtualizado = null;
-
-                // Verificar status na API correspondente à fonte
-                if (guia.fonte === 'ECO') {
-                    const url = `http://localhost:3000/api/eco/${guia.numeroGuia}`;
+                if (res.ok) {
+                    const data = await res.json();
                     
-                    // DEBUG: Log da URL para a guia 228406
-                    if (guia.numeroGuia === '228406') {
-                        console.log(`🔍 [DEBUG] URL da API: ${url}`);
-                        console.log(`🔍 [DEBUG] Token: ${process.env.ECO_TOKEN ? 'PRESENTE' : 'AUSENTE'}`);
-                    }
-                    
-                    // REQUEST COM TOKEN BEARER
-                    const res = await fetch(url, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${process.env.ECO_TOKEN}`
-                        }
-                    });
-                    
-                    // DEBUG: Status da resposta para a guia 228406
-                    if (guia.numeroGuia === '228406') {
-                        console.log(`🔍 [DEBUG] Status da resposta: ${res.status}`);
-                    }
-                    
-                    if (res.ok) {
-                        const data = await res.json();
+                    if (data.content && data.content.length > 0) {
+                        const guiaPrincipal = data.content[0];
                         
-                        // DResposta completa da API para a guia 228406
-                        if (guia.numeroGuia === '228406') {
-                            console.log(`🔍 [DEBUG] Resposta da API:`, JSON.stringify(data, null, 2));
-                        }
-                        
-                        if (data.content && data.content.length > 0) {
-                            statusAtualizado = data.content[0].statusRegulacao;
-                            
-                            // DEBUG: Status retornado pela API
-                            if (guia.numeroGuia === '228406') {
-                                console.log(`🔍 [DEBUG] Status da API: "${statusAtualizado}"`);
-                                console.log(`🔍 [DEBUG] Status diferente do BD? ${statusAtualizado !== guia.status}`);
-                            }
-                        } else if (guia.numeroGuia === '228406') {
-                            console.log(`🔍 [DEBUG] API retornou array vazio ou sem content`);
-                        }
-                    } else if (guia.numeroGuia === '228406') {
-                        console.log(`🔍 [DEBUG] Erro na resposta da API: ${res.status} ${res.statusText}`);
-                        // Tentar ler o corpo do erro
-                        try {
-                            const errorBody = await res.text();
-                            console.log(`🔍 [DEBUG] Corpo do erro: ${errorBody.substring(0, 200)}...`);
-                        } catch (e) {
-                            console.log(`🔍 [DEBUG] Não foi possível ler corpo do erro`);
-                        }
+                        statusAtualizado = guiaPrincipal.status;
+                        filaAtualizada = guiaPrincipal.fila || guia.fila;
                     }
+                } else {
+                    console.warn(`⚠️ Falha HTTP na guia ${guia.numeroGuia}: ${res.status} ${res.statusText}`);
                 }
-                // Adicione outros else if  (SISWEB, etc.)
 
-                // Se o status mudou, atualizar no banco
-                if (statusAtualizado && statusAtualizado !== guia.status) {
-                    const isStatusFinal = statusAtualizado.toUpperCase().includes('AUTORIZAD') ||
-                                        statusAtualizado.toUpperCase().includes('NEGAD') ||
-                                        statusAtualizado.toUpperCase().includes('CANCELAD');
+                if (statusAtualizado && statusAtualizado.toUpperCase() !== guia.status.toUpperCase()) {
+                    
+                    const upperStatus = statusAtualizado.toUpperCase();
+                    const isStatusFinal = upperStatus.includes('AUTORIZAD') ||
+                                          upperStatus.includes('NEGAD') ||
+                                          upperStatus.includes('CANCELAD') ||
+                                          upperStatus.includes('CONCLUID');
 
                     await prisma.prioridade.update({
                         where: { id: guia.id },
                         data: { 
                             status: statusAtualizado,
+                            fila: filaAtualizada,
                             regulada: isStatusFinal,
-                            dataRegulacao: isStatusFinal ? new Date() : null
+                            dataRegulacao: isStatusFinal ? new Date() : null,
+                            dataAtualizacao: new Date()
                         }
                     });
                     
                     console.log(`✅ Guia ${guia.numeroGuia} atualizada: ${guia.status} → ${statusAtualizado}`);
                     atualizadas++;
-                
-                } else if (guia.numeroGuia === '228406') {
-                    console.log(`🔍 [DEBUG] Nenhuma atualização necessária para guia 228406`);
                 }
-
-                // Pequeno delay para não sobrecarregar a API
+                // Pequeno delay para evitar sobrecarga na API ECO
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
             } catch (err) {
-                console.error(`❌ Erro ao atualizar guia ${guia.numeroGuia}:`, err.message);
-                
-                // DEBUG: Log completo do erro para a guia 228406
-                if (guia.numeroGuia === '228406') {
-                    console.error(`🔍 [DEBUG] Erro completo:`, err);
-                }
+                console.error(`❌ Erro CRÍTICO ao processar guia ${guia.numeroGuia}:`, err.message);
             }
         }
 
@@ -140,7 +217,6 @@ export async function atualizarStatusGuias() {
     }
 }
 
-// Função para forçar atualização via API
 export async function forcarAtualizacao() {
     return await atualizarStatusGuias();
 }
