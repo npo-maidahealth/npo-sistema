@@ -8,38 +8,53 @@ const router = express.Router();
 router.get('/consulta/:numeroGuia', isAuthenticated, async (req, res) => {
     try {
         const { numeroGuia } = req.params;
+        
+        // 1. BUSCA COMPLETA NO PRISMA
         const prioridades = await prisma.prioridade.findMany({
-            where: { numeroGuia },
-            select: {
-                dataCriacao: true,
-                dataAtualizacao: true, 
-                status: true,
-                fila: true,
-                fonte: true,
-                observacao: true,
-                beneficiario: true,  
-                numeroGuia: true,  
-                //adicione outros campos se necessário, quantidade de vezes que foi pedido prioridade etc.
-            },
-            orderBy: { dataCriacao: 'desc' }
+          where: { numeroGuia },
+          select: {
+              dataCriacao: true,
+              dataAtualizacao: true, 
+              status: true,
+              fila: true,
+              fonte: true,
+              observacao: true,
+              numeroGuia: true,  
+              vezesSolicitado: true,
+              tipoGuia: true,                     
+              dataVencimentoSla: true,            
+              beneficiario: true,                 
+              cartaoBeneficiario: true,           
+              cpfBeneficiario: true,              
+          },
+          orderBy: { dataCriacao: 'desc' }
         });
 
+        // 2. VERIFICA SE ENCONTROU
         if (prioridades.length === 0) {
             return res.status(404).json({ message: 'Nenhuma prioridade encontrada para esta guia.' });
         }
-
-        // Retorne um formato simples: o mais recente + quantidade
-        const maisRecente = prioridades[0];  // Como ordenado desc, o [0] é o mais novo
+        
+        // 3. SELECIONA O REGISTRO MAIS RECENTE E FORMATA O RESULTADO
+        const maisRecente = prioridades[0];  
         const resultado = {
-            quantidade: prioridades.length,
-            numeroGuia: numeroGuia,
+            // Usa o campo do banco, ou o count como fallback
+            quantidade: maisRecente.vezesSolicitado || prioridades.length, 
+            
             beneficiario: maisRecente.beneficiario || 'Não informado',
-            status: maisRecente.status || 'Pendente',  // Use 'status' (alinhe com frontend)
+            cartaoBeneficiario: maisRecente.cartaoBeneficiario || 'Não informado',
+            cpfBeneficiario: maisRecente.cpfBeneficiario || 'Não informado',
+            
+            numeroGuia: numeroGuia,
+            tipoGuia: maisRecente.tipoGuia,
+            dataVencimentoSla: maisRecente.dataVencimentoSla,
+            
+            status: maisRecente.status || 'Pendente', 
+            fila: maisRecente.fila || 'Não Informada',
             fonte: maisRecente.fonte,
+            observacao: maisRecente.observacao,
             dataCriacao: maisRecente.dataCriacao,
             dataAtualizacao: maisRecente.dataAtualizacao,
-            observacao: maisRecente.observacao,
-            // Se quiser todas as solicitações: solicitacoes: prioridades.map(...) como antes
         };
 
         res.json(resultado);

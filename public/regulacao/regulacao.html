@@ -53,42 +53,39 @@
 
     <main class="content-container">
         <h1>Prioridade de Guia</h1>
+        
         <div class="tabs">
-            <div class="tab active" data-tab="eco">ECO</div>
-            <div class="tab" data-tab="sisweb">SISWEB</div>
-            <div class="tab" data-tab="consulta">Consultar</div>
-        </div>
-
-        <div class="form-tabs-container" id="form-tabs-container">
-            <div id="eco-content" class="tab-content active">
+            
+            <input class="input" name="tabs-guia" type="radio" id="tab-eco" checked="checked"/>
+            <label class="label" for="tab-eco">ECO</label>
+            
+            <div id="eco-content" class="tab-content"> 
                 <h3>Buscar Guia ECO</h3>
                 <form id="eco-form">
                     <input type="text" id="eco-guia" placeholder="Busque o nº da guia do ECO para verificar o status." required>
                     <button type="submit">Buscar</button>
                 </form>
                 <div id="eco-prioridade-form" class="card-detalhes" style="display:none;">
-                    <h3>Detalhes da Guia</h3>
-                    <div class="detalhes-grid">
-                        <p><strong>Nº da Guia:</strong> <span id="eco-numero-guia"></span></p>
-                        <p><strong>Nome do Paciente:</strong> <span id="eco-nome-paciente"></span></p>
-                        <p><strong>Tipo de Guia:</strong> <span id="eco-tipo-guia"></span></p>
-                        <p><strong>Caráter de Atendimento:</strong> <span id="eco-carater"></span></p>
-                        <p><strong>Status da Guia:</strong> <span id="eco-status"></span></p>
                     </div>
-                    <textarea id="eco-observacao" placeholder="Observações (opcional)"></textarea>
-                    <button id="eco-enviar-prioridade" type="button" title="Botão de enviar para prioridade">Enviar para Prioridade</button>
-                </div>
             </div>
 
-            <div id="sisweb-content" class="tab-content">
+            <input class="input" name="tabs-guia" type="radio" id="tab-sisweb"/>
+            <label class="label" for="tab-sisweb">SISWEB</label>
+
+            <div id="sisweb-content" class="tab-content"> 
                 <h3>Registrar Prioridade SISWEB</h3>
                 <form id="sisweb-form">
-                    <input type="text" id="sisweb-nome" placeholder="Nome do paciente" required>
-                    <input type="text" id="sisweb-numero-guia" placeholder="Nº da guia" required>
-                    <div class="custom-select-wrapper">
-                        <select id="sisweb-status" required class="original-select">
-                            <option value="">Selecione o status...</option>
-                            <option value="Aguardando Autenticação">Aguardando Autenticação</option>
+                    <input type="text" id="sisweb-numero-guia" placeholder="Número da Guia" required>
+                    <input type="text" id="sisweb-nome" placeholder="Nome do Paciente" required>
+                    <input type="text" id="sisweb-carteirinha" placeholder="Número da Carteirinha" required>
+                    <input type="text" id="sisweb-cpf" placeholder="CPF do Paciente" required>
+                    
+                    <div class="input-group">
+                        <label for="sisweb-status">Status da Guia</label>
+                        <select id="sisweb-status" required>
+                            <option value="" disabled selected>Selecione o status</option>
+                            <option value="Autorizada">Autorizada</option>
+                            <option value="Autorização Parcial">Autorização Parcial</option>
                             <option value="Autorização sem Restrição">Autorização sem Restrição</option>
                             <option value="Autorização Pendente">Autorização Pendente</option>
                             <option value="Autorização Estornada">Autorização Estornada</option>
@@ -101,7 +98,10 @@
                     <button type="submit">Enviar</button>
                 </form>
             </div>
-
+            
+            <input class="input" name="tabs-guia" type="radio" id="tab-consulta"/>
+            <label class="label" for="tab-consulta">Consultar</label>
+            
             <div id="consulta-content" class="tab-content">
                 <h3>Consultar Prioridades</h3>
                 <form id="consulta-form">
@@ -110,6 +110,7 @@
                 </form>
                 <div id="consulta-resultados" style="margin-top: 20px;"></div>
             </div>
+
         </div>
     </main>
     <span id="text-width-helper"></span>
