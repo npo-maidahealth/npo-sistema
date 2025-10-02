@@ -338,7 +338,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             atrasada: guiaSelecionado.atrasada || false,
             atrasoRegulacao: guiaSelecionado.atrasoRegulacao || '',
             area: guiaSelecionado.area || '',
-            fonte: 'ECO'
+            fonte: 'ECO',
+            idGuiaECO: guiaSelecionado.idGuia
         };
 
         try {

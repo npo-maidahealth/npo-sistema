@@ -38,6 +38,7 @@ router.get('/pendentes', isAuthenticated, async (req, res) => {
             select: {
                 id: true,
                 numeroGuia: true,
+                idGuiaECO: true, 
                 tipoGuia: true,
                 status: true,
                 caracterAtendimento: true,
@@ -138,6 +139,7 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
             select: {
                 id: true,
                 numeroGuia: true,
+                idGuiaECO: true, 
                 tipoGuia: true,
                 status: true,
                 caracterAtendimento: true,

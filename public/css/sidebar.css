@@ -1,3 +1,4 @@
+
 /* css/sidebar.css */
 
 :root {
@@ -110,7 +111,7 @@ input[type="checkbox"] { display: none; }
 }
 
 .nav__toggle {
-    display: grid;
+    
     place-items: center;
     block-size: 100%;
     background: none;
@@ -122,15 +123,15 @@ input[type="checkbox"] { display: none; }
 }
 
 .toggle--icons {
-    grid-area: 1 / 1;
+    display: inline-block;
     transition: opacity 0.2s ease, color 0.3s ease;
     color: var(--sidebar-icon-color);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     white-space: nowrap;
 }
 
-.nav__toggle:hover { background-color: var(--sidebar-hover-bg); }
-.nav__toggle:hover .toggle--icons { color: var(--sidebar-heading-color); }
+.toggle--icons:hover { background-color: var(--sidebar-hover-bg); }
+.toggle--icons:hover .toggle--icons { color: var(--sidebar-heading-color); }
 
 .vertical-sidebar figure {
     display: flex;
@@ -420,11 +421,4 @@ input[type="checkbox"] { display: none; }
 .day-night input + div:before,
 .day-night input + div:after {
     transition: box-shadow 0.5s ease, transform 0.4s ease, background-color 0.3s ease; /* Limita a transições específicas do tema */
-}
-
-/* Garantindo que mudança de tema não afete opacidade de ícones de expansão */
-body.light .toggle--icons,
-body:not(.light) .toggle--icons {
-    opacity: 1 !important; /* Força visível, independentemente do tema */
-    transition: color 0.3s ease; /* Só cor muda com tema */
 }

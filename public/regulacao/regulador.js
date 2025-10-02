@@ -373,7 +373,9 @@ function renderizarCardPrioridade(prioridade, view, user) {
                                     <i class="fas fa-eye"></i>
                                 </button>
                             ` : ''}
-                            
+                            <button class="btn regular-btn" title="Ir para Regulação">
+                                <i class="fas fa-clipboard-list"></i> Regular
+                            </button>
                             ${!isRegulada && isSisweb ? `
                                 <button class="btn marcar-regulada" title="Alterar Status">
                                     <i class="fas fa-edit"></i> Alterar Status
@@ -394,7 +396,24 @@ function renderizarCardPrioridade(prioridade, view, user) {
     if (prioridade.observacao) {
         card.querySelector('.observacao-btn').addEventListener('click', () => abrirModal(prioridade.observacao));
     }
-    
+    const btnRegular = card.querySelector('.regular-btn');
+    if (btnRegular) {
+        btnRegular.addEventListener('click', () => {
+            console.log("DEBUG: Dados do Card Prioridade no clique 'Regular':", prioridade);
+
+            // Usa o 'id' da prioridade para construir o link
+            const guiaId = prioridade.idGuiaECO; 
+            if (!guiaId) {
+                alert(`Erro: O ID da guia ECO (esperado em 'idGuiaECO') não foi encontrado no registro. Verifique o console (F12) para os dados completos do card e o nome correto do campo.`);
+                return;
+            }
+            
+            const redirectUrl = `https://issec.maida.health/regulacao/guia/detalhe-guia?id=${guiaId}`;
+            
+            window.open(redirectUrl, '_blank'); 
+        });
+    }
+
     // Alternar Status para guias SISWEB não reguladas
     const btnMarcar = card.querySelector('.marcar-regulada');
     if (btnMarcar) {

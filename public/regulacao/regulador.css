@@ -42,6 +42,7 @@ body.light {
     --azul-amarelo: #0070FF;
     --azul-amarelo-sombra: #0056cc;
     --focus-shadow-color: rgba(0, 112, 255, 0.2); 
+    --azul-rosa: #0070FF;
 
     /* PROCEDIMENTOS */
     --color-procedimentos: #6c757d;
@@ -79,6 +80,7 @@ body:not(.light) {
     --azul-amarelo: #FFCB05;
     --azul-amarelo-sombra: #D49A04;
     --focus-shadow-color: rgba(255, 203, 5, 0.3); 
+    --azul-rosa: #ff0073;
 
     /* PROCEDIMENTOS */
     --color-procedimentos: #FAFAFA;
@@ -197,7 +199,7 @@ body {
 
 .stats-info span {
     font-weight: 700;
-    color: var(--maida-azul);
+    color: var(--azul-rosa);
     font-size: 1.2rem;
 }
 
@@ -793,4 +795,15 @@ body {
 .prioridade-card {
     height: auto;
     min-height: auto;
+}
+/* Botão REGULAR (Baseado no maida-azul) */
+.btn.regular-btn {
+    background: var(--maida-azul);
+    color: white;
+    gap: 8px; /* Adiciona espaço entre o ícone e o texto */
+}
+
+.btn.regular-btn:hover {
+    background: #0056b3; /* Cor azul mais escura no hover */
+    transform: translateY(-2px);
 }

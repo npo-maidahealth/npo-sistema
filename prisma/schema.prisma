@@ -108,6 +108,7 @@ model ProdutosDoUsuario {
 model Prioridade {
   id                     Int         @id @default(autoincrement())
   numeroGuia             String
+  idGuiaECO              Int?
   tipoGuia               String
   status                 String
   caracterAtendimento    String?

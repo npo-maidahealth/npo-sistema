@@ -75,7 +75,7 @@ router.post('/', isAuthenticated, async (req, res) => {
       numeroGuia, tipoGuia, status, caracterAtendimento, observacao, nomeProduto, produtoId,
       beneficiario, beneficiarioNomeSocial, cartaoBeneficiario, cpfBeneficiario,
       dataHoraSolicitacao, dataPausaSla, dataRegulacao, dataSolicitacao, dataVencimentoSla,
-      fila, atrasada, atrasoRegulacao, area, capturada, fonte  // ← ADICIONADO: fonte aqui
+      fila, atrasada, atrasoRegulacao, area, capturada, fonte, idGuiaECO  // ← ADICIONADO: fonte aqui
     } = req.body;
 
     // Logs após desestruturação.
@@ -165,6 +165,7 @@ router.post('/', isAuthenticated, async (req, res) => {
             prioridade = await prisma.prioridade.create({
                 data: {
                     ...req.body,  // inclui TODOS os campos do body (como fonte)
+                    idGuiaECO,
                     caracterAtendimento: caracterAtendimento || fila || '',  // Overrides necessários
                     observacao: observacao || '',
                     produtoId: produtoIdFinal || 1,  // Default do snippet
