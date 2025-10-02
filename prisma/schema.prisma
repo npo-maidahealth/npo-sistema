@@ -123,6 +123,7 @@ model Prioridade {
   autorizada             Boolean     @default(false)
   regulada               Boolean     @default(false)
   area                   String?
+  inativaVisualizacao    Boolean     @default(false)
   atrasada               Boolean?
   atrasoRegulacao        String?
   beneficiario           String?

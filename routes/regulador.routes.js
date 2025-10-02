@@ -2,13 +2,14 @@
 import express from 'express';
 import prisma from '../db/prisma.js'; 
 import { isAuthenticated } from '../middleware/auth.middleware.js';
+import { atualizarStatusGuias } from '../services/atualizadorStatus.js';
 
 const router = express.Router();
 
 // ==========================
 // Listar prioridades PENDENTES
 // ==========================
-router.get('/pendentes', isAuthenticated, async (req, res) => {
+router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
     try {
         console.log('=== ACESSANDO /api/regulador/pendentes ===');
         const usuarioId = req.session.user?.id;
@@ -16,8 +17,7 @@ router.get('/pendentes', isAuthenticated, async (req, res) => {
             console.log('Usuário não autenticado');
             return res.status(401).json({ message: 'Usuário não autenticado' });
         }
-
-        console.log('Buscando prioridades pendentes...');
+        console.log('🔄 Iniciando sincronização manual de status...');
         
         const prioridades = await prisma.prioridade.findMany({
             where: { 
@@ -29,9 +29,7 @@ router.get('/pendentes', isAuthenticated, async (req, res) => {
                         { status: { contains: 'APROVAD', mode: 'insensitive' } },
                         { status: { contains: 'NEGAD', mode: 'insensitive' } },
                         { status: { contains: 'CANCELAD', mode: 'insensitive' } },
-                        { status: { contains: 'CONCLUID', mode: 'insensitive' } },
-                        { status: { contains: 'FINALIZAD', mode: 'insensitive' } },
-                        { status: { contains: 'EMITID', mode: 'insensitive' } }
+                        { status: { contains: 'EXECUTAD', mode: 'insensitive' } }
                     ]
                 }
             },
@@ -235,6 +233,49 @@ router.patch('/:id/status', isAuthenticated, async (req, res) => {
         console.error('Erro ao atualizar status:', err);
         res.status(500).json({ 
             message: 'Erro interno ao atualizar status', 
+            error: err.message 
+        });
+    }
+});
+router.get('/historico/:prioridadeId', isAuthenticated, async (req, res) => {
+    try {
+        const { prioridadeId } = req.params;
+        
+        console.log(`=== ACESSANDO /api/regulador/historico/${prioridadeId} ===`);
+        
+        const id = parseInt(prioridadeId);
+        if (isNaN(id)) {
+            return res.status(400).json({ message: 'ID da prioridade inválido.' });
+        }
+        const historico = await prisma.solicitacaoPrioridade.findMany({
+            where: { prioridadeId: id },
+            select: {
+                dataHoraSolicitacao: true, 
+                observacaoSolicitacao: true, 
+                createdAt: true,
+
+                reguladorPlantao: {
+                    select: { nome: true }
+                }
+            },
+            orderBy: [{ dataHoraSolicitacao: 'desc' }]
+        });
+
+        const historicoMapeado = historico.map(item => ({
+            id: item.id,
+            dataRegistro: item.dataHoraSolicitacao,
+            nomeUsuario: item.reguladorPlantao?.nome || 'Sistema/ECO', 
+            acao: 'CRIACAO', 
+            observacao: item.observacaoSolicitacao,
+        }));
+
+
+        res.json(historicoMapeado);
+        
+    } catch (err) {
+        console.error(`Erro ao buscar histórico para prioridade ${prioridadeId}:`, err);
+        res.status(500).json({ 
+            message: 'Erro interno ao buscar histórico.', 
             error: err.message 
         });
     }

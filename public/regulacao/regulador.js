@@ -303,21 +303,21 @@ function renderizarCardPrioridade(prioridade, view, user) {
     const isInternacao = prioridade.tipoGuia?.toUpperCase().includes('INTERNACAO') || prioridade.tipoGuia?.toUpperCase().includes('PRORROGACAO');
 
     // HTML  ao do regulacao.html
-    card.innerHTML = `
-        <div class="prioridade-card-inner">
-            <div class="card-front">
+     card.innerHTML = `
+        <div class="prioridade-card-inner-flex">
+            <div class="card-front-content">
                 <div class="card-content">
                     
-                    <!-- Header -->
                     <div class="detalhes-header novo-header">
                         <span class="detalhes-tipo-guia">Guia de ${tipoGuiaDisplay} - Nº Guia: ${prioridade.numeroGuia || '-'}</span>
-                        ${qtdPrioridades > 0 ? `<span class="contador-prioridade">${qtdPrioridades}x Solicitado</span>` : ''}
+                        <button class="btn btn-historico abrir-historico" title="Ver Histórico de Prioridades">
+                            Ver Histórico
+                            <i class="fas fa-chevron-right toggle-icon historico-icon-tema"></i>
+                        </button>
                     </div>
 
-                    <!-- Body  -->
                     <div class="detalhes-body novo-body">
                         
-                        <!-- Status e SLA - layout  -->
                         <p class="status-sla-row">
                             <span class="status-visual ${statusClass}">${statusDisplay}</span>
                             
@@ -327,13 +327,37 @@ function renderizarCardPrioridade(prioridade, view, user) {
                             >
                                 <i class="far fa-clock"></i> ${slaContador}
                             </span> 
+                            
+                            ${qtdPrioridades > 0 ? `<span class="contador-prioridade">${qtdPrioridades}x Solicitado</span>` : ''} 
                         </p>
                     
-                        <p class="beneficiario-info">
-                            <strong>Beneficiário:</strong> ${formatValue(prioridade.beneficiario)} 
-                            | <strong>CPF:</strong> ${formatValue(prioridade.cpfBeneficiario)} 
-                            | <strong>Cartão:</strong> ${formatValue(prioridade.cartaoBeneficiario)}
-                        </p>
+                        <div class="beneficiario-info-container">
+                            <span class="beneficiario-info">
+                                <strong>Beneficiário:</strong> ${formatValue(prioridade.beneficiario)} 
+                                | <strong>CPF:</strong> ${formatValue(prioridade.cpfBeneficiario)} 
+                                | <strong>Cartão:</strong> ${formatValue(prioridade.cartaoBeneficiario)}
+                            </span>
+
+                            <div class="card-buttons-beneficiario">
+                                ${prioridade.observacao ? `
+                                    <button class="btn observacao-btn icon-only" title="Ver Observação">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn regular-btn" title="Ir para Regulação">
+                                    <i class="fas fa-clipboard-list"></i> Regular
+                                </button>
+                                ${!isRegulada && isSisweb ? `
+                                    <button class="btn marcar-regulada" title="Alterar Status">
+                                        <i class="fas fa-edit"></i> Alterar Status
+                                    </button>
+                                ` : ''}
+                                
+                                ${isRegulada ? `
+                                    <span class="status-visual status-autorizada">Regulada</span>
+                                ` : ''}
+                            </div>
+                        </div>
 
                         ${isInternacao ? `
                             <p class="internacao-info-row">
@@ -352,9 +376,8 @@ function renderizarCardPrioridade(prioridade, view, user) {
                             <strong>Data de emissão da guia:</strong> ${dataEmissao}
                         </p>
 
-                        <!-- Seção de procedimentos expansível -  -->
                         <div class="procedimentos-section">
-                            <h4 style="cursor: pointer;">
+                            <h4 style="cursor: pointer;" class="procedimentos-toggle-header">
                                 <i class="fas fa-chevron-right toggle-icon"></i>
                                 Procedimentos Solicitados:
                             </h4>
@@ -366,32 +389,57 @@ function renderizarCardPrioridade(prioridade, view, user) {
                             </ul>
                         </div>
 
-                        <!-- Botões de ação -->
-                        <div class="card-buttons">
-                            ${prioridade.observacao ? `
-                                <button class="btn observacao-btn icon-only" title="Ver Observação">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            ` : ''}
-                            <button class="btn regular-btn" title="Ir para Regulação">
-                                <i class="fas fa-clipboard-list"></i> Regular
-                            </button>
-                            ${!isRegulada && isSisweb ? `
-                                <button class="btn marcar-regulada" title="Alterar Status">
-                                    <i class="fas fa-edit"></i> Alterar Status
-                                </button>
-                            ` : ''}
-                            
-                            ${isRegulada ? `
-                                <span class="status-visual status-autorizada">Regulada</span>
-                            ` : ''}
-                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Painel Lateral de Histórico -->
+            <div class="prioridade-historico-panel">
+                <div class="historico-header">
+                    <span>Histórico de Prioridades</span>
+                    <button class="btn fechar-historico icon-only" title="Fechar Histórico">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="historico-list" id="historico-list-${prioridade.id}">
+                    <!-- O histórico será carregado dinamicamente -->
+                    <div class="loading-historico">Carregando histórico...</div>
                 </div>
             </div>
         </div>
     `;
-    
+    const cardInnerFlex = card.querySelector('.prioridade-card-inner-flex');
+    const historicoPanel = card.querySelector('.prioridade-historico-panel');
+    const historicoToggle = card.querySelector('.abrir-historico');
+    const fecharButton = card.querySelector('.fechar-historico');
+    const historicoList = card.querySelector(`#historico-list-${prioridade.id}`);
+
+    let historicoCarregado = false;
+
+    if (historicoToggle) {
+        historicoToggle.addEventListener('click', async () => {
+            cardInnerFlex.classList.add('show-historico');
+            
+            // Carrega o histórico apenas na primeira vez
+            if (!historicoCarregado) {
+                await carregarHistoricoPrioridade(prioridade.id, historicoList);
+                historicoCarregado = true;
+            }
+        });
+    }
+
+    if (fecharButton) {
+        fecharButton.addEventListener('click', () => {
+            cardInnerFlex.classList.remove('show-historico');
+        });
+    }
+    card.addEventListener('click', (e) => {
+        if (cardInnerFlex.classList.contains('show-historico') && 
+            !historicoPanel.contains(e.target) && 
+            !historicoToggle.contains(e.target)) {
+            cardInnerFlex.classList.remove('show-historico');
+        }
+    });
     // Event Listeners para funcionalidades
     if (prioridade.observacao) {
         card.querySelector('.observacao-btn').addEventListener('click', () => abrirModal(prioridade.observacao));
@@ -423,24 +471,223 @@ function renderizarCardPrioridade(prioridade, view, user) {
     }
     
     // Lógica de expansão dos procedimentos -  AO REGULACA.HTML
-    const procedimentosSection = card.querySelector('.procedimentos-section');
-    const procedimentosToggle = procedimentosSection.querySelector('h4');
-    const procedimentosList = procedimentosSection.querySelector('.procedimentos-list');
-    const toggleIcon = procedimentosToggle.querySelector('.toggle-icon');
+    const procedimentosToggleHeader = card.querySelector('.procedimentos-section h4'); 
+    const procedimentosList = card.querySelector('.procedimentos-list');
+    const toggleIcon = card.querySelector('.procedimentos-section .toggle-icon');
 
-    procedimentosToggle.addEventListener('click', () => {
-        const isVisible = procedimentosList.style.display === 'block';
+    if (procedimentosToggleHeader) {
+        procedimentosToggleHeader.addEventListener('click', async () => {
+            const isVisible = procedimentosList.style.display === 'block';
+            const isLoaded = procedimentosList.dataset.loaded === 'true';
 
-        if (isVisible) {
-            procedimentosList.style.display = 'none';
-            toggleIcon.classList.replace('fa-chevron-down', 'fa-chevron-right');
-        } else {
-            procedimentosList.style.display = 'block';
-            toggleIcon.classList.replace('fa-chevron-right', 'fa-chevron-down');
-        }
-    });
+            if (isVisible) {
+                // Fechar
+                procedimentosList.style.display = 'none';
+                toggleIcon.classList.replace('fa-chevron-down', 'fa-chevron-right');
+            } else {
+                // Abrir
+                procedimentosList.style.display = 'block';
+                toggleIcon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+
+                // Carregar dados se ainda não tiver carregado
+                if (!isLoaded) {
+                    const numeroGuia = prioridade.numeroGuia;
+                    if (numeroGuia) {
+                        await carregarProcedimentosECO(numeroGuia, procedimentosList);
+                    } else {
+                        procedimentosList.innerHTML = `<li class="procedimento-item-simples"><span>Guia sem número para consulta.</span></li>`;
+                    }
+                }
+            }
+        });
+    }
 
     return card;
+}
+
+function getStatusStyles(statusDisplay) {
+    if (!statusDisplay) return 'status-em-analise';
+    
+    const statusUpper = statusDisplay.toUpperCase();
+    
+    // ... (Mantenha o resto da sua lógica getStatusStyles) ...
+    if (statusUpper.includes('AUTORIZADA') || statusUpper.includes('EXECUTADA') || statusUpper.includes('APROVAD')) {
+        return 'status-autorizada';
+    } else if (statusUpper.includes('NEGADA') || statusUpper.includes('CANCELADA')) {
+        return 'status-negada';
+    } else if (statusUpper.includes('DOCUMENTAÇÃO PENDENTE') || statusUpper.includes('EM_REANALISE') || statusUpper.includes('EM_ANALISE') || statusUpper.includes('PENDENTE') || statusUpper.includes('AGUARDANDO AUTENTICAÇÃO')) {
+        return 'status-em-analise'; 
+    } else {
+        return 'status-em-analise'; // Padrão
+    }
+}
+
+function formatarStatusItem(status) {
+    const statusUpper = status?.toUpperCase() || 'PENDENTE';
+    
+    if (statusUpper === 'EM_ANALISE' || statusUpper === 'EM ANÁLISE') {
+        return 'Em Análise';
+    } else if (statusUpper === 'PENDENTE') {
+        return 'Pendente';
+    } else if (statusUpper === 'AUTORIZADA') {
+        return 'Autorizada';
+    } else if (statusUpper === 'EM_REANALISE') {
+        return 'Em Reanálise';
+    }
+    return statusUpper.charAt(0) + statusUpper.slice(1).toLowerCase();
+}
+
+
+async function carregarProcedimentosECO(numeroGuia, listElement) {
+    listElement.innerHTML = `<li class="loading-item procedimento-item-simples"><span>Carregando...</span></li>`;
+
+    try {
+        // Usa a rota de consulta do ECO que já está no seu backend
+        const res = await fetch(`/api/eco/${numeroGuia}`); 
+        
+        if (!res.ok) throw new Error('Erro ao buscar guia no ECO');
+        
+        const data = await res.json();
+        const guiaPrincipal = data.content && data.content.length > 0 ? data.content[0] : null;
+        const itens = guiaPrincipal?.itensSolicitados || [];
+
+        if (itens.length === 0) {
+            listElement.innerHTML = `<li class="procedimento-item-simples"><span>Nenhum procedimento detalhado encontrado.</span></li>`;
+            return;
+        }
+
+        const itensHtml = itens.map(item => {
+            const statusItem = item.ultimaSituacao || item.status || 'EM ANALISE';
+            const statusDisplayItem = formatarStatusItem(statusItem);
+            const statusClass = getStatusStyles(statusItem);
+            
+            return `
+                <li class="procedimento-item-simples">
+                    <span>${item.descricao || 'Item sem descrição'} (${item.codigo || '-'})</span>
+                    <span class="procedimento-status ${statusClass}">${statusDisplayItem}</span>
+                </li>
+            `;
+        }).join('');
+
+        listElement.innerHTML = itensHtml;
+        listElement.dataset.loaded = 'true'; // Marca como carregado
+        
+    } catch (err) {
+        console.error('Erro ao carregar procedimentos do ECO:', err);
+        listElement.innerHTML = `<li class="procedimento-item-simples" style="color: var(--maida-rosa);">
+                                    <span>Erro ao carregar. Verifique o console.</span>
+                                </li>`;
+    }
+}
+
+
+
+
+async function carregarHistoricoPrioridade(prioridadeId, container) {
+    try {
+        console.log(`Carregando histórico para prioridade ${prioridadeId}...`);
+        
+        const res = await fetch(`/api/regulador/historico/${prioridadeId}`, {
+            credentials: 'include'
+        });
+
+        if (!res.ok) throw new Error('Erro ao buscar histórico');
+        
+        const historico = await res.json();
+        console.log(`Histórico recebido: ${historico.length} registros`);
+
+        renderizarHistorico(historico, container);
+        
+    } catch (err) {
+        console.error('Erro ao carregar histórico:', err);
+        container.innerHTML = `<div class="error-historico">Erro ao carregar histórico: ${err.message}</div>`;
+    }
+}
+
+// Função para renderizar o histórico
+function renderizarHistorico(historico, container) {
+    if (!historico || historico.length === 0) {
+        container.innerHTML = '<div class="no-historico">Nenhum registro de histórico encontrado.</div>';
+        return;
+    }
+
+    // Ordena por data (mais recente primeiro)
+    historico.sort((a, b) => new Date(b.dataRegistro) - new Date(a.dataRegistro));
+
+    const historicoHTML = historico.map(item => `
+        <div class="historico-item">
+            <div class="historico-data">
+                <span class="historico-usuario">
+                    <i class="fas fa-user-circle" style="margin-right: 5px;"></i> ${item.nomeUsuario || 'Sistema'}
+                </span>
+                <span>${formatarDataHistorico(item.dataRegistro)}</span>
+            </div>
+            
+            <div class="historico-acao">
+                <strong>Ação:</strong> ${formatarAcaoHistorico(item.acao)}
+            </div>
+            
+            ${item.observacao ? `
+                <div class="historico-observacao">
+                    <strong>Observação:</strong> ${item.observacao}
+                </div>
+            ` : ''}
+            
+            ${item.statusAnterior && item.statusNovo ? `
+                <div class="historico-status-alteracao">
+                    <strong>Status:</strong> 
+                    <span class="historico-status ${getStatusClass(item.statusAnterior)}">${formatarStatusItem(item.statusAnterior)}</span>
+                    <i class="fas fa-arrow-right" style="margin: 0 8px; color: var(--text-color);"></i>
+                    <span class="historico-status ${getStatusClass(item.statusNovo)}">${formatarStatusItem(item.statusNovo)}</span>
+                </div>
+            ` : ''}
+            
+            ${item.motivo ? `
+                <div class="historico-motivo">
+                    <strong>Motivo:</strong> ${item.motivo}
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+
+    container.innerHTML = historicoHTML;
+}
+function formatarDataHistorico(dataString) {
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatarAcaoHistorico(acao) {
+    const acoes = {
+        'CRIACAO': 'Solicitação criada',
+        'ATUALIZACAO': 'Atualização de dados',
+        'STATUS_ALTERADO': 'Status alterado',
+        'REGULADA': 'Guia marcada como regulada',
+        'OBSERVACAO_ADD': 'Observação adicionada',
+        'PRIORIDADE_ALTERADA': 'Prioridade alterada (manual)'
+    };
+    
+    // Retorna a descrição amigável ou a ação bruta se não mapeada
+    return acoes[acao] || acao;
+}
+function getStatusClass(status) {
+    const statusUpper = status?.toUpperCase() || '';
+    
+    if (statusUpper.includes('AUTORIZADA') || statusUpper.includes('APROVAD') || statusUpper.includes('SEM RESTRIÇÃO')) {
+        return 'status-autorizada'; // Verde
+    } else if (statusUpper.includes('NEGADA') || statusUpper.includes('CANCELADA')) {
+        return 'status-negada'; // Vermelho
+    } else if (statusUpper.includes('PENDENTE') || statusUpper.includes('AGUARDANDO')) {
+        return 'status-pendente'; // Amarelo
+    } else {
+        return 'status-em-analise'; // Azul (Padrão para análise)
+    }
 }
 
 // ==============================================================
@@ -450,7 +697,9 @@ function renderizarCardPrioridade(prioridade, view, user) {
 async function carregarPrioridades(user, view) {
     try {
         console.log(`Carregando ${view}...`);
-        const endpoint = `/api/regulador/${view}`;
+        const endpoint = (view === 'pendentes') 
+            ? '/api/regulador/pendentes/sincronizar'
+            : `/api/regulador/${view}`; 
         console.log('Endpoint:', endpoint);
         const res = await fetch(endpoint, { credentials: 'include' });
 

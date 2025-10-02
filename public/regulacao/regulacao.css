@@ -436,3 +436,38 @@ button:hover {
     margin-right: 7px;
     vertical-align: middle;
 }
+/* ================= NOTIFICAÇÃO GLOBAL ================= */
+#notificacao-global {
+    position: fixed; 
+    bottom: 20px;    
+    left: 50%;      
+    transform: translateX(-50%); 
+    
+    padding: 15px 30px;
+    border-radius: 8px;
+    color: var(--color-brancopreto); 
+    font-weight: 600;
+    z-index: 1000; 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease, bottom 0.4s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    min-width: 300px;
+}
+
+#notificacao-global.show {
+    opacity: 1;
+    visibility: visible;
+    bottom: 40px; 
+}
+
+#notificacao-global:not(.erro) {
+    background-color: var(--background-verde); 
+    color: var(--colorfonte-verde); 
+}
+
+#notificacao-global.erro {
+    background-color: var(--background-vermelho); 
+    color: var(--colorfonte-vermelho); 
+}

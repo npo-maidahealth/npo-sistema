@@ -5,9 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient({
     datasources: {
         db: {
-            url: process.env.DATABASE_URL + 
-                 (process.env.DATABASE_URL.includes('?') ? '&' : '?') + 
-                 'statement_cache_size=0'
+            url: process.env.PRISMA_DATABASE_URL 
         }
     },
     log: [

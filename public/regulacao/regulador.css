@@ -46,6 +46,8 @@ body.light {
 
     /* PROCEDIMENTOS */
     --color-procedimentos: #6c757d;
+    /*BRANCO PARA AZUL*/
+    --branco-azul: #FFFFFF;
 }
 
 body:not(.light) {
@@ -84,6 +86,8 @@ body:not(.light) {
 
     /* PROCEDIMENTOS */
     --color-procedimentos: #FAFAFA;
+    /*BRANCO PARA AZUL*/
+    --branco-azul: #011727;
 }
 
 /* =============================================================== */
@@ -101,12 +105,13 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
 }
 
 .content-area {
     padding: 25px;
     margin: 40px auto;
-    max-width: 1600px;
+    max-width: 1200px;
     background: var(--page-bg-color);
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
@@ -199,7 +204,7 @@ body {
 
 .stats-info span {
     font-weight: 700;
-    color: var(--azul-rosa);
+    color: var(--azul-amarelo);
     font-size: 1.2rem;
 }
 
@@ -215,7 +220,7 @@ body {
 
 .prioridade-card {
     background: var(--card-bg-color);
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
@@ -233,38 +238,6 @@ body {
 .prioridade-card.regulada {
     border-left: 4px solid var(--background-verde);
 }
-
-.prioridade-card-inner {
-    position: relative;
-    width: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.prioridade-card.flipped .prioridade-card-inner {
-    transform: rotateY(180deg);
-}
-
-.card-front, .card-back {
-    position: relative;
-    width: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-}
-
-.card-front {
-    display: block;
-}
-
-.card-back {
-    transform: rotateY(180deg);
-    background: var(--card-bg-color);
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-}
-
 /* Layout do card front */
 .card-content {
     padding: 15px 20px; 
@@ -287,7 +260,7 @@ body {
     padding: 12px 20px;
     background-color: var(--card-bg-color);
     color: var(--text-color);
-    border-radius: 8px 8px 0 0;
+    border-radius: 20px 20px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -318,7 +291,7 @@ body {
 .status-sla-row {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between; 
     width: 100%;
     gap: 10px;
     margin: 5px 0;
@@ -327,7 +300,7 @@ body {
 
 .status-visual {
     padding: 6px 12px;
-    border-radius: 5px;
+    border-radius: 20px;
     font-weight: 600;
     font-size: 0.85rem;
     white-space: nowrap;
@@ -345,12 +318,13 @@ body {
 
 /* Contador de Prioridade */
 .contador-prioridade {
+    margin-left: auto; 
     background-color: var(--maida-rosa);
     color: var(--maida-branco);
     font-size: 0.9rem;
     font-weight: 700;
     padding: 5px 10px;
-    border-radius: 5px;
+    border-radius: 9px;
     white-space: nowrap;
 }
 
@@ -373,7 +347,7 @@ body {
     display: inline-flex;
     align-items: center;
     padding: 6px 12px;
-    border-radius: 5px;
+    border-radius: 20px;
 }
 
 .internacao-visual svg {
@@ -443,15 +417,6 @@ body {
 }
 
 /* === BOTÕES === */
-.card-buttons {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
 
 .btn {
     padding: 10px 16px;
@@ -476,26 +441,26 @@ body {
 
 .btn.observacao-btn {
     background: var(--maida-amarelo);
-    color: var(--maida-cinza-escuro);
+    color: var(--branco-azul);
 }
 
 .btn.observacao-btn:hover {
-    background: #e6b800;
+    background: var(--azul-amarelo-sombra);
 }
-
-.btn.flip-btn {
-    background: var(--maida-azul);
-    color: white;
+.btn.btn-historico {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    gap: 5px;
 }
-
-.btn.flip-btn:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
+.btn-historico .historico-icon-tema {
+    background-color: var(--card-bg-color);
+    color: var(--azul-amarelo) !important; 
+    transition: color 0.3s ease, transform 0.3s ease;
+    font-size: 0.9rem; 
 }
-
 .btn.marcar-regulada {
     background: var(--maida-rosa);
-    color: white;
+    color: var(--branco-azul);
     gap: 8px;
 }
 
@@ -570,8 +535,8 @@ body {
 
 /* === MODAL E STATUS MENU === */
 .modal-content {
-    background-color: var(--modal-bg-color);
-    transition: background-color 0.3s;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
     margin: 10% auto;
     padding: 30px;
     border-radius: 15px;
@@ -580,24 +545,29 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     animation: modalopen 0.3s;
+    z-index: 1001; 
 }
 
 @keyframes modalopen {
     from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .close {
-    color: #aaa;
+    color: var(--text-color);
     position: absolute;
     top: 15px;
     right: 20px;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
 }
 
 .close:hover {
-    color: var(--heading-color);
+    opacity: 1;
+    color: var(--maida-rosa);
 }
 
 .status-menu-container {
@@ -615,15 +585,15 @@ body {
 }
 
 .status-menu {
-    background: var(--modal-bg-color);
+    background: var(--card-bg-color);
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 400px;
     animation: modalopen 0.3s;
+    z-index: 3001;
 }
-
 .status-header {
     font-size: 1.2rem;
     font-weight: 600;
@@ -685,101 +655,152 @@ body {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
 }
+/* Botão REGULAR (Baseado no maida-azul) */
+.btn.regular-btn {
+    background: var(--azul-amarelo);
+    color: var(--branco-azul);
+    gap: 8px; 
+}
 
+.btn.regular-btn:hover {
+    background: var(--azul-amarelo-sombra); 
+}
+.beneficiario-info {
+    font-size: 0.95rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+.beneficiario-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 15px;
+    padding: 5px 0;
+    width: 100%;
+    overflow: hidden; 
+}
+
+.card-buttons-beneficiario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+.card-buttons-beneficiario .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.card-buttons-beneficiario .regular-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+}
+.card-buttons-beneficiario .observacao-btn.icon-only {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-buttons-beneficiario .marcar-regulada {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+.prioridade-card {
+    /* Mantenha o estilo do card principal, mas certifique-se que o overflow não esconda o painel lateral que se expande. */
+    overflow: visible; /* IMPORTANTE! Permite que o painel lateral saia do limite do card. */
+    margin-bottom: 20px;
+    height: auto; /* Garante que o card se ajuste ao conteúdo */
+}
+.card-front-content {
+    flex-shrink: 0; /* Não encolhe */
+    width: 100%; 
+    max-width: 100%; /* Largura padrão = 100% do card pai */
+    transition: margin-left 0.4s ease;
+}
+
+/* 6. ESTILOS DO CONTEÚDO DO PAINEL */
+.historico-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.historico-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 10px; /* Espaço para a barra de rolagem */
+}
+
+/* Estilo do botão fechar no painel lateral */
+.fechar-historico {
+    background: transparent !important;
+    color: var(--text-color) !important;
+    padding: 5px !important;
+    margin-left: 10px;
+    font-size: 1rem !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.fechar-historico i {
+    color: var(--maida-rosa);
+}
+
+.fechar-historico:hover {
+    background: var(--tab-hover-bg) !important;
+}
 /* =============================================================== */
 /* =================== RESPONSIVIDADE ============================ */
 /* =============================================================== */
 @media (max-width: 768px) {
-    .content-area {
-        padding: 15px;
-        margin: 20px auto;
-    }
-    
-    .card-content {
-        padding: 15px;
-        gap: 12px;
-    }
-    
-    .detalhes-header.novo-header {
+    .beneficiario-info-container {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
-        padding: 12px 15px;
-        margin: -15px -15px 12px -15px;
     }
     
-    .card-buttons {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
+    .beneficiario-info {
+        width: 100%;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
     }
     
-    .detalhes-body.novo-body {
-        gap: 10px;
-    }
-    
-    .status-sla-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .beneficiario-info, .fila-info, .data-emissao-info {
-        font-size: 0.9rem;
-    }
-    
-    .tabs {
+    .card-buttons-beneficiario {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
         flex-wrap: wrap;
-    }
-    
-    .tab {
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-    
-    .content-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
-    
-    .content-header h3 {
-        font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    .card-content h3 {
-        font-size: 1.5rem;
-        padding-left: 10px;
-    }
-    
-    .detalhes-tipo-guia {
-        font-size: 1rem;
-    }
-    
-    .status-visual {
-        font-size: 0.8rem;
-        padding: 5px 8px;
-    }
-    
-    .btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
-    
-    .procedimento-item-simples {
-        flex-direction: column;
+    .card-buttons-beneficiario {
         gap: 5px;
-        align-items: flex-start;
     }
     
-    .procedimento-status {
-        margin-left: 0;
-        align-self: flex-end;
+    .card-buttons-beneficiario .btn {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+    }
+    
+    .beneficiario-info {
+        font-size: 0.85rem;
     }
 }
-
 .prioridade-card,
 .prioridade-card-inner,
 .card-front,
@@ -792,18 +813,133 @@ body {
     min-height: auto;
 }
 
-.prioridade-card {
-    height: auto;
-    min-height: auto;
-}
-/* Botão REGULAR (Baseado no maida-azul) */
-.btn.regular-btn {
-    background: var(--maida-azul);
-    color: white;
-    gap: 8px; /* Adiciona espaço entre o ícone e o texto */
+/* ================= HISTÓRICO LATERAL ================= */
+.prioridade-card-inner-flex {
+    display: flex;
+    transition: transform 0.4s ease;
+    width: 100%;
+    position: relative;
 }
 
-.btn.regular-btn:hover {
-    background: #0056b3; /* Cor azul mais escura no hover */
-    transform: translateY(-2px);
+.card-front-content {
+    flex-shrink: 0;
+    width: 100%;
+    transition: margin-right 0.4s ease;
 }
+
+.prioridade-historico-panel {
+    width: 450px;
+    max-height: 450px;
+    flex-shrink: 0;
+    margin-left: 15px;
+    background: var(--card-bg-color);
+    border: 2px solid var(--maida-azul);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    
+    /* Inicialmente escondido */
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    
+    display: flex;
+    flex-direction: column;
+}
+
+.prioridade-card-inner-flex.show-historico .prioridade-historico-panel {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Estilos do conteúdo do painel */
+.historico-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.historico-count {
+    background: var(--maida-azul);
+    color: var(--maida-branco);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.historico-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 10px;
+}
+
+.historico-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.historico-item:last-child {
+    border-bottom: none;
+}
+
+.historico-data {
+    font-weight: 600;
+    color: var(--maida-azul);
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.historico-usuario {
+    color: var(--maida-rosa);
+    font-weight: 500;
+}
+
+.historico-observacao {
+    color: var(--text-color);
+    margin-top: 5px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border-color);
+}
+
+.historico-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.fechar-historico {
+    background: transparent !important;
+    color: var(--text-color) !important;
+    padding: 5px !important;
+    margin-left: 10px;
+    font-size: 1rem !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.fechar-historico i {
+    color: var(--azul-amarelo);
+}
+
+.fechar-historico:hover {
+    background: var(--tab-hover-bg) !important;
+}
+
+

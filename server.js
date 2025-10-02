@@ -44,20 +44,14 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Configuração do Session Store com PostgreSQL
-const pgPool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-    max: 20, 
-    idleTimeoutMillis: 5000,
-    connectionTimeoutMillis: 2000 
-});
 const PgSession = connectPgSimple(session);
 
 app.use(session({
-    store: new PgSession({
-        pool: pgPool,
-        tableName: 'user_sessions'
+    
+    store: new PgSession({ 
+        conString: process.env.DATABASE_URL, 
+        tableName: 'user_sessions',
+        ssl: { rejectUnauthorized: false } 
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -101,13 +95,13 @@ app.listen(PORT, () => {
         console.log('⏰ Agendando atualização automática de status...');
         
         // Agendamento: Roda a função a cada 10 minutos (*/10)
-        cron.schedule('*/10 * * * *', () => {
+        cron.schedule('* * * * *', () => {
             console.log('❌ CRON: Executando atualização de status das guias...');
             // Chama a função e trata erros para não travar o processo
             atualizarStatusGuias().catch(err => console.error('❌ CRON JOB FAILED:', err));
         });
         
-        console.log('✅ Atualização automática agendada para rodar a cada 10 minutos.');
+        console.log('✅ Atualização automática agendada para rodar a cada 1 minuto.');
     } catch (err) {
         console.error('❌ Erro ao agendar a atualização automática:', err);
     }
