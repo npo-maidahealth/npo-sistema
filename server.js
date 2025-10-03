@@ -93,7 +93,6 @@ app.listen(PORT, () => {
     // ========================================================
     try {
         console.log('⏰ Agendando atualização automática de status...');
-        
         cron.schedule('* * * * *', () => {
             console.log('❌ CRON: Executando atualização de status das guias...');
             // Chama a função e trata erros para não travar o processo

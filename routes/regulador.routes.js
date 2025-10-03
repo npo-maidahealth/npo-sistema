@@ -17,9 +17,8 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
             console.log('Usuário não autenticado');
             return res.status(401).json({ message: 'Usuário não autenticado' });
         }
-        console.log('🔄 Iniciando sincronização manual de status...');
-        await atualizarStatusGuias();
-        console.log('✅ Sincronização de status concluída. Buscando dados atualizados...');
+
+        console.log('Buscando prioridades pendentes...');
         
         const prioridades = await prisma.prioridade.findMany({
             where: { 
