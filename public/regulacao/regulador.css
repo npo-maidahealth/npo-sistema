@@ -818,7 +818,9 @@ body {
     display: flex;
     transition: transform 0.4s ease;
     width: 100%;
-    position: relative;
+    align-items: flex-start;
+    min-height: 100%; 
+    height: auto; 
 }
 
 .card-front-content {
@@ -829,17 +831,23 @@ body {
 
 .prioridade-historico-panel {
     width: 450px;
-    max-height: 450px;
+    max-height: 450px; /* Mantenha o max-height se for um limite */
     flex-shrink: 0;
-    margin-left: 15px;
+
+    /* CORREÇÃO PRINCIPAL: Tira do fluxo e o posiciona no topo direito */
+    position: absolute; 
+    top: 0;
+    right: 0;
+    height: 100%; /* Ocupa 100% da altura do container pai (.prioridade-card) */
+    
     background: var(--card-bg-color);
     border: 2px solid var(--maida-azul);
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     
-    /* Inicialmente escondido */
-    transform: translateX(100%);
+    /* Inicialmente fora da vista (à direita) */
+    transform: translateX(100%); 
     opacity: 0;
     pointer-events: none;
     transition: transform 0.4s ease, opacity 0.4s ease;
@@ -941,5 +949,3 @@ body {
 .fechar-historico:hover {
     background: var(--tab-hover-bg) !important;
 }
-
-

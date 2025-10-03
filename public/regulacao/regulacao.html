@@ -113,6 +113,46 @@
 
         </div>
     </main>
+    <div id="modal-protocolo" class="modal-custom" style="display:none;">
+        <div class="modal-content-custom">
+            <span class="close-custom">&times;</span>
+            <h2>Prioridade Solicitada com Sucesso!</h2>
+            <p>Confirme as informações e anote o número de protocolo.</p>
+            
+            <div class="protocolo-info-box">
+    
+                <div id="modal-header-resumo" class="detalhes-header novo-header" style="margin: 0;">
+                    <span id="modal-guia-tipo-numero" class="detalhes-tipo-guia"></span>
+                    <span id="modal-contador-solicitacoes"></span>
+                </div>
+
+                <div class="detalhes-body novo-body" style="padding: 10px 0;">
+                    
+                    <p id="modal-status-sla-row" class="status-sla-row">
+                        </p>
+                    
+                    <p class="beneficiario-info">
+                        <strong>Beneficiário:</strong> <span id="modal-beneficiario"></span> 
+                        | <strong>CPF:</strong> <span id="modal-cpf"></span> 
+                        | <strong>Cartão:</strong> <span id="modal-cartao"></span>
+                    </p>
+
+                    <p class="fila-info"><strong>Fila:</strong> <span id="modal-fila"></span></p>
+                    <p class="data-emissao-info"><strong>Data de emissão da guia:</strong> <span id="modal-data-emissao"></span></p>
+                    
+                </div>
+
+                <p class="protocolo-row" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <strong>Protocolo Gerado:</strong> 
+                    <span id="modal-protocolo-numero" style="font-weight: bold; color: var(--maida-rosa);"></span>
+                    <button id="copy-protocolo-btn" class="copy-button" type="button" title="Copiar Protocolo">
+                        <i class="far fa-copy"></i>
+                    </button>
+                </p>
+            </div>
+            
+        </div>
+    </div>
     <span id="text-width-helper"></span>
     <script src="/js/shared.js"></script>
     <script src="/regulacao/regulacao.js"></script>

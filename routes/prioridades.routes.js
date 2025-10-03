@@ -2,8 +2,80 @@ import express from 'express';
 import prisma from '../db/prisma.js'; 
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { getReguladorAtual } from '../services/escalaService.js';
+import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
+import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
 
 const router = express.Router();
+
+// ===================================
+// Rota de Consulta Detalhada da Guia (ECO)
+// ===================================
+router.get('/consulta-detalhada/:numeroGuia', isAuthenticated, async (req, res) => {
+    const { numeroGuia } = req.params;
+    let guiaDetalhes;
+
+    try {
+        // 1. BUSCA DA GUIA NO ECO (Maida Health) via Service Layer
+        // Usa a função que resolve o token, a URL correta e trata erros.
+        guiaDetalhes = await fetchGuiaDetalhes(numeroGuia); 
+
+        if (!guiaDetalhes) {
+            return res.status(404).json({ message: 'Guia não encontrada no ECO.' });
+        }
+
+    } catch (ecoError) {
+        // Trata qualquer erro lançado pelo ecoService (falha de token, falha de API, etc.)
+        console.error('Erro ao buscar guia no ECO (no Prioridades.routes):', ecoError);
+        return res.status(500).json({ 
+            message: 'Erro ao consultar detalhes da guia na API externa.', 
+            error: ecoError.message 
+        });
+    }
+
+    // 2. BUSCA NO PRISMA E COMBINAÇÃO DE DADOS
+    try {
+        // O frontend espera o 'numeroGuia' real (autorizacaoGuia) para buscar no Prisma
+        const numeroGuiaParaBusca = guiaDetalhes.autorizacaoGuia || numeroGuia; 
+
+        const prioridadeExistente = await prisma.prioridade.findFirst({
+            where: { numeroGuia: numeroGuiaParaBusca },
+            orderBy: { dataCriacao: 'desc' },
+            select: { 
+                status: true, 
+                vezesSolicitado: true, 
+                observacao: true 
+            }
+        });
+        
+        const resultado = {
+            ...guiaDetalhes,
+            statusRegulacao: prioridadeExistente?.status || guiaDetalhes.statusRegulacao || 'PENDENTE',
+            observacao: prioridadeExistente?.observacao || guiaDetalhes.observacao || '',
+            quantidadeSolicitacoes: prioridadeExistente?.vezesSolicitado || 0,
+            prioridadeExistente: !!prioridadeExistente // Flag para o frontend
+        };
+        let produtoId = 1; // Default
+        const produto = await prisma.produto.findFirst({
+            where: { nome: guiaDetalhes.nomeCliente || 'DEFAULT' } 
+        });
+        if (produto) {
+            produtoId = produto.id;
+        }
+
+        // 5. Resposta final (Objeto Guia + ID do Produto)
+        res.json({
+            ...resultado,
+            produtoId: produtoId // ID do produto para o frontend usar no envio de prioridade (POST)
+        });
+
+    } catch (prismaError) {
+        console.error('Erro ao consultar prioridade no Prisma ou combinar dados:', prismaError);
+        res.status(500).json({ 
+            message: 'Erro interno ao consultar status de prioridade ou combinar dados.', 
+            error: prismaError.message 
+        });
+    }
+});
 
 router.get('/consulta/:numeroGuia', isAuthenticated, async (req, res) => {
     try {
@@ -64,6 +136,18 @@ router.get('/consulta/:numeroGuia', isAuthenticated, async (req, res) => {
     }
 });
 // ==========================
+// PROTOCOLO
+// ==========================
+router.post('/protocolo', isAuthenticated, async (req, res) => {
+    try {
+        const novoProtocolo = await gerarProtocoloSPG();
+        res.json({ protocolo: novoProtocolo });
+    } catch (err) {
+        console.error('Erro ao gerar protocolo:', err);
+        res.status(500).json({ message: 'Erro interno ao gerar protocolo', error: err.message });
+    }
+});
+// ==========================
 // Criar prioridade
 // ==========================
 router.post('/', isAuthenticated, async (req, res) => {
@@ -75,15 +159,14 @@ router.post('/', isAuthenticated, async (req, res) => {
       numeroGuia, tipoGuia, status, caracterAtendimento, observacao, nomeProduto, produtoId,
       beneficiario, beneficiarioNomeSocial, cartaoBeneficiario, cpfBeneficiario,
       dataHoraSolicitacao, dataPausaSla, dataRegulacao, dataSolicitacao, dataVencimentoSla,
-      fila, atrasada, atrasoRegulacao, area, capturada, fonte, idGuiaECO  // ← ADICIONADO: fonte aqui
+      fila, atrasada, atrasoRegulacao, area, capturada, fonte, idGuiaECO, protocoloSPG  // protocoloSPG is now required for each request
     } = req.body;
 
-    // Logs após desestruturação.
-    console.log('Fila recebida para busca de regulador:', fila);
+    if (!protocoloSPG) {
+         return res.status(400).json({ message: 'O número de protocolo é obrigatório.' });
+    }
 
     const usuarioId = req.session.user?.id;
-    console.log('Usuario ID da sessão:', usuarioId);
-
     if (!usuarioId) return res.status(401).json({ message: 'Usuário não autenticado' });
 
     if (capturada) {
@@ -92,114 +175,91 @@ router.post('/', isAuthenticated, async (req, res) => {
       return res.json({ message: `Prioridade ${numeroGuia} capturada e removida do banco` });
     }
 
-    // Normaliza a fila antes de buscar regulador (remove acentos).
-    const normalize = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
-    const filaNormalizada = normalize(fila || caracterAtendimento || ''); // Usa fila ou caracterAtendimento como fallback.
-    console.log('Fila normalizada para busca de regulador:', filaNormalizada);
 
-    console.log('Fila normalizada:', filaNormalizada); 
-    console.log('Fonte recebida:', fonte);
-    console.log('Fila normalizada para busca de regulador:', filaNormalizada);
+    let produtoIdFinal = produtoId || 1;
 
-    let reguladorDePlantaoId = null;
-    const reguladorData = await getReguladorAtual(filaNormalizada, fonte); // Passa normalizada.
-    console.log('Regulador encontrado:', reguladorData ? reguladorData.nome : 'Nenhum'); 
-
-    if (reguladorData) {
-      reguladorDePlantaoId = reguladorData.id;
-      console.log(`Regulador de plantão encontrado: ${reguladorData.nome} (ID: ${reguladorDePlantaoId}) para fila '${filaNormalizada}'`);
+    let prioridade = await prisma.prioridade.findFirst({
+        where: {
+            numeroGuia: numeroGuia,
+            regulada: false,
+        },
+    });
+    
+    const isAutorizada = status.toUpperCase() === 'AUTORIZADA';
+    
+    if (!prioridade) {
+        // Criar nova prioridade se não existir
+        console.log('Nenhuma prioridade pendente encontrada, criando uma nova...');
+        prioridade = await prisma.prioridade.create({
+            data: {
+                // ... (keep all existing fields, but REMOVE protocoloSPG from here)
+                numeroGuia, 
+                tipoGuia, 
+                status, 
+                idGuiaECO: idGuiaECO,
+                fonte: fonte || 'ECO', 
+                produtoId: produtoIdFinal || 1,
+                usuarioId: usuarioId,
+                reguladorId: null,
+                caracterAtendimento: caracterAtendimento || fila || '', 
+                fila: fila || '',
+                area: area || '',
+                observacao: observacao || '',
+                beneficiario: beneficiario || '',
+                beneficiarioNomeSocial: beneficiarioNomeSocial || '',
+                cartaoBeneficiario: cartaoBeneficiario || '',
+                cpfBeneficiario: cpfBeneficiario || '',
+                dataHoraSolicitacao: dataHoraSolicitacao ? new Date(dataHoraSolicitacao) : null,
+                dataSolicitacao: dataSolicitacao ? new Date(dataSolicitacao) : null,
+                dataVencimentoSla: dataVencimentoSla ? new Date(dataVencimentoSla) : null,
+                dataPausaSla: dataPausaSla ? new Date(dataPausaSla) : null,
+                dataRegulacao: dataRegulacao ? new Date(dataRegulacao) : null,
+                atrasada: atrasada || false,
+                atrasoRegulacao: atrasoRegulacao || '',
+                capturada: false,
+                vezesSolicitado: 1, 
+                autorizada: isAutorizada,
+            }
+        });
     } else {
-      console.log(`Nenhum regulador de plantão encontrado para a fila: ${filaNormalizada}`);
-    }
-        let produtoIdFinal = produtoId || 1;
-        let produtoNome = nomeProduto || 'Produto Default';
-        let produto = await prisma.produto.findUnique({ where: { id: produtoIdFinal } });
-        if (!produto) {
-          console.log(`Produto ID ${produtoIdFinal} não encontrado. Criando novo com nome: ${produtoNome}`);
-          produto = await prisma.produto.create({
-            data: { id: produtoIdFinal, nome: produtoNome }  
-          });
-          produtoIdFinal = produto.id;  // Atualiza se ID foi gerado automaticamente
-        } else {
-          console.log('Produto encontrado:', produto.nome);
-        }
-
-        console.log('Produto ID final:', produtoIdFinal);
-        if (!produtoIdFinal) {
-            console.log('ERRO: Produto ID é obrigatório');
-            return res.status(400).json({ message: 'Produto ID é obrigatório. Envie produtoId ou nomeProduto.' });
-        }
-
-        //Encontrar prioridade pendente existente
-        const prioridadeExistente = await prisma.prioridade.findFirst({
-            where: {
-                numeroGuia: numeroGuia,
-                regulada: false, // Busca apenas por prioridades que ainda não foram reguladas
+        // Atualizar prioridade existente
+        console.log('Prioridade existente encontrada, atualizando contador...');
+        const novaAutorizada = status.toUpperCase() === 'AUTORIZADA' ? true : prioridade.autorizada;
+        prioridade = await prisma.prioridade.update({
+            where: { id: prioridade.id },
+            data: {
+                vezesSolicitado: { increment: 1 },
+                reguladorId: null,
+                observacao,
+                dataAtualizacao: new Date(),
+                autorizada: novaAutorizada,
+                fonte: fonte || prioridade.fonte
             },
         });
-        
-        let prioridade;
-        
-        // Condição para atualizar ou criar a prioridade
-        if (prioridadeExistente) {
-            // Atualizar prioridade existente
-            console.log('Prioridade existente encontrada, atualizando contador...');
-            const novaAutorizada = status.toUpperCase() === 'AUTORIZADA' ? true : prioridadeExistente.autorizada;
-            prioridade = await prisma.prioridade.update({
-                where: { id: prioridadeExistente.id },
-                data: {
-                    vezesSolicitado: {
-                        increment: 1, // Incrementa o contador
-                    },
-                    reguladorId: reguladorDePlantaoId, // Atribui o regulador de plantão mais atual
-                    observacao, // Atualiza a observação
-                    dataAtualizacao: new Date(),
-                    autorizada: novaAutorizada,
-                    fonte: fonte || prioridadeExistente.fonte  // atualiza fonte se enviado
-                },
-            });
-        } else {
-            // Criar nova prioridade
-            console.log('Nenhuma prioridade pendente encontrada, criando uma nova...');
-            const isAutorizada = status.toUpperCase() === 'AUTORIZADA';
-            prioridade = await prisma.prioridade.create({
-                data: {
-                    ...req.body,  // inclui TODOS os campos do body (como fonte)
-                    idGuiaECO,
-                    caracterAtendimento: caracterAtendimento || fila || '',  // Overrides necessários
-                    observacao: observacao || '',
-                    produtoId: produtoIdFinal || 1,  // Default do snippet
-                    usuarioId: usuarioId,  // Do auth/session
-                    reguladorId: reguladorDePlantaoId,
-                    beneficiario: beneficiario || '',
-                    beneficiarioNomeSocial: beneficiarioNomeSocial || '',
-                    cartaoBeneficiario: cartaoBeneficiario || '',
-                    cpfBeneficiario: cpfBeneficiario || '',
-                    dataHoraSolicitacao: dataHoraSolicitacao ? new Date(dataHoraSolicitacao) : null,
-                    dataPausaSla: dataPausaSla ? new Date(dataPausaSla) : null,
-                    dataRegulacao: dataRegulacao ? new Date(dataRegulacao) : null,
-                    dataSolicitacao: dataSolicitacao ? new Date(dataSolicitacao) : null,
-                    dataVencimentoSla: dataVencimentoSla ? new Date(dataVencimentoSla) : null,
-                    fila: fila || '',
-                    atrasada: atrasada || false,
-                    atrasoRegulacao: atrasoRegulacao || '',
-                    area: area || '',
-                    capturada: false,
-                    vezesSolicitado: 1, 
-                    autorizada: isAutorizada,
-                }
-            });
-        }
-
-      console.log('ReguladorDePlantaoId final:', reguladorDePlantaoId);
-      console.log('Prioridade processada com sucesso:', prioridade);
-      res.json({ message: 'Prioridade processada com sucesso', prioridade });
-
-    } catch (err) {
-        console.error('ERRO COMPLETO ao processar prioridade:', err);
-        console.error('Stack trace:', err.stack);
-        res.status(500).json({ message: 'Erro interno ao processar prioridade', error: err.message });
     }
+
+    const solicitacao = await prisma.solicitacaoPrioridade.create({
+        data: {
+            prioridadeId: prioridade.id,
+            protocoloSPG: protocoloSPG,
+            dataHoraSolicitacao: new Date(),
+            observacaoSolicitacao: observacao || '',
+            reguladorPlantaoId: null  
+        }
+    });
+
+    console.log('Prioridade processada com sucesso:', prioridade);
+    console.log('Nova solicitação de prioridade criada:', solicitacao);
+    res.json({ message: 'Prioridade processada com sucesso', prioridade });
+
+  } catch (err) {
+    if (err.code === 'P2002' && err.meta?.constraint === 'SolicitacaoPrioridade_protocoloSPG_key') {
+        console.error('Tentativa de duplicidade de protocolo (concorrência):', err);
+        return res.status(409).json({ message: 'Erro de concorrência: O protocolo gerado já existe. Tente novamente.', error: 'PROTOCOLO_DUPLICADO' });
+    }
+    console.error('ERRO COMPLETO ao processar prioridade:', err);
+    res.status(500).json({ message: 'Erro interno ao processar prioridade', error: err.message });
+  }
 });
 
 // ==========================

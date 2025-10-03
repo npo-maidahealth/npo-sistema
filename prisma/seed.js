@@ -10,7 +10,6 @@ async function main() {
 
   // 1. GARANTIR QUE OS CARGOS EXISTEM
   // ===================================
-// Dentro de prisma/seed.js
 
 const cargos = [
   'administrador',

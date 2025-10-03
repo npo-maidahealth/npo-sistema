@@ -101,7 +101,7 @@ model ProdutosDoUsuario {
 }
 
 model Prioridade {
-  id                     Int        @id @default(autoincrement())
+  id                     Int                     @id @default(autoincrement())
   numeroGuia             String
   tipoGuia               String
   status                 String
@@ -110,12 +110,13 @@ model Prioridade {
   produtoId              Int
   usuarioId              Int
   reguladorId            Int?
-  dataCriacao            DateTime   @default(now())
-  dataAtualizacao        DateTime?  @updatedAt
-  capturada              Boolean    @default(false)
+  idGuiaECO              Int?
+  dataCriacao            DateTime                @default(now())
+  dataAtualizacao        DateTime?               @updatedAt
+  capturada              Boolean                 @default(false)
   vencimento             DateTime?
-  autorizada             Boolean    @default(false)
-  regulada               Boolean    @default(false)
+  autorizada             Boolean                 @default(false)
+  regulada               Boolean                 @default(false)
   area                   String?
   atrasada               Boolean?
   atrasoRegulacao        String?
@@ -129,23 +130,39 @@ model Prioridade {
   dataSolicitacao        DateTime?
   dataVencimentoSla      DateTime?
   fila                   String?
-  fonte                  String?    @default("ECO")
-  createdAt              DateTime   @default(now())
-  updatedAt              DateTime   @default(now()) @updatedAt
-  vezesSolicitado        Int?       @default(1)
-  produto                Produto    @relation(fields: [produtoId], references: [id])
-  regulador              Regulador? @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
-  usuario                Usuario    @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
+  fonte                  String?                 @default("ECO")
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now()) @updatedAt
+  vezesSolicitado        Int?                    @default(1)
+  produto                Produto                 @relation(fields: [produtoId], references: [id])
+  regulador              Regulador?              @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
+  usuario                Usuario                 @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
+  solicitacoes           SolicitacaoPrioridade[]
+}
+
+model SolicitacaoPrioridade {
+  id                    Int      @id @default(autoincrement())
+  prioridadeId          Int
+  protocoloSPG          String   @unique
+  dataHoraSolicitacao   DateTime @default(now())
+  observacaoSolicitacao String?
+  reguladorPlantaoId    Int?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  prioridade       Prioridade @relation(fields: [prioridadeId], references: [id])
+  reguladorPlantao Regulador? @relation("SolicitacaoPrioridadeToReguladorPlantao", fields: [reguladorPlantaoId], references: [id])
 }
 
 model Regulador {
-  id          Int          @id @default(autoincrement())
-  nome        String       @unique
-  ativo       Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now()) @updatedAt
-  Escala      Escala[]
-  prioridades Prioridade[] @relation("PrioridadeRegulador")
+  id                  Int                     @id @default(autoincrement())
+  nome                String                  @unique
+  ativo               Boolean                 @default(true)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @default(now()) @updatedAt
+  Escala              Escala[]
+  prioridades         Prioridade[]            @relation("PrioridadeRegulador")
+  solicitacoesPlantao SolicitacaoPrioridade[] @relation("SolicitacaoPrioridadeToReguladorPlantao")
 }
 
 model user_sessions {

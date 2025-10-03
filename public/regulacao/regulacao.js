@@ -19,6 +19,83 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ecoPrioridadeContainer = document.getElementById('eco-prioridade-form'); 
     let guiaSelecionado = null;
 
+    ecoForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+
+        const ecoGuiaInput = document.getElementById('eco-guia');
+        const numeroGuia = ecoGuiaInput.value.trim();
+
+        if (!numeroGuia) {
+            exibirErro('Por favor, insira o número da guia.');
+            return;
+        }
+
+        limparErro();
+        ecoPrioridadeContainer.style.display = 'none';
+
+        try {
+            // 1. BUSCAR A GUIA (Chamada da API) - FIXED: Added hyphen in 'consulta-detalhada'
+            const res = await fetch(`/api/prioridades/consulta-detalhada/${numeroGuia}`, {
+                credentials: 'include'
+            });
+            
+            // Tratamento 404: Guia não encontrada no ECO
+            if (res.status === 404) {
+                exibirErro('Guia não encontrada no ECO. Verifique o número e tente novamente.');
+                return;
+            }
+
+            // Tratamento de ERRO GERAL (500, 400, etc.)
+            if (!res.ok) {
+                let errorData;
+                try {
+                    errorData = await res.json();
+                } catch (jsonErr) {
+                    // If not JSON, read as text and provide a generic message
+                    const errorText = await res.text();
+                    console.error('Non-JSON response from server:', errorText);
+                    throw new Error(`Server returned an unexpected error. Status: ${res.status}. Response starts with: ${errorText.substring(0, 100)}...`);
+                }
+                throw new Error(errorData.message || 'Erro ao buscar dados da guia.');
+            }
+
+            // Tratamento 200 OK
+            const data = await res.json(); 
+            guiaSelecionado = data; 
+            
+            const statusAtual = verificarStatusGuia(data.statusRegulacao); 
+            
+            // 2. RENDERIZAR O CARD DE DETALHES/ENVIO
+            const cardHtml = renderizarCardDetalhes(
+                data, 
+                statusAtual.statusDisplay, 
+                !statusAtual.invalido, 
+                statusAtual
+            ); 
+            
+            ecoPrioridadeContainer.innerHTML = cardHtml;
+            ecoPrioridadeContainer.style.display = 'block';
+
+            // 3. ANEXAR LISTENER AO BOTÃO DE ENVIO DE PRIORIDADE
+            const accordionHeaders = ecoPrioridadeContainer.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => toggleAccordion(header));
+            });
+
+            // 3. ANEXAR LISTENER AO BOTÃO DE ENVIO DE PRIORIDADE
+            const novoEnviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
+            if (novoEnviarPrioridadeBtn) {
+                novoEnviarPrioridadeBtn.addEventListener('click', enviarPrioridadeHandler);
+            }
+
+        } catch (error) {
+            console.error('Erro na busca da guia:', error);
+            exibirErro(error.message);
+            ecoPrioridadeContainer.style.display = 'none';
+        }
+    });
+
+
     function exibirErro(mensagem) {
         const ecoContent = document.getElementById('eco-content');
         let erroDiv = document.getElementById('eco-erro');
@@ -101,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         return statusUpper.charAt(0) + statusUpper.slice(1).toLowerCase();
     }
-    function renderizarCardDetalhes(guia, statusDisplay, permitirEnvio, statusInfo) {
+    function renderizarCardDetalhes(guia, statusDisplay, permitirEnvio, statusInfo, mostrarElementosEnvio = true) {
         const statusClass = getStatusStyles(statusDisplay);
         
         let tipoGuiaDisplay = guia.tipoDeGuia ? guia.tipoDeGuia.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Guia Desconhecida';
@@ -131,7 +208,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preserveAspectRatio="xMidYMid meet">
                 <defs>
                     <style>
-                        /* O SVG lê a variável do CSS global */
                         .theme-icon {
                             fill: var(--colorfont-internacao, #E59500); 
                             transition: fill 0.3s ease;
@@ -165,29 +241,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </g>
             </svg>
         `;
+
+        // Elementos de envio (textarea e botão) - só mostram se mostrarElementosEnvio for true
+        const elementosEnvio = mostrarElementosEnvio ? `
+            <textarea id="eco-observacao" placeholder="Observações (opcional)"></textarea>
+            
+            <button 
+                id="eco-enviar-prioridade" 
+                type="button" 
+                title="${permitirEnvio ? 'Enviar para prioridade' : statusInfo.motivo}"
+                ${!permitirEnvio ? 'disabled' : ''}
+            >
+                Enviar para Prioridade
+            </button>
+        ` : '';
+
         const cardHtml = `
             <h3>Detalhes da Guia</h3>
             <div class="card-guia-container">
                 
                 <div class="detalhes-header novo-header">
                     <span class="detalhes-tipo-guia">Guia de ${tipoGuiaDisplay} - Nº Guia: ${guia.autorizacaoGuia || guia.numeroGuia || '-'}</span>
-                    <span class="detalhes-contador">${qtdPrioridades > 0 ? `Solicitado Prioridade ${qtdPrioridades}x` : ''}</span>
                 </div>
                 
                 <div class="detalhes-body novo-body">
                     <p class="status-sla-row">
-                        <p class="status-sla-row">
-                            <span class="status-visual ${statusClass}">${statusDisplay}</span>
-                            
-                            <span 
-                                class="status-visual status-sla-visual sla-info" 
-                                title="SLA: ${slaTooltip}"
-                            >
-                                <i class="far fa-clock"></i> ${slaContador}
-                            </span> 
-                            ${qtdPrioridades > 0 ? `<span class="contador-prioridade">${qtdPrioridades}x Solicitado</span>` : ''}
-                        </p>
-                    
+                        <span class="status-visual ${statusClass}">${statusDisplay}</span>
+                        
+                        <span 
+                            class="status-visual status-sla-visual sla-info" 
+                            title="SLA: ${slaTooltip}"
+                        >
+                            <i class="far fa-clock"></i> ${slaContador}
+                        </span> 
+                        ${qtdPrioridades > 0 ? `<span class="contador-prioridade">${qtdPrioridades}x Solicitado</span>` : ''}
+                    </p>
+                
                     <p class="beneficiario-info">
                         <strong>Beneficiário:</strong> ${guia.beneficiario || '-'} 
                         | <strong>CPF:</strong> ${guia.cpfBeneficiario || '-'} 
@@ -209,13 +298,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <strong>Data de emissão da guia:</strong> ${dataEmissao}
                     </p>
 
-                    <div class="procedimentos-section" id="procedimentos-toggle-header">
-                                <h4 style="cursor: pointer;">
-                                    <i class="fas fa-chevron-right toggle-icon" id="procedimentos-main-toggle"></i>
-                                    Procedimentos Solicitados:
-                                </h4>
-                                <ul id="procedimentos-list" style="display: none;"> ${guia.itensSolicitados ? guia.itensSolicitados.map((item, index) => {
-                            
+                    <div class="procedimentos-section">
+                        <h4 class="accordion-header" id="procedimentos-toggle-header" style="cursor: pointer;">
+                            <i class="fas fa-chevron-right toggle-icon" id="procedimentos-main-toggle"></i>
+                            Procedimentos Solicitados:
+                        </h4>
+                        <ul id="procedimentos-list" style="display: none;"> 
+                            ${guia.itensSolicitados && guia.itensSolicitados.length > 0 ? 
+                                guia.itensSolicitados.map((item, index) => {
                                     const statusItem = item.ultimaSituacao || item.status;
                                     const statusDisplayItem = formatarStatusItem(statusItem);
                                     const statusClass = statusDisplayItem.toLowerCase().replace(' ', '-');
@@ -226,28 +316,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                                             <span class="procedimento-status status-${statusClass}">${statusDisplayItem}</span>
                                         </li>
                                     `;
-                                }).join('') : '<p>Nenhum procedimento encontrado.</p>'}
-                                </ul>
-                            </div>
-                        </div>
+                                }).join('') : 
+                                '<li>Nenhum procedimento encontrado.</li>'
+                            }
+                        </ul>
                     </div>
                 </div>
             </div>
             
-            <textarea id="eco-observacao" placeholder="Observações (opcional)"></textarea>
-            
-            <button 
-                id="eco-enviar-prioridade" 
-                type="button" 
-                title="${permitirEnvio ? 'Enviar para prioridade' : statusInfo.motivo}"
-                ${!permitirEnvio ? 'disabled' : ''}
-            >
-                Enviar para Prioridade
-            </button>
+            ${elementosEnvio}
         `;
 
         return cardHtml;
     }
+
 
     function renderizarCardConsulta(dados) {
         const guiaMock = {
@@ -262,13 +344,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             fila: dados.fila,
             dataHoraSolicitacao: dados.dataCriacao, 
             dataVencimentoSla: dados.dataVencimentoSla,
-            observacao: dados.observacao,
-            quantidadeSolicitacoes: dados.quantidade 
+            quantidadeSolicitacoes: dados.quantidade,
+            itensSolicitados: [] // Array vazio pois consulta não tem procedimentos
         };
         
-        const statusInfo = { statusDisplay: dados.status, invalido: false, motivo: '' };
+        const statusInfo = verificarStatusGuia(dados.status);
         
-        return renderizarCardDetalhes(guiaMock, statusInfo.statusDisplay, false, statusInfo);
+        // Chamar com mostrarElementosEnvio = false para a aba de consulta
+        return renderizarCardDetalhes(guiaMock, statusInfo.statusDisplay, false, statusInfo, false);
     }
     function formatarTempoRestante(dataVencimentoSla) {
         if (!dataVencimentoSla) {
@@ -320,13 +403,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         currentEnviarBtn.disabled = true;    
 
-        const data = {
+        // 1. Montar dados
+        const observacao = document.getElementById('eco-observacao').value || '';
+        const dadosEnvio = {
             numeroGuia: guiaSelecionado.autorizacaoGuia,
             tipoGuia: guiaSelecionado.tipoDeGuia || 'DESCONHECIDO',
             status: guiaSelecionado.statusRegulacao || 'PENDENTE',
             caracterAtendimento: guiaSelecionado.fila || 'SP',
-            observacao: document.getElementById('eco-observacao').value || '',
-            produtoId: 1,
+            observacao: observacao,
+            produtoId: guiaSelecionado.produtoId || 1, // Garantir que produtoId seja incluído
             beneficiario: guiaSelecionado.beneficiario || '',
             beneficiarioNomeSocial: guiaSelecionado.beneficiarioNomeSocial || '',
             cartaoBeneficiario: guiaSelecionado.cartaoBeneficiario || '',
@@ -342,88 +427,90 @@ document.addEventListener('DOMContentLoaded', async () => {
             idGuiaECO: guiaSelecionado.idGuia
         };
 
+        let protocoloGerado;
+
         try {
-            const res = await fetch('/api/prioridades', {
+            // 2. CHAMA A ROTA NO BACKEND PARA GERAR O PROTOCOLO
+            let res = await fetch('/api/prioridades/protocolo', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            let data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Erro ao gerar protocolo no servidor.');
+            }
+
+            protocoloGerado = data.protocolo;
+            dadosEnvio.protocoloSPG = protocoloGerado; // ADICIONA O PROTOCOLO AO OBJETO DE ENVIO
+
+            // 3. FAZ O POST FINAL PARA SALVAR NO BANCO DE DADOS
+            res = await fetch('/api/prioridades', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(data)
+                body: JSON.stringify(dadosEnvio) 
             });
-
+            
+            data = await res.json();
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.message || 'Erro ao enviar prioridade');
+                throw new Error(data.message || 'Erro ao processar prioridade.');
             }
 
-            mostrarNotificacao('Prioridade ECO enviada com sucesso!');
+           const qtdPrioridades = (guiaSelecionado.quantidadeSolicitacoes || 0) + 1;
+            const statusInfo = verificarStatusGuia(dadosEnvio.status);
+            const statusClass = getStatusStyles(statusInfo.statusDisplay); // Reutiliza a função
+            
+            // Formatando Data e SLA
+            const dataEmissaoDate = dadosEnvio.dataSolicitacao ? new Date(dadosEnvio.dataSolicitacao) : new Date();
+            const dataEmissao = dataEmissaoDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const slaContador = formatarTempoRestante(dadosEnvio.dataVencimentoSla);
+            const slaTooltip = dadosEnvio.dataVencimentoSla ? new Date(dadosEnvio.dataVencimentoSla).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Não informado';
+
+
+            // Preenchimento dos campos do modal
+            
+            // 1. HEADER (Guia + Tipo)
+            document.getElementById('modal-guia-tipo-numero').textContent = `${dadosEnvio.tipoGuia.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} - Nº Guia: ${dadosEnvio.numeroGuia}`;
+            document.getElementById('modal-contador-solicitacoes').textContent = `Solicitado Prioridade ${qtdPrioridades}x`;
+            
+            // 2. STATUS / SLA (Injeta o HTML completo com as classes)
+            document.getElementById('modal-status-sla-row').innerHTML = `
+                <span class="status-visual ${statusClass}">${statusInfo.statusDisplay}</span>
+                <span 
+                    class="status-visual status-sla-visual sla-info" 
+                    title="SLA: ${slaTooltip}"
+                >
+                    <i class="far fa-clock"></i> ${slaContador}
+                </span> 
+                `;
+
+            // 3. BENEFICIÁRIO, FILA E DATA
+            document.getElementById('modal-beneficiario').textContent = dadosEnvio.beneficiario;
+            document.getElementById('modal-cpf').textContent = dadosEnvio.cpfBeneficiario;
+            document.getElementById('modal-cartao').textContent = dadosEnvio.cartaoBeneficiario;
+
+            document.getElementById('modal-fila').textContent = dadosEnvio.fila;
+            document.getElementById('modal-data-emissao').textContent = dataEmissao;
+            
+            document.getElementById('modal-protocolo-numero').textContent = protocoloGerado;
+            
+            modalProtocolo.style.display = 'block';
+            // Limpeza após sucesso
             ecoForm.reset();
             ecoPrioridadeContainer.style.display = 'none';
             limparErro(); 
             guiaSelecionado = null;
+            
         } catch (err) {
             console.error(err);
-            mostrarNotificacao(`Erro ao enviar prioridade ECO: ${err.message}`, 'erro');    
+            mostrarNotificacao(`Falha no Envio: ${err.message}`, 'erro');    
+            
         } finally {
-            currentEnviarBtn.disabled = false;    
+            currentEnviarBtn.disabled = false; // Reabilita o botão principal
         }
     }
-
-    ecoForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const numeroGuia = document.getElementById('eco-guia').value;
-        limparErro();
-        ecoPrioridadeContainer.style.display = 'none';
-
-        try {
-            const res = await fetch(`/api/eco/${numeroGuia}`);
-            if (!res.ok) throw new Error('Erro ao buscar guia');
-            const data = await res.json();
-
-            if (data.content && data.content.length > 0) {
-                guiaSelecionado = data.content[0];
-                const statusGuia = guiaSelecionado.statusRegulacao || 'EM ANÁLISE';
-                const statusInfo = verificarStatusGuia(statusGuia);
-                const cardHtml = renderizarCardDetalhes(guiaSelecionado, statusInfo.statusDisplay, !statusInfo.invalido, statusInfo);
-                
-                ecoPrioridadeContainer.innerHTML = cardHtml;
-                ecoPrioridadeContainer.style.display = 'block';
-
-                const novoEnviarPrioridadeBtn = document.getElementById('eco-enviar-prioridade');
-                // Re-anexa o listener de envio
-                novoEnviarPrioridadeBtn.addEventListener('click', enviarPrioridadeHandler);
-
-               
-                const mainToggleHeader = document.querySelector('#procedimentos-toggle-header h4');
-                const procedimentosList = document.getElementById('procedimentos-list');
-                const mainIcon = document.getElementById('procedimentos-main-toggle');
-
-                if (mainToggleHeader) { 
-                    mainToggleHeader.addEventListener('click', () => {
-                        const isVisible = procedimentosList.style.display === 'block';
-
-                        if (isVisible) {
-                            procedimentosList.style.display = 'none';
-                            mainIcon.classList.replace('fa-chevron-down', 'fa-chevron-right'); // Seta para direita
-                        } else {
-                            procedimentosList.style.display = 'block';
-                            mainIcon.classList.replace('fa-chevron-right', 'fa-chevron-down'); // Seta para baixo
-                        } 
-                    });
-                }
-
-                
-                if (statusInfo.invalido) {
-                    exibirErro(statusInfo.motivo);
-                }
-
-            } else {
-                exibirErro('Guia não encontrada.');
-            }
-        } catch (err) {
-            console.error(err);
-            exibirErro('Erro ao consultar guia ECO.');
-        }
-    });
 
     // SISWEB: enviar prioridade manual
     const siswebForm = document.getElementById('sisweb-form');
@@ -451,7 +538,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         try {
-            const res = await fetch('/api/prioridades', {
+            const res = await fetch(`/api/prioridades/consultadetalhada/${numeroGuia}`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -533,28 +620,98 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    function toggleAccordion(header) {
+        const content = header.nextElementSibling;
+        if (!content) {
+            console.error('Conteúdo do accordion não encontrado!');
+            return;
+        }
+        const isOpen = content.style.display === 'block';
+        
+        // Fecha outros accordions
+        document.querySelectorAll('.accordion-content').forEach(c => {
+            c.style.display = 'none';
+        });
+        
+        // Alterna este
+        content.style.display = isOpen ? 'none' : 'block';
+        
+        header.classList.toggle('active', !isOpen);
+        
+        // Rotaciona o ícone (90deg para fa-chevron-right virar down)
+        const toggleIcon = header.querySelector('.toggle-icon');
+        if (toggleIcon) {
+            toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+            toggleIcon.classList.toggle('fa-chevron-down', !isOpen);  // Opcional: mude para down se preferir ícone diferente
+        }
+    }
     function mostrarNotificacao(mensagem, tipo = 'sucesso') {
-    let notificacaoDiv = document.getElementById('notificacao-global');
-    if (!notificacaoDiv) {
-        notificacaoDiv = document.createElement('div');
-        notificacaoDiv.id = 'notificacao-global';
-        notificacaoDiv.classList.add('notificacao');
-        document.body.appendChild(notificacaoDiv);
+        let notificacaoDiv = document.getElementById('notificacao-global');
+        if (!notificacaoDiv) {
+            notificacaoDiv = document.createElement('div');
+            notificacaoDiv.id = 'notificacao-global';
+            notificacaoDiv.classList.add('notificacao');
+            document.body.appendChild(notificacaoDiv);
+        }
+        
+        notificacaoDiv.textContent = mensagem;
+        notificacaoDiv.classList.remove('erro');
+        
+        if (tipo === 'erro') {
+            notificacaoDiv.classList.add('erro');
+        }
+        
+        notificacaoDiv.classList.add('show');
+        
+        setTimeout(() => {
+            notificacaoDiv.classList.remove('show');
+        }, 4000); 
     }
-    
-    notificacaoDiv.textContent = mensagem;
-    notificacaoDiv.classList.remove('erro');
-    
-    if (tipo === 'erro') {
-        notificacaoDiv.classList.add('erro');
+
+
+// ===================================
+// LÓGICA DO MODAL DE PROTOCOLO E CÓPIA
+// ===================================
+
+const modalProtocolo = document.getElementById('modal-protocolo');
+
+if (modalProtocolo) {
+    const closeCustomSpan = modalProtocolo.querySelector('.close-custom');
+    const copyProtocoloBtn = document.getElementById('copy-protocolo-btn');
+
+    // 1. Lógica de fechamento do 'X' (onclick)
+    if (closeCustomSpan) {
+        closeCustomSpan.onclick = () => modalProtocolo.style.display = "none";
     }
-    
-    notificacaoDiv.classList.add('show');
-    
-    setTimeout(() => {
-        notificacaoDiv.classList.remove('show');
-    }, 4000); // Esconde a notificação após 4 segundos
+
+    // 2. Lógica de fechamento ao clicar fora da modal (window.onclick)
+    window.onclick = e => { if (e.target === modalProtocolo) modalProtocolo.style.display = "none"; };
+
+
+    // 3. Lógica do botão de cópia
+    if (copyProtocoloBtn) {
+        copyProtocoloBtn.addEventListener('click', () => {
+            const protocoloNumeroSpan = document.getElementById('modal-protocolo-numero');
+            const protocolo = protocoloNumeroSpan.textContent.trim();
+
+            if (protocolo) {
+                // Usa a API Clipboard moderna
+                navigator.clipboard.writeText(protocolo).then(() => {
+                    mostrarNotificacao('Protocolo copiado!', 'sucesso');
+                    
+                    // Feedback visual: Muda o ícone temporariamente
+                    copyProtocoloBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        copyProtocoloBtn.innerHTML = '<i class="far fa-copy"></i>';
+                    }, 1500);
+
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                    mostrarNotificacao('Falha ao copiar. Tente selecionar e copiar manualmente.', 'erro');
+                });
+            }
+        });
+    }
 }
-    
-    
-});
+
+}); 
