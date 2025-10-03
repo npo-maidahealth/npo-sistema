@@ -45,7 +45,7 @@ const cargos = [
   console.log('Verificando/Criando usuário administrador...');
   const salt = await bcrypt.genSalt(10);
   // Lembre-se de usar uma senha mais forte e guardá-la em um lugar seguro
-  const hashedPassword = await bcrypt.hash('maida@ftz', salt);
+  const hashedPassword = await bcrypt.hash('N@Login.29102025', salt);
 
   const adminUser = await prisma.usuario.upsert({
     where: { email: 'admin@maida.health' },
