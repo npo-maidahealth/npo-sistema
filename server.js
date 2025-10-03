@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cron from 'node-cron'; 
 
+
 // Rotas
 import { isAuthenticated } from './middleware/auth.middleware.js';
 import authRoutes from './routes/auth.routes.js';
@@ -24,6 +25,9 @@ import usuariosRoutes from './routes/users.routes.js';
 
 // Importa a função que é autônoma e corrige o status das guias.
 import { atualizarStatusGuias } from './services/atualizadorStatus.js'; 
+
+console.log('DATABASE_URL no server:', process.env.DATABASE_URL);
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
