@@ -49,12 +49,16 @@ const cargos = [
 
   const adminUser = await prisma.usuario.upsert({
     where: { email: 'admin@maida.health' },
-    update: {}, // Não atualiza nada se o usuário já existir
+    update: {
+      senha_hash: hashedPassword,
+      aprovado: true,
+    },
     create: {
       nome: 'administrador do Sistema',
       email: 'admin@maida.health',
       senha_hash: hashedPassword,
       status: 'ATIVO',
+      aprovado: true,
     },
   });
   console.log(`- Usuário "${adminUser.nome}" OK.`);

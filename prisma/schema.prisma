@@ -17,6 +17,7 @@ model Usuario {
   createdAt               DateTime            @default(now())
   updatedAt               DateTime            @default(now()) @updatedAt
   status                  UserStatus          @default(PENDENTE)
+  aprovado                Boolean             @default(false)
   cargos                  CargosDoUsuario[]
   prioridadesSolicitadas  Prioridade[]        @relation("PrioridadeSolicitada")
   produtos                ProdutosDoUsuario[]
