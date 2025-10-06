@@ -94,7 +94,6 @@ app.listen(PORT, () => {
     try {
         console.log('⏰ Agendando atualização automática de status...');
         
-        // Agendamento: Roda a função a cada 10 minutos (*/10)
         cron.schedule('* * * * *', () => {
             console.log('❌ CRON: Executando atualização de status das guias...');
             // Chama a função e trata erros para não travar o processo

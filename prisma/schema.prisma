@@ -1,5 +1,3 @@
-// Copie tudo a partir daqui para dentro do seu arquivo schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,36 +13,33 @@ model Usuario {
   email                   String              @unique
   senha_hash              String?
   whatsapp                String?
+  regional                String?
   createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt // Removi o @default(now()) que era redundante com @updatedAt
+  updatedAt               DateTime            @default(now()) @updatedAt
   status                  UserStatus          @default(PENDENTE)
-  regional_id             Int?
-
-  cargos                  CargosDoUsuario[]   // Relação correta com a tabela de ligação
-  produtos                ProdutosDoUsuario[]
-
+  aprovado                Boolean             @default(false)
+  cargos                  CargosDoUsuario[]
   prioridadesSolicitadas  Prioridade[]        @relation("PrioridadeSolicitada")
+  produtos                ProdutosDoUsuario[]
   protocolos_responsaveis Protocolo[]         @relation("Responsavel")
   protocolos_solicitados  Protocolo[]         @relation("Solicitante")
   tratativas              Tratativa[]
-  regional                Regional?           @relation(fields: [regional_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Cargo {
   id        Int               @id @default(autoincrement())
   nome      String            @unique
   createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt // Removi o @default(now())
+  updatedAt DateTime          @default(now()) @updatedAt
   usuarios  CargosDoUsuario[]
 }
 
-// Tabela de ligação para a relação Muitos-para-Muitos entre Usuario e Cargo
 model CargosDoUsuario {
   id        Int      @id @default(autoincrement())
   usuarioId Int
   cargoId   Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt // Removi o @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   cargo     Cargo    @relation(fields: [cargoId], references: [id])
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
@@ -65,21 +60,21 @@ model Protocolo {
   id_responsavel        Int?
   descricao_resolucao   String?
   createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt // Removi o @default(now())
+  updatedAt             DateTime    @default(now()) @updatedAt
   responsavel           Usuario?    @relation("Responsavel", fields: [id_responsavel], references: [id])
   solicitante           Usuario     @relation("Solicitante", fields: [id_solicitante], references: [id])
   tratativas            Tratativa[]
 }
 
 model Tratativa {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   id_protocolo  Int
   id_usuario    Int
   descricao     String
-  data_criacao  DateTime @default(now())
+  data_criacao  DateTime  @default(now())
   tipo_mensagem String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt // Removi o @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
   protocolo     Protocolo @relation(fields: [id_protocolo], references: [id])
   usuario       Usuario   @relation(fields: [id_usuario], references: [id])
 }
@@ -88,7 +83,7 @@ model Produto {
   id          Int                 @id @default(autoincrement())
   nome        String              @unique
   createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt // Removi o @default(now())
+  updatedAt   DateTime            @default(now()) @updatedAt
   prioridades Prioridade[]
   usuarios    ProdutosDoUsuario[]
 }
@@ -98,7 +93,7 @@ model ProdutosDoUsuario {
   usuarioId Int
   produtoId Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt // Removi o @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   produto   Produto  @relation(fields: [produtoId], references: [id])
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
@@ -106,9 +101,8 @@ model ProdutosDoUsuario {
 }
 
 model Prioridade {
-  id                     Int         @id @default(autoincrement())
+  id                     Int                     @id @default(autoincrement())
   numeroGuia             String
-  idGuiaECO              Int?
   tipoGuia               String
   status                 String
   caracterAtendimento    String?
@@ -116,14 +110,14 @@ model Prioridade {
   produtoId              Int
   usuarioId              Int
   reguladorId            Int?
-  dataCriacao            DateTime    @default(now())
-  dataAtualizacao        DateTime?   @updatedAt
-  capturada              Boolean     @default(false)
+  idGuiaECO              Int?
+  dataCriacao            DateTime                @default(now())
+  dataAtualizacao        DateTime?               @updatedAt
+  capturada              Boolean                 @default(false)
   vencimento             DateTime?
-  autorizada             Boolean     @default(false)
-  regulada               Boolean     @default(false)
+  autorizada             Boolean                 @default(false)
+  regulada               Boolean                 @default(false)
   area                   String?
-  inativaVisualizacao    Boolean     @default(false)
   atrasada               Boolean?
   atrasoRegulacao        String?
   beneficiario           String?
@@ -136,43 +130,49 @@ model Prioridade {
   dataSolicitacao        DateTime?
   dataVencimentoSla      DateTime?
   fila                   String?
-  fonte                  String?     @default("ECO")
-  createdAt              DateTime    @default(now())
-  updatedAt              DateTime    @updatedAt // Removi o @default(now())
-  vezesSolicitado        Int?        @default(1)
-  produto                Produto     @relation(fields: [produtoId], references: [id])
-  historicoSolicitacoes  SolicitacaoPrioridade[]
-  regulador              Regulador?  @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
-  usuario                Usuario     @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
+  fonte                  String?                 @default("ECO")
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now()) @updatedAt
+  vezesSolicitado        Int?                    @default(1)
+  produto                Produto                 @relation(fields: [produtoId], references: [id])
+  regulador              Regulador?              @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
+  usuario                Usuario                 @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
+  solicitacoes           SolicitacaoPrioridade[]
+}
+
+model SolicitacaoPrioridade {
+  id                    Int      @id @default(autoincrement())
+  prioridadeId          Int
+  protocoloSPG          String   @unique
+  dataHoraSolicitacao   DateTime @default(now())
+  observacaoSolicitacao String?
+  reguladorPlantaoId    Int?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  prioridade       Prioridade @relation(fields: [prioridadeId], references: [id])
+  reguladorPlantao Regulador? @relation("SolicitacaoPrioridadeToReguladorPlantao", fields: [reguladorPlantaoId], references: [id])
 }
 
 model Regulador {
-  id               Int                @id @default(autoincrement())
-  nome             String             @unique
-  ativo            Boolean            @default(true)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt // Removi o @default(now())
-  Escala_Regulacao Escala_Regulacao[]
-  prioridades      Prioridade[]       @relation("PrioridadeRegulador")
-  solicitacoesAtendidas SolicitacaoPrioridade[] @relation("ReguladorPlantao")
+  id                  Int                     @id @default(autoincrement())
+  nome                String                  @unique
+  ativo               Boolean                 @default(true)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @default(now()) @updatedAt
+  Escala              Escala[]
+  prioridades         Prioridade[]            @relation("PrioridadeRegulador")
+  solicitacoesPlantao SolicitacaoPrioridade[] @relation("SolicitacaoPrioridadeToReguladorPlantao")
 }
-model SolicitacaoPrioridade {
-  id                    Int       @id @default(autoincrement())
 
-  prioridadeId          Int       
-  prioridade            Prioridade @relation(fields: [prioridadeId], references: [id])
-  reguladorPlantaoId    Int?      
-  reguladorPlantao      Regulador? @relation("ReguladorPlantao", fields: [reguladorPlantaoId], references: [id])
-
-  dataHoraSolicitacao   DateTime  @default(now())
-
-  observacaoSolicitacao String?
-
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+model user_sessions {
+  sid    String   @id(map: "session_pkey") @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
 }
-model Escala_Regulacao {
-  id          Int       @id(map: "Escala_pkey") @default(autoincrement())
+
+model Escala {
+  id          Int       @id @default(autoincrement())
   reguladorId Int
   diaSemana   Int
   turno       String
@@ -181,24 +181,16 @@ model Escala_Regulacao {
   filas       String
   observacao  String?
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  Regulador   Regulador @relation(fields: [reguladorId], references: [id], map: "Escala_reguladorId_fkey")
+  updatedAt   DateTime  @default(now())
+  Regulador   Regulador @relation(fields: [reguladorId], references: [id])
 
-  @@unique([reguladorId, diaSemana, turno], map: "Escala_reguladorId_diaSemana_turno_key")
+  @@unique([reguladorId, diaSemana, turno])
 }
 
-model Regional {
-  id      Int       @id @default(autoincrement())
-  nome    String    @db.VarChar(50)
-  Usuario Usuario[]
-}
-
-model user_sessions {
-  sid    String   @id @db.VarChar
-  sess   Json     @db.Json
-  expire DateTime @db.Timestamp(6)
-
-  @@index([expire], map: "IDX_user_sessions_expire")
+model playing_with_neon {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float? @db.Real
 }
 
 enum UserStatus {

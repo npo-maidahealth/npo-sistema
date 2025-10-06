@@ -6,8 +6,8 @@ export async function obterNovoTokenECO() {
     try {
         const LOGIN_URL = "https://accounts-api.issec.maida.health/login";
         const LOGIN_PAYLOAD = {
-            login: "gabriel.queiroz@maida.health",
-            password: "M@cesso.15072024"
+            login: process.env.ECO_LOGIN || "npo@maida.health",  
+            password: process.env.ECO_PASSWORD || "N@Login.29102025"  
         };
 
         console.log('🔐 Autenticando na API ECO...');

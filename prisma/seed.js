@@ -10,7 +10,6 @@ async function main() {
 
   // 1. GARANTIR QUE OS CARGOS EXISTEM
   // ===================================
-// Dentro de prisma/seed.js
 
 const cargos = [
   'administrador',
@@ -45,16 +44,20 @@ const cargos = [
   console.log('Verificando/Criando usuário administrador...');
   const salt = await bcrypt.genSalt(10);
   // Lembre-se de usar uma senha mais forte e guardá-la em um lugar seguro
-  const hashedPassword = await bcrypt.hash('maida@ftz', salt);
+  const hashedPassword = await bcrypt.hash('N@Login.29102025', salt);
 
   const adminUser = await prisma.usuario.upsert({
     where: { email: 'admin@maida.health' },
-    update: {}, // Não atualiza nada se o usuário já existir
+    update: {
+      senha_hash: hashedPassword,
+      aprovado: true,
+    },
     create: {
       nome: 'administrador do Sistema',
       email: 'admin@maida.health',
       senha_hash: hashedPassword,
       status: 'ATIVO',
+      aprovado: true,
     },
   });
   console.log(`- Usuário "${adminUser.nome}" OK.`);

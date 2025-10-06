@@ -623,31 +623,15 @@ function renderizarHistorico(historico, container) {
                 <span>${formatarDataHistorico(item.dataRegistro)}</span>
             </div>
             
+            ${item.protocoloSPG ? `
+                <div class="historico-protocolo" style="margin-top: 5px;">
+                    <strong>Protocolo:</strong> <span style="color: var(--maida-rosa); font-weight: 600;">${item.protocoloSPG}</span>
+                </div>
+            ` : ''} 
+
             <div class="historico-acao">
                 <strong>Ação:</strong> ${formatarAcaoHistorico(item.acao)}
             </div>
-            
-            ${item.observacao ? `
-                <div class="historico-observacao">
-                    <strong>Observação:</strong> ${item.observacao}
-                </div>
-            ` : ''}
-            
-            ${item.statusAnterior && item.statusNovo ? `
-                <div class="historico-status-alteracao">
-                    <strong>Status:</strong> 
-                    <span class="historico-status ${getStatusClass(item.statusAnterior)}">${formatarStatusItem(item.statusAnterior)}</span>
-                    <i class="fas fa-arrow-right" style="margin: 0 8px; color: var(--text-color);"></i>
-                    <span class="historico-status ${getStatusClass(item.statusNovo)}">${formatarStatusItem(item.statusNovo)}</span>
-                </div>
-            ` : ''}
-            
-            ${item.motivo ? `
-                <div class="historico-motivo">
-                    <strong>Motivo:</strong> ${item.motivo}
-                </div>
-            ` : ''}
-        </div>
     `).join('');
 
     container.innerHTML = historicoHTML;

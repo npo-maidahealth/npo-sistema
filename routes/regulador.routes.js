@@ -17,28 +17,19 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
             console.log('Usuário não autenticado');
             return res.status(401).json({ message: 'Usuário não autenticado' });
         }
-        console.log('🔄 Iniciando sincronização manual de status...');
-        
+
+        console.log('Buscando prioridades pendentes...');
+    
         const prioridades = await prisma.prioridade.findMany({
             where: { 
-                capturada: false, 
-                regulada: false,
-                NOT: {
-                    OR: [
-                        { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
-                        { status: { contains: 'APROVAD', mode: 'insensitive' } },
-                        { status: { contains: 'NEGAD', mode: 'insensitive' } },
-                        { status: { contains: 'CANCELAD', mode: 'insensitive' } },
-                        { status: { contains: 'EXECUTAD', mode: 'insensitive' } }
-                    ]
-                }
+                regulada: false  
             },
             select: {
                 id: true,
                 numeroGuia: true,
                 idGuiaECO: true, 
                 tipoGuia: true,
-                status: true,
+                status: true, 
                 caracterAtendimento: true,
                 observacao: true,
                 beneficiario: true,
@@ -54,7 +45,9 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
                 area: true,
                 fonte: true,
                 vezesSolicitado: true, 
-                dataCriacao: true, 
+                dataCriacao: true,
+                capturada: true,
+                regulada: true,
                 regulador: { 
                     select: { nome: true }
                 }
@@ -63,6 +56,12 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
         });
 
         console.log(`Encontradas ${prioridades.length} prioridades pendentes`);
+        
+        // DEBUG: Log para verificar o que foi encontrado
+        console.log('📊 DEBUG - Distribuição das prioridades encontradas:');
+        prioridades.forEach(p => {
+            console.log(`- Guia ${p.numeroGuia}: status="${p.status}", regulada=${p.regulada}, capturada=${p.capturada}`);
+        });
 
         const ordemCarater = {
             "URGÊNCIA": 1, "EMERGÊNCIA": 1, "URGENCIA": 1, "EMERGENCIA": 1,
@@ -92,9 +91,6 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
     }
 });
 
-// ==========================
-// Listar prioridades REGULADAS
-// ==========================
 router.get('/reguladas', isAuthenticated, async (req, res) => {
     try {
         console.log('=== ACESSANDO /api/regulador/reguladas ===');
@@ -105,31 +101,23 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
             return res.status(401).json({ message: 'Usuário não autenticado' });
         }
 
-        const trintaDiasAtras = new Date();
-        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
-
         console.log('Buscando prioridades reguladas...');
+        
+        // ✅ CORREÇÃO: Buscar guias reguladas (regulada: true) E guias com status finalizados
         const prioridades = await prisma.prioridade.findMany({
-            where: {
+            where: { 
                 OR: [
-                    { regulada: true },
+                    { regulada: true }, // Guias marcadas como reguladas
                     { 
-                        // CORREÇÃO: Remover a restrição de dataRegulacao para status AUTORIZADA
-                        AND: [
-                            {
-                                OR: [
-                                    { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
-                                    { status: { contains: 'APROVAD', mode: 'insensitive' } },
-                                    { status: { contains: 'CONCLUID', mode: 'insensitive' } }
-                                ]
-                            },
-                            {
-                                // Para guias autorizadas, não exigir dataRegulacao
-                                OR: [
-                                    { dataRegulacao: { gte: trintaDiasAtras } },
-                                    { dataRegulacao: null } // ← PERMITE dataRegulacao NULL
-                                ]
-                            }
+                        // Guias com status finalizados (mesmo que não estejam marcadas como reguladas)
+                        OR: [
+                            { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
+                            { status: { contains: 'APROVAD', mode: 'insensitive' } },
+                            { status: { contains: 'NEGAD', mode: 'insensitive' } },
+                            { status: { contains: 'CANCELAD', mode: 'insensitive' } },
+                            { status: { contains: 'EXECUTAD', mode: 'insensitive' } },
+                            { status: { contains: 'EXECUTADA', mode: 'insensitive' } },
+                            { status: { contains: 'CONCLUID', mode: 'insensitive' } }
                         ]
                     }
                 ]
@@ -147,19 +135,33 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
                 cartaoBeneficiario: true,
                 cpfBeneficiario: true,
                 dataHoraSolicitacao: true,
-                dataRegulacao: true,
+                dataSolicitacao: true,
+                dataVencimentoSla: true,
+                dataRegulacao: true, // ✅ ADICIONADO para mostrar quando foi regulada
                 fila: true,
+                atrasada: true,
+                atrasoRegulacao: true,
+                area: true,
                 fonte: true,
-                vezesSolicitado: true,
+                vezesSolicitado: true, 
                 dataCriacao: true,
+                capturada: true,
+                regulada: true,
                 regulador: { 
                     select: { nome: true }
                 }
             },
-            orderBy: [{ dataRegulacao: 'desc' }]
+            orderBy: [{ dataRegulacao: 'desc' }, { dataSolicitacao: 'desc' }] // Ordena por data de regulacao
         });
 
         console.log(`Encontradas ${prioridades.length} prioridades reguladas`);
+        
+        // DEBUG: Log para verificar o que foi encontrado
+        console.log('📊 DEBUG - Distribuição das guias reguladas:');
+        prioridades.forEach(p => {
+            console.log(`- Guia ${p.numeroGuia}: status="${p.status}", regulada=${p.regulada}, dataRegulacao=${p.dataRegulacao}`);
+        });
+
         res.json(prioridades);
     } catch (err) {
         console.error('Erro ao buscar guias reguladas:', err);
@@ -169,7 +171,6 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
         });
     }
 });
-
 // ==========================
 // Rota para marcar como regulada
 // ==========================
@@ -221,7 +222,7 @@ router.patch('/:id/status', isAuthenticated, async (req, res) => {
 
         const prioridadeAtualizada = await prisma.prioridade.update({
             where: { id: parseInt(id) },
-            data: { status }
+            data: { statusRegulacao: status }
         });
 
         res.json({ 
@@ -253,6 +254,7 @@ router.get('/historico/:prioridadeId', isAuthenticated, async (req, res) => {
                 dataHoraSolicitacao: true, 
                 observacaoSolicitacao: true, 
                 createdAt: true,
+                protocoloSPG: true,
 
                 reguladorPlantao: {
                     select: { nome: true }
@@ -267,6 +269,7 @@ router.get('/historico/:prioridadeId', isAuthenticated, async (req, res) => {
             nomeUsuario: item.reguladorPlantao?.nome || 'Sistema/ECO', 
             acao: 'CRIACAO', 
             observacao: item.observacaoSolicitacao,
+            protocoloSPG: item.protocoloSPG,
         }));
 
 
@@ -278,6 +281,27 @@ router.get('/historico/:prioridadeId', isAuthenticated, async (req, res) => {
             message: 'Erro interno ao buscar histórico.', 
             error: err.message 
         });
+    }
+});
+router.get('/debug/status', isAuthenticated, async (req, res) => {
+    try {
+        const stats = await prisma.prioridade.groupBy({
+            by: ['status', 'regulada', 'capturada'],
+            _count: {
+                id: true
+            }
+        });
+
+        const total = await prisma.prioridade.count();
+        
+        res.json({
+            totalGuias: total,
+            distribuicaoStatus: stats,
+            message: 'Estatísticas das guias no sistema'
+        });
+    } catch (err) {
+        console.error('Erro no debug:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 export default router;

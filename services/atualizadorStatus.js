@@ -25,11 +25,9 @@ async function obterNovoTokenECO() {
     if (GAS_TOKEN_SERVICE_URL) {
         console.log('🔗 URL do GAS encontrada. Solicitando token ao Web App...');
         try {
-            // A chamada para a URL do GAS é sempre um GET simples (doGet)
             const response = await fetch(GAS_TOKEN_SERVICE_URL);
 
             if (!response.ok) {
-                // Tenta ler o corpo da resposta em JSON para pegar a mensagem de erro do GAS
                 const errorBody = await response.json().catch(() => ({ error: 'Resposta não é JSON' }));
                 throw new Error(`GAS Service falhou: ${response.status} - ${errorBody.error || response.statusText}`);
             }
@@ -133,18 +131,22 @@ export async function atualizarStatusGuias() {
         if (!ecoToken) {
             await obterNovoTokenECO();
         }
-
+        
+        // Filtro para excluir guias já finalizadas ou em status de exclusão
         const guiasPendentes = await prisma.prioridade.findMany({
             where: {
                 capturada: false,
                 regulada: false,
                 fonte: 'ECO',
+                // FILTRO NOT COMPLETO: Exclui guias com status final do BD
                 NOT: {
                     OR: [
                         { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
+                        { status: { contains: 'APROVAD', mode: 'insensitive' } }, 
                         { status: { contains: 'NEGAD', mode: 'insensitive' } },
                         { status: { contains: 'CANCELAD', mode: 'insensitive' } },
-                        { status: { contains: 'CONCLUID', mode: 'insensitive' } } 
+                        { status: { contains: 'CONCLUID', mode: 'insensitive' } },
+                        { status: { contains: 'EXECUTAD', mode: 'insensitive' } } 
                     ]
                 }
             },
@@ -175,18 +177,29 @@ export async function atualizarStatusGuias() {
                         
                         statusAtualizado = guiaPrincipal.status;
                         filaAtualizada = guiaPrincipal.fila || guia.fila;
+                    } else {
+                        // LOG DE ALERTA PARA RESPOSTAS VAZIAS (200 OK, mas sem content)
+                        console.warn(`[AVISO ECO] Guia ${guia.numeroGuia} retornou 200 OK, mas o 'content' está vazio ou é nulo.`);
                     }
                 } else {
                     console.warn(`⚠️ Falha HTTP na guia ${guia.numeroGuia}: ${res.status} ${res.statusText}`);
                 }
 
+                // LOG DE DEBUG CRÍTICO PARA VER A COMPARAÇÃO:
+                if (statusAtualizado) {
+                    console.log(`[DEBUG COMPARAÇÃO GUIA ${guia.numeroGuia}] BD Status: "${guia.status.toUpperCase()}" | ECO Status: "${statusAtualizado.toUpperCase()}"`);
+                }
+
+
                 if (statusAtualizado && statusAtualizado.toUpperCase() !== guia.status.toUpperCase()) {
                     
                     const upperStatus = statusAtualizado.toUpperCase();
                     const isStatusFinal = upperStatus.includes('AUTORIZAD') ||
+                                          upperStatus.includes('APROVAD') || 
                                           upperStatus.includes('NEGAD') ||
                                           upperStatus.includes('CANCELAD') ||
-                                          upperStatus.includes('CONCLUID');
+                                          upperStatus.includes('CONCLUID') ||
+                                          upperStatus.includes('EXECUTAD');
 
                     await prisma.prioridade.update({
                         where: { id: guia.id },
