@@ -1,4 +1,6 @@
 // services/atualizadorStatus.js
+import prisma from '../db/prisma.js';
+import { fetchGuiaDetalhes } from './ecoService.js';
 import { PrismaClient } from '@prisma/client';
 import fetch from 'node-fetch';
 
@@ -127,6 +129,8 @@ export async function atualizarStatusGuias() {
     try {
         console.log('🔄 Iniciando atualização de status das guias...');
         
+        // BUSCA MUITO SIMPLES - apenas guias não reguladas
+        const guiasParaAtualizar = await prisma.prioridade.findMany({
         // Garante que temos um token (ou tentamos obter um) antes de começar
         if (!ecoToken) {
             await obterNovoTokenECO();
@@ -135,6 +139,7 @@ export async function atualizarStatusGuias() {
         // Filtro para excluir guias já finalizadas ou em status de exclusão
         const guiasPendentes = await prisma.prioridade.findMany({
             where: {
+                regulada: false
                 capturada: false,
                 regulada: false,
                 fonte: 'ECO',
@@ -153,22 +158,63 @@ export async function atualizarStatusGuias() {
             select: {
                 id: true,
                 numeroGuia: true,
-                status: true,
-                fila: true,
+                idGuiaECO: true,
+                status: true, // ← ESTÁ FALTANDO NO SEU CÓDIGO ATUAL!
+                fonte: true,
+                regulada: true
             }
         });
 
-        console.log(`📊 ${guiasPendentes.length} guias do ECO para verificar status`);
+        console.log(`📊 ${guiasParaAtualizar.length} guias para verificar status`);
 
-        let atualizadas = 0;
+        let guiasAtualizadas = 0;
 
-        for (const guia of guiasPendentes) {
-            let statusAtualizado = null;
-            let filaAtualizada = guia.fila; 
-            
+        for (const guia of guiasParaAtualizar) {
             try {
-                const res = await fetchECO(guia.numeroGuia);
+                console.log(`🔍 Verificando guia ${guia.numeroGuia} (ID: ${guia.id})`);
                 
+                const detalhesGuia = await fetchGuiaDetalhes(guia.numeroGuia);
+                
+                if (!detalhesGuia) {
+                    console.log(`❌ Guia ${guia.numeroGuia} não encontrada no ECO`);
+                    continue;
+                }
+
+                // Pegar statusRegulacao da API
+                const statusDaAPI = detalhesGuia.statusRegulacao || detalhesGuia.situacao || detalhesGuia.status;
+                
+                if (!statusDaAPI) {
+                    console.log(`⚠️ Situação não disponível para guia ${guia.numeroGuia}`);
+                    continue;
+                }
+
+                // Verificar se o status mudou
+                if (guia.status !== statusDaAPI) {
+                console.log(`🔄 Atualizando guia ${guia.numeroGuia}: ${guia.status} → ${statusDaAPI}`);
+                
+                // Determinar se deve marcar como regulada
+                const statusUpper = statusDaAPI.toUpperCase();
+                const deveMarcarRegulada = statusUpper.includes('AUTORIZAD') || 
+                                        statusUpper.includes('APROVAD') ||
+                                        statusUpper.includes('SEM RESTRIÇÃO') ||
+                                        statusUpper.includes('NEGAD') ||
+                                        statusUpper.includes('CANCELAD') ||
+                                        statusUpper.includes('EXECUTAD') ||
+                                        statusUpper.includes('EXECUTADA') ||
+                                        statusUpper.includes('CONCLUID');
+                
+                await prisma.prioridade.update({
+                    where: { id: guia.id },
+                    data: { 
+                        status: statusDaAPI,
+                        regulada: deveMarcarRegulada,
+                        // Se for marcar como regulada, adiciona data de regulacao
+                        ...(deveMarcarRegulada && {
+                            dataRegulacao: new Date(),
+                            reguladorId: 1 // Ou o ID do usuário/system que está fazendo a atualização
+                        })
+                    }
+                });
                 if (res.ok) {
                     const data = await res.json();
                     
@@ -212,21 +258,25 @@ export async function atualizarStatusGuias() {
                         }
                     });
                     
-                    console.log(`✅ Guia ${guia.numeroGuia} atualizada: ${guia.status} → ${statusAtualizado}`);
-                    atualizadas++;
+                    guiasAtualizadas++;
+                    console.log(`✅ Guia ${guia.numeroGuia} atualizada para: ${statusDaAPI}`);
+                    
+                } else {
+                    console.log(`✅ Status da guia ${guia.numeroGuia} já está atualizado: ${statusDaAPI}`);
                 }
-                // Pequeno delay para evitar sobrecarga na API ECO
-                await new Promise(resolve => setTimeout(resolve, 100));
                 
-            } catch (err) {
-                console.error(`❌ Erro CRÍTICO ao processar guia ${guia.numeroGuia}:`, err.message);
+            } catch (error) {
+                console.error(`❌ Erro ao processar guia ${guia.numeroGuia}:`, error.message);
+                continue;
             }
         }
 
-        console.log(`✅ Atualização concluída: ${atualizadas} guias atualizadas`);
-
-    } catch (err) {
-        console.error('❌ Erro na atualização de status:', err);
+        console.log(`✅ Atualização concluída: ${guiasAtualizadas} guias atualizadas`);
+        return guiasAtualizadas;
+        
+    } catch (error) {
+        console.error('❌ Erro geral na atualização de status:', error);
+        throw error;
     }
 }
 

@@ -628,23 +628,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const isOpen = content.style.display === 'block';
         
-        // Altera o display do conteúdo
+        // Fecha outros accordions
+        document.querySelectorAll('.accordion-content').forEach(c => {
+            c.style.display = 'none';
+        });
+        
+        // Alterna este
         content.style.display = isOpen ? 'none' : 'block';
         
         header.classList.toggle('active', !isOpen);
         
-        // Rotaciona o ícone usando as classes fa-chevron-right/fa-chevron-down
+        // Rotaciona o ícone (90deg para fa-chevron-right virar down)
         const toggleIcon = header.querySelector('.toggle-icon');
         if (toggleIcon) {
-            if (!isOpen) {
-                // Se estava fechado e vai abrir
-                toggleIcon.classList.replace('fa-chevron-right', 'fa-chevron-down');
-            } else {
-                // Se estava aberto e vai fechar
-                toggleIcon.classList.replace('fa-chevron-down', 'fa-chevron-right');
-            }
+            toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+            toggleIcon.classList.toggle('fa-chevron-down', !isOpen);  // Opcional: mude para down se preferir ícone diferente
         }
-        
     }
     function mostrarNotificacao(mensagem, tipo = 'sucesso') {
         let notificacaoDiv = document.getElementById('notificacao-global');

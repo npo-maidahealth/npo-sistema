@@ -4,6 +4,8 @@ import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { getReguladorAtual } from '../services/escalaService.js';
 import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
 import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
+import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
+import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
 
 const router = express.Router();
 
@@ -157,6 +159,18 @@ router.post('/protocolo', isAuthenticated, async (req, res) => {
     }
 });
 // ==========================
+// PROTOCOLO
+// ==========================
+router.post('/protocolo', isAuthenticated, async (req, res) => {
+    try {
+        const novoProtocolo = await gerarProtocoloSPG();
+        res.json({ protocolo: novoProtocolo });
+    } catch (err) {
+        console.error('Erro ao gerar protocolo:', err);
+        res.status(500).json({ message: 'Erro interno ao gerar protocolo', error: err.message });
+    }
+});
+// ==========================
 // Criar prioridade
 // ==========================
 router.post('/', isAuthenticated, async (req, res) => {
@@ -178,8 +192,6 @@ router.post('/', isAuthenticated, async (req, res) => {
     console.log('Fila recebida para busca de regulador:', fila);
 
     const usuarioId = req.session.user?.id;
-    console.log('Usuario ID da sessão:', usuarioId);
-
     if (!usuarioId) return res.status(401).json({ message: 'Usuário não autenticado' });
 
     if (capturada) {
