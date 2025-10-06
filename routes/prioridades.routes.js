@@ -4,8 +4,6 @@ import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { getReguladorAtual } from '../services/escalaService.js';
 import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
 import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
-import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
-import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
 
 const router = express.Router();
 
@@ -49,7 +47,7 @@ router.get('/consulta-detalhada/:numeroGuia', isAuthenticated, async (req, res) 
         
         // Lógica para determinar o status final da guia 
         const itensSolicitados = guiaDetalhes.itensSolicitados || []; 
-        const todosAutorizados = itensSolicitados.every(item => item.status?.toUpperCase() === 'AUTORIZADO');
+        const todosAutorizados = itensSolicitados.length > 0 && itensSolicitados.every(item => item.status?.toUpperCase() === 'AUTORIZADO');
         let statusCorrigido = guiaDetalhes.statusRegulacao || 'PENDENTE';
         if (todosAutorizados) {
             statusCorrigido = 'AUTORIZADA';
@@ -250,22 +248,21 @@ router.post('/', isAuthenticated, async (req, res) => {
         
         // Condição para atualizar ou criar a prioridade
         if (prioridadeExistente) {
-            // Atualizar prioridade existente
-            console.log('Prioridade existente encontrada, atualizando contador...');
-            const novaAutorizada = status.toUpperCase() === 'AUTORIZADA' ? true : prioridadeExistente.autorizada;
-            prioridade = await prisma.prioridade.update({
-                where: { id: prioridadeExistente.id },
-                data: {
-                    vezesSolicitado: {
-                        increment: 1, // Incrementa o contador
-                    },
-                    reguladorId: reguladorDePlantaoId, // Atribui o regulador de plantão mais atual
-                    observacao, // Atualiza a observação
-                    dataAtualizacao: new Date(),
-                    autorizada: novaAutorizada,
-                    fonte: fonte || prioridadeExistente.fonte  // atualiza fonte se enviado
+        console.log('Prioridade existente encontrada, atualizando contador...');
+        const novaAutorizada = status.toUpperCase() === 'AUTORIZADA' ? true : prioridadeExistente.autorizada;
+        prioridade = await prisma.prioridade.update({
+            where: { id: prioridadeExistente.id },
+            data: {
+                vezesSolicitado: {
+                    increment: 1, // Incrementa o contador
                 },
-            });
+                reguladorId: reguladorDePlantaoId, 
+                observacao, 
+                dataAtualizacao: new Date(),
+                autorizada: novaAutorizada,
+                fonte: fonte || prioridadeExistente.fonte 
+            },
+        });
         } else {
           // Criar nova prioridade
           console.log('Nenhuma prioridade pendente encontrada, criando uma nova...');

@@ -22,8 +22,20 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
     
         const prioridades = await prisma.prioridade.findMany({
             where: { 
-                regulada: false  
-            },
+                regulada: false,  
+                capturada: false,
+                NOT: {
+                    status: {
+                        in: [
+                            'AUTORIZADA', 'APROVADA', 'NEGADA', 'CANCELADA', 
+                            'EXECUTADA', 'CONCLUIDA', 'SEM RESTRIÇÃO', 
+                            'PARCIALMENTE AUTORIZADA', 'AGUARDANDO AUTENTICAÇÃO'
+                        ],
+                        mode: 'insensitive'
+
+                    }
+                }
+            },   
             select: {
                 id: true,
                 numeroGuia: true,
@@ -103,9 +115,12 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
 
         console.log('Buscando prioridades reguladas...');
         
-        // ✅ CORREÇÃO: Buscar guias reguladas (regulada: true) E guias com status finalizados
         const prioridades = await prisma.prioridade.findMany({
             where: { 
+                capturada:false,
+                NOT: { 
+                    status: {contains: 'CANCELAD', mode: 'insensitive' }
+                },
                 OR: [
                     { regulada: true }, // Guias marcadas como reguladas
                     { 

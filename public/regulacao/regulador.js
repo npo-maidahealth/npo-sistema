@@ -344,9 +344,11 @@ function renderizarCardPrioridade(prioridade, view, user) {
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 ` : ''}
-                                <button class="btn regular-btn" title="Ir para Regulação">
-                                    <i class="fas fa-clipboard-list"></i> Regular
-                                </button>
+                                ${!isRegulada ? ` 
+                                    <button class="btn regular-btn" title="Ir para Regulação">
+                                        <i class="fas fa-clipboard-list"></i> Regular
+                                    </button>
+                                ` : ''}
                                 ${!isRegulada && isSisweb ? `
                                     <button class="btn marcar-regulada" title="Alterar Status">
                                         <i class="fas fa-edit"></i> Alterar Status
@@ -690,29 +692,13 @@ async function carregarPrioridades(user, view) {
         if (!res.ok) throw new Error('Erro ao buscar prioridades');
         const prioridades = await res.json();
         console.log(`Prioridades recebidas: ${prioridades.length}`);
+        
         atualizarInterface(view, prioridades);
-
-        // Ordenar prioridades pelo caráter do atendimento e data
-        const ordemCarater = {
-            "URGÊNCIA": 1, "EMERGÊNCIA": 1, "URGENCIA": 1, "EMERGENCIA": 1,
-            "PRORROGAÇÃO": 2, "PRORROGACAO": 2, "SP": 3, "SADT": 3,
-            "INTERNACAO_ELETIVA": 4, "ELETIVA": 4
-        };
-        const prioridadesOrdenadas = prioridades.sort((a, b) => {
-            const caraterA = a.caracterAtendimento?.toUpperCase() || '';
-            const caraterB = b.caracterAtendimento?.toUpperCase() || '';
-
-            const valorA = ordemCarater[caraterA] || 5;
-            const valorB = ordemCarater[caraterB] || 5;
-
-            if (valorA !== valorB) return valorA - valorB;
-            return new Date(a.dataSolicitacao) - new Date(b.dataSolicitacao);
-        });
 
         const container = document.getElementById('cards-container');
         container.innerHTML = '';
 
-        prioridadesOrdenadas.forEach(prioridade => {
+        prioridades.forEach(prioridade => { 
             const card = renderizarCardPrioridade(prioridade, view, user);
             container.appendChild(card);
         });

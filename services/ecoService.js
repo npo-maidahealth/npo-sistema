@@ -5,29 +5,18 @@ import { obterNovoTokenECO } from './authService.js';
 let ecoToken = process.env.ECO_TOKEN || '';
 
 // Função auxiliar para requisição com token renovável 
-export async function fetchComTokenRenovavel(url, options = {}) {
-    try {
-        if (!ecoToken) {
-            console.log('🔄 Obtendo token ECO inicial...');
-            ecoToken = await obterNovoTokenECO();
-        }
-
-        const response = await fetch(url, {
-            ...options,
-            headers: {
-                ...options.headers,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ecoToken}`
+export async function fetchComTokenRenovavel(url, options = {}, maxRetries = 2) { // Adicionado maxRetries
+    
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            if (!ecoToken) {
+                console.log(`🔄 Tentativa ${attempt}: Obtendo token ECO...`);
+                ecoToken = await obterNovoTokenECO();
             }
-        });
 
-        // Lógica de renovação de token
-        if (response.status === 403 || response.status === 401) {
-            console.log('🔁 Token expirado, renovando...');
-            ecoToken = await obterNovoTokenECO();
-            
-            const newResponse = await fetch(url, {
+            const response = await fetch(url, {
                 ...options,
                 headers: {
                     ...options.headers,
@@ -36,26 +25,59 @@ export async function fetchComTokenRenovavel(url, options = {}) {
                     'Authorization': `Bearer ${ecoToken}`
                 }
             });
+
+            // Lógica de renovação de token (se falhar, tenta novamente no próximo loop)
+            if (response.status === 403 || response.status === 401) {
+                console.log(`🔁 Tentativa ${attempt}: Token expirado ou inválido, renovando para próxima tentativa...`);
+                ecoToken = await obterNovoTokenECO(); // Renovação do token
+                lastError = new Error(`Token renovado após falha ${response.status} na tentativa ${attempt}.`);
+                continue; // Pula para a próxima iteração (tentativa)
+            }
             
-            return newResponse;
+            // Se a resposta for OK (2xx), retorna imediatamente
+            if (response.ok) {
+                return response;
+            }
+
+            // Tratamento de erros de API (como 500, 400, etc.)
+            let errorText = await response.text();
+            lastError = new Error(`Erro API ECO (${response.status}) na tentativa ${attempt}: ${errorText.substring(0, 150)}`);
+            console.log(`⚠️ Aviso: ${lastError.message}`);
+            
+            // Se esta for a última tentativa, não continua
+            if (attempt === maxRetries) {
+                throw lastError;
+            }
+            
+            // Adiciona um pequeno delay antes da próxima tentativa
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+
+        } catch (err) {
+            lastError = err;
+            console.error(`❌ Erro de rede/fetch na tentativa ${attempt}:`, err.message);
+            
+            // Se esta for a última tentativa, lança o erro
+            if (attempt === maxRetries) {
+                throw lastError;
+            }
+             // Adiciona um pequeno delay antes da próxima tentativa
+             await new Promise(resolve => setTimeout(resolve, 500)); 
         }
-
-        return response;
-
-    } catch (err) {
-        console.error('❌ Erro na requisição com token renovável:', err.message);
-        throw err;
+    }
+    
+    // Deve ser inalcançável se o throw acima funcionar, mas é um fallback de segurança
+    if (lastError) {
+        throw lastError;
     }
 }
 
 
 /**
  * Busca os detalhes da guia principal e seus itens na API ECO.
- * Esta lógica foi movida do eco.routes.js.
- * @param {string} numero O número da guia a ser consultada.
- * @returns {Promise<Object | null>} Objeto de guia com detalhes, ou null se não encontrada.
+ * (Resto da função fetchGuiaDetalhes inalterado, pois usa fetchComTokenRenovavel)
  */
 export async function fetchGuiaDetalhes(numero) {
+    // ... (Código inalterado)
     console.log(`🔍 Buscando guia ECO: ${numero}`);
     const API_BASE_URL = 'https://regulacao-api.issec.maida.health/v3/historico-cliente';
     
@@ -64,7 +86,8 @@ export async function fetchGuiaDetalhes(numero) {
         
     let responseGuia;
     try {
-        responseGuia = await fetchComTokenRenovavel(urlGuia);
+        // Esta chamada tentará 2x automaticamente!
+        responseGuia = await fetchComTokenRenovavel(urlGuia); 
     } catch (err) {
         console.error(`❌ Erro ao chamar fetchComTokenRenovavel: ${err.message}`);
         throw err;
@@ -91,7 +114,7 @@ export async function fetchGuiaDetalhes(numero) {
         throw new Error('Resposta da API não é JSON válido.');
     }
     
-    // Correção: Extraia guiaPrincipal aqui (estava faltando na sua versão, causando erro em idGuiaInterno)
+    // Extraia guiaPrincipal aqui (estava faltando na sua versão, causando erro em idGuiaInterno)
     let guiaPrincipal = dataGuia.content && dataGuia.content.length > 0 ? dataGuia.content[0] : null;
 
     if (!guiaPrincipal) return null;
@@ -108,20 +131,28 @@ export async function fetchGuiaDetalhes(numero) {
     }
     
     // Lógica de busca dos ITENS 
-    const idGuiaInterno = guiaPrincipal.idGuia || guiaPrincipal.id || guiaPrincipal.idSolicitacao;  // CORREÇÃO: Priorize idGuia do JSON exemplo (115415)
+    const idGuiaInterno = guiaPrincipal.idGuia || guiaPrincipal.id || guiaPrincipal.idSolicitacao;  
     console.log(`🔍 ID Interno da Guia para itens: ${idGuiaInterno}`);
     if (idGuiaInterno) {
         const urlItens = `https://regulacao-api.issec.maida.health/v3/guia/${idGuiaInterno}/itens`;
-        const responseItens = await fetchComTokenRenovavel(urlItens);
         
-        if (responseItens.ok) {
-            const dataItens = await responseItens.json();
-            guiaPrincipal.itensSolicitados = dataItens.content || [];
-        } else {
-            console.warn(`⚠️ Aviso: Erro ao buscar itens (${responseItens.status}). Usando fallback itensGuia.`);
-            guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || [];  // Fallback para o array já presente no JSON
+        try {
+            const responseItens = await fetchComTokenRenovavel(urlItens); 
+            
+            if (responseItens.ok) {
+                const dataItens = await responseItens.json();
+                guiaPrincipal.itensSolicitados = dataItens.content || [];
+            } else {
+                // Trata 404 ou outros erros de forma não fatal
+                console.warn(`⚠️ Aviso: Erro ao buscar itens (${responseItens.status}). O endpoint pode não existir para esta guia.`);
+                guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || [];
+            }
+            
+        } catch (error) {
+            // Captura o erro da dupla tentativa 
+            console.warn(`⚠️ Aviso: Falha ao tentar buscar itens para ${idGuiaInterno}. Continuaremos sem itens.`);
+            guiaPrincipal.itensSolicitados = guiaPrincipal.itensGuia || []; // Garante array vazio para evitar falha
         }
-
     }
 
     return guiaPrincipal;
