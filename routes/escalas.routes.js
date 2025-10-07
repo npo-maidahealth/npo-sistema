@@ -15,7 +15,7 @@ router.get('/reguladores', isAuthenticated, async (req, res) => {
     const reguladores = await prisma.regulador.findMany({
       where: { ativo: true },
       include: { 
-        escalas: {
+        Escala: {
           orderBy: [
             { diaSemana: 'asc' },
             { turno: 'asc' }
@@ -112,7 +112,7 @@ router.get('/', isAuthenticated, async (req, res) => {
   try {
     const escalas = await prisma.escala.findMany({
       include: { 
-        regulador: true 
+        Regulador: true 
       },
       orderBy: [
         { diaSemana: 'asc' },
@@ -133,7 +133,7 @@ router.get('/semanal', isAuthenticated, async (req, res) => {
   try {
     const escalas = await prisma.escala.findMany({
       include: { 
-        regulador: true 
+        Regulador: true 
       },
       orderBy: [
         { diaSemana: 'asc' },
@@ -193,7 +193,7 @@ router.post('/', isAuthenticated, async (req, res) => {
         observacao
       },
       include: {
-        regulador: true
+        Regulador: true
       }
     });
     
@@ -222,7 +222,7 @@ router.patch('/:id', isAuthenticated, async (req, res) => {
         ...(observacao && { observacao })
       },
       include: {
-        regulador: true
+        Regulador: true
       }
     });
     
@@ -264,7 +264,7 @@ router.get(['/regulador-atual', '/regulador-atual/:fila'], isAuthenticated, asyn
         // Encontrar todas as escalas ativas para o dia e horário atual
         const escalas = await prisma.escala.findMany({
             where: {
-                regulador: {
+                Regulador: {
                     ativo: true
                 },
                 diaSemana,
@@ -272,7 +272,7 @@ router.get(['/regulador-atual', '/regulador-atual/:fila'], isAuthenticated, asyn
                 horaFim: { gte: horaAtual }
             },
             include: { 
-                regulador: true 
+                Regulador: true 
             },
         });
         
@@ -289,11 +289,11 @@ router.get(['/regulador-atual', '/regulador-atual/:fila'], isAuthenticated, asyn
                       filasArray.includes('ECO');
             });
 
-            regulador = escalaFiltrada ? escalaFiltrada.regulador : null;
+            regulador = escalaFiltrada ? escalaFiltrada.Regulador : null;
         }
         
         if (!regulador && escalas.length > 0) {
-            regulador = escalas[0].regulador;
+            regulador = escalas[0].Regulador;  
         }
         
         res.json(regulador);

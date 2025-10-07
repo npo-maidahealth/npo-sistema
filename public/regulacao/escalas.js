@@ -1,4 +1,40 @@
+    function showNotification(message) {
+    // Tenta usar um elemento de notificação existente ou cria um novo
+    let notification = document.getElementById('custom-notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'custom-notification';
+        notification.style.cssText = `
+            position: fixed;
+            padding: 15px 30px;
+            background-color: var(--azul-amarelo, #0070FF);
+            color: var(--colorfont-branco-azul, #FFFFFF);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-family: inherit;
+            font-weight: 600;
+            z-index: 5000;
+            opacity: 0;
+            transition: opacity 0.4s, transform 0.4s;
+            transform: translateY(-20px);
+        `;
+        document.body.appendChild(notification);
+    }
+
+    notification.textContent = message;
+    
+    // Exibe a notificação
+    notification.style.opacity = '1';
+    notification.style.transform = 'translateY(0)';
+
+    // Esconde a notificação após 3 segundos
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(-20px)';
+    }, 3000);
+}
 document.addEventListener('DOMContentLoaded', async () => {
+
     // Verificar se usuário tem permissão de coordenador
     try {
         const res = await fetch('/api/auth/session', { credentials: 'include' });
@@ -142,7 +178,7 @@ async function carregarEscalaSemanal() {
             diaDiv.innerHTML = `<h4>${dia.nome}</h4>`;
             
             // Filtrar escalas para este dia
-            const escalasDia = escalaSemanal.filter(e => e.diaSemana === dia.id);
+            const escalasDia = escalaSemanal.filter(e => Number(e.diaSemana) === dia.id);
             const turnos = {};
             
             // Agrupar por turno
@@ -161,7 +197,7 @@ async function carregarEscalaSemanal() {
                     const escalaCard = document.createElement('div');
                     escalaCard.classList.add('escala-card');
                     escalaCard.innerHTML = `
-                        <p><strong>${escala.regulador.nome}</strong></p>
+                        <p><strong>${escala.Regulador.nome}</strong></p>
                         <p>${escala.horaInicio} - ${escala.horaFim}</p>
                         <p>${escala.filas}</p>
                     `;
@@ -199,15 +235,16 @@ async function adicionarRegulador() {
         });
         
         if (res.ok) {
-            alert('Regulador adicionado com sucesso!');
+            showNotification('Regulador Cadastrado com Sucesso.');
             document.getElementById('form-regulador').reset();
             await carregarReguladores();
         } else {
-            throw new Error('Erro ao adicionar regulador');
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Erro ao adicionar regulador');
         }
     } catch (err) {
         console.error('Erro:', err);
-        alert('Erro ao adicionar regulador');
+        showNotification(err.message || 'Erro ao adicionar regulador');
     }
 }
 
@@ -221,7 +258,13 @@ async function adicionarEscala() {
         filas: document.getElementById('filas-escala').value,
         observacao: document.getElementById('observacao-escala').value
     };
-    
+
+    // Defina reguladorNome e diaNome aqui:
+    const reguladorSelect = document.getElementById('regulador-escala');
+    const reguladorNome = reguladorSelect.options[reguladorSelect.selectedIndex].text;
+    const diaSelect = document.getElementById('dia-semana');
+    const diaNome = diaSelect.options[diaSelect.selectedIndex].text;
+
     try {
         const res = await fetch('/api/escalas', {
             method: 'POST',
@@ -229,20 +272,22 @@ async function adicionarEscala() {
             credentials: 'include',
             body: JSON.stringify(formData)
         });
-        
+
         if (res.ok) {
-            alert('Escala adicionada com sucesso!');
+            const message = `Escala Adicionada do Regulador ${reguladorNome} adicionado com sucesso para ${diaNome}.`;
+            showNotification(message);
+
             document.getElementById('form-escala').reset();
-            // Limpa as tags após o envio bem-sucedido
             document.getElementById('filas-setadas-container').innerHTML = '';
             await carregarEscalas();
             await carregarEscalaSemanal();
         } else {
-            throw new Error('Erro ao adicionar escala');
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Erro ao adicionar escala');
         }
     } catch (err) {
         console.error('Erro:', err);
-        alert('Erro ao adicionar escala');
+        showNotification(err.message || 'Erro ao adicionar escala');
     }
 }
 async function removerEscala(id) {
@@ -257,14 +302,15 @@ async function removerEscala(id) {
         });
 
         if (res.ok) {
-            alert('Escala removida com sucesso!');
+            showNotification('Escala removida com sucesso!');
             carregarEscalaSemanal();
         } else {
-            throw new Error('Erro ao remover escala.');
+            console.error('Erro:', err);
+            showNotification(err.message || 'Erro ao remover escala');
         }
     } catch (err) {
         console.error('Erro:', err);
-        alert('Erro ao remover escala');
+        showNotification(err.message || 'Erro ao remover escala');
     }
 }
 async function toggleRegulador(id, ativo) {
@@ -277,13 +323,15 @@ async function toggleRegulador(id, ativo) {
         });
         
         if (res.ok) {
-            alert('Regulador atualizado com sucesso!');
+            const status = ativo ? 'ativado' : 'desativado';
+            showNotification(`Regulador ${status} com sucesso!`);
             await carregarReguladores();
         } else {
-            throw new Error('Erro ao atualizar regulador');
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Erro ao atualizar regulador');
         }
     } catch (err) {
         console.error('Erro:', err);
-        alert('Erro ao atualizar regulador');
+        showNotification(err.message || 'Erro ao atualizar regulador');
     }
 }

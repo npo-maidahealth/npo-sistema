@@ -3,6 +3,8 @@ import express from 'express';
 import prisma from '../db/prisma.js'; 
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { atualizarStatusGuias } from '../services/atualizadorStatus.js';
+import removeAccents from 'remove-accents'; 
+
 
 const router = express.Router();
 
@@ -78,14 +80,16 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
         });
 
         const ordemCarater = {
-            "URGÊNCIA e EMERGÊNCIA": 1, "URGENCIA": 1, "EMERGENCIA": 1,
-            "PRORROGAÇÃO": 2, "PRORROGACAO": 2, "SP": 3, "SADT": 3,
+            "URGENCIA E EMERGENCIA": 1, "PRORROGACAO": 2, "SP": 3, "SADT": 3,
             "INTERNACAO_ELETIVA": 4, "ELETIVA": 4
         };
 
         const prioridadesOrdenadas = prioridades.sort((a, b) => {
-            const caraterA = a.caracterAtendimento?.toUpperCase() || '';
-            const caraterB = b.caracterAtendimento?.toUpperCase() || '';
+            function normaliza(str) {
+                return removeAccents(str || '').toUpperCase().replace(/[\s_]+/g, ' ').trim();
+            }
+            const caraterA = normaliza(a.caracterAtendimento);
+            const caraterB = normaliza(b.caracterAtendimento);
 
             const valorA = ordemCarater[caraterA] || 5;
             const valorB = ordemCarater[caraterB] || 5;

@@ -1,172 +1,376 @@
+/* ================= VARIÁVEIS MAIDA ================= */
+:root {
+    --maida-branco: #ffffff;
+    --maida-amarelo: #ffcc00;
+    --maida-rosa: #ff0073;
+    --maida-azul: #0070ff;
+    --maida-cinza-escuro: #585958;
+    --cinza-claro-fundo: #f8f9fa;
+    --transicao-padrao: all 0.3s ease;
+}
 
-        :root {
-            --maida-branco: #ffffff;
-            --maida-amarelo: #ffcc00;
-            --maida-rosa: #ff0073;
-            --maida-azul: #0070ff;
-            --maida-cinza-escuro: #585958;
-            --cinza-claro-fundo: #f8f9fa;
-        }
+/* ================= VARIÁVEIS DE TEMA (COPIADAS DE regulador.css) ================= */
+body.light, body { /* Aplicando light theme como padrão se a classe não estiver no body */
+    --page-bg-color: #F0F0F0;
+    --card-bg-color: #FFFFFF;
+    --text-color: #0E3658;
+    --border-color: #ddd;
+    --input-bg-color: #ffffff;
+    --input-text-color: var(--maida-cinza-escuro);
+    --tab-hover-bg: #e9ecef;
+    --color-brancopreto: #FFFFFF; 
+    --azul-amarelo: #0070FF; /* Cor de foco principal para botões/destaque */
+    --azul-amarelo-sombra: #0056cc;
+    --focus-shadow-color: rgba(0, 112, 255, 0.2); 
+    --background-verde: #DFF3E2;
+    --colorfonte-verde: #34A643;
+    --backgroung-internacao: #FFF2D6;
+    --colorfont-internacao: #E59500;
+    --colorfont-branco-azul: #FFFFFF; 
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+body:not(.light) {
+    --page-bg-color: #011727;
+    --card-bg-color: #092339;
+    --text-color: #F8F8F8;
+    --border-color: #0B2D49;
+    --input-bg-color: #134977;
+    --input-text-color: #E6E6E8;
+    --tab-hover-bg: #2a2a2e;
+    --color-brancopreto: #011727; 
+    --azul-amarelo: #FFCB05;
+    --azul-amarelo-sombra: #D49A04;
+    --focus-shadow-color: rgba(255, 203, 5, 0.3); 
+    --background-verde: #34A643;
+    --colorfonte-verde: #DFF3E2;
+    --backgroung-internacao: #E59500;
+    --colorfont-internacao: #FFF2D6;
+    --colorfont-branco-azul: #011727;
+}
 
-        body {
-            background: var(--cinza-claro-fundo);
-            color: var(--maida-cinza-escuro);
-            padding: 20px;
-        }
+/* =============================================================== */
+/* =================== ESTILOS GERAIS E LAYOUT =================== */
+/* =============================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-        header {
-            background: var(--maida-branco);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+body {
+    background: var(--page-bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    padding: 0; 
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+}
 
-        .logo h1 {
-            color: var(--maida-azul);
-            font-size: 1.5rem;
-        }
+/* O main.content-container será o equivalente ao content-area do regulador.html */
+.content-container {
+    padding: 25px;
+    
+    /* CORREÇÃO: Usa o 'auto' nas margens laterais para centralizar no corpo. */
+    /* Se a sidebar estiver fixa/absoluta e não empurrar o conteúdo, esta é a forma correta. */
+    margin: 40px auto; 
+    
+    max-width: 1400px;
+    background: var(--page-bg-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+    transition: background-color 0.3s;
+}
 
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+h1 {
+    font-size: 2.2rem;
+    color: var(--text-color);
+    font-weight: 700;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
 
-        @media (max-width: 992px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
 
-        .section {
-            background: var(--maida-branco);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
 
-        .section h2 {
-            color: var(--maida-azul);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--maida-amarelo);
-        }
+.section {
+    background: var(--card-bg-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+.section h2 {
+    color: var(--azul-amarelo);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--maida-amarelo);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
+/* =============================================================== */
+/* =================== ESTILOS DE FORMULÁRIO ===================== */
+/* =============================================================== */
 
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+.form-group {
+    margin-bottom: 15px;
+}
 
-        button {
-            background: var(--maida-azul);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
+.form-group-flex {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end; /* Alinha o botão com o input/select */
+}
+.form-group-flex .form-group {
+    margin-bottom: 0;
+}
 
-        button:hover {
-            background: #0056b3;
-        }
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
 
-        .card {
-            background: #f9f9f9;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
+input[type="text"], 
+input[type="time"], 
+select, 
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
 
-        .card h3 {
-            color: var(--maida-azul);
-            margin-bottom: 5px;
-        }
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--azul-amarelo);
+    box-shadow: 0 0 0 3px var(--focus-shadow-color);
+}
 
-        .escala-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
+/* Estilo do botão - Coerente com o regulador.css */
+button[type="submit"], 
+button[type="button"],
+.card button {
+    background: var(--azul-amarelo);
+    color: var(--colorfont-branco-azul); /* Usando maida-branco, que é mais seguro do que --branco-azul */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+    font-size: 1rem;
+}
 
-        .dia-escala {
-            background: #f0f7ff;
-            border-radius: 5px;
-            padding: 10px;
-        }
+button[type="submit"]:hover, 
+button[type="button"]:hover,
+.card button:hover {
+    background: var(--azul-amarelo-sombra);
+    transform: translateY(-1px);
+}
 
-        .dia-escala h4 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: var(--maida-azul);
-        }
+/* Botão de Adicionar Fila */
+#adicionar-fila-btn {
+    flex-shrink: 0;
+    height: 38px; /* Ajusta a altura para alinhar com o select */
+    line-height: 1;
+    padding: 0 15px;
+}
 
-        .turno {
-            background: white;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
+/* Tags de Filas Setadas */
+#filas-setadas-container {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background-color: var(--input-bg-color);
+}
 
-        .turno h5 {
-            color: var(--maida-rosa);
-            margin-bottom: 5px;
-        }
+.tag-fila {
+    display: flex;
+    align-items: center;
+    background-color: var(--backgroung-internacao); /* Usando uma cor de destaque */
+    color: var(--colorfont-internacao);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tag-remove-btn {
+    background: transparent !important;
+    border: none !important;
+    color: var(--colorfont-internacao) !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    cursor: pointer;
+    margin-left: 5px;
+    padding: 0 0 0 5px !important;
+    line-height: 1;
+    height: auto !important;
+    transform: none !important;
+}
+
+.tag-remove-btn:hover {
+    color: var(--maida-rosa) !important;
+}
+
+/* =============================================================== */
+/* =================== REGULADORES CADASTRADOS =================== */
+/* =============================================================== */
+
+#lista-reguladores h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.card {
+    background: var(--page-bg-color); /* Fundo mais claro para os itens */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.card h3 {
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.card p {
+    margin: 0 15px 0 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.card button {
+    background: var(--maida-rosa);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.card button:hover {
+    background: #e0005a;
+}
+
+/* =============================================================== */
+/* =================== ESCALA SEMANAL ============================ */
+/* =============================================================== */
+
+.escala-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 dias da semana */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.dia-escala {
+    background: var(--card-bg-color);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.dia-escala h4 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--azul-amarelo);
+    font-size: 1.1rem;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--backgroung-internacao);
+}
+
+.turno {
+    background: var(--page-bg-color);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px dashed var(--border-color);
+}
+
+.turno h5 {
+    color: var(--maida-rosa);
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
 
 .escala-card {
     position: relative;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background-color: var(--card-bg-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.escala-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+.escala-card p strong {
+    font-weight: 700;
+    color: var(--azul-amarelo-sombra);
 }
 
 .delete-escala-btn {
     position: absolute;
     top: 5px;
     right: 5px;
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
+    background: transparent !important;
+    border: none !important;
+    font-size: 1.2rem !important;
     cursor: pointer;
-    color: #999;
-    font-weight: bold;
-    transition: color 0.2s;
+    color: #999 !important;
+    font-weight: bold !important;
+    transition: color 0.2s !important;
+    padding: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    line-height: 1 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: none !important;
 }
 
 .delete-escala-btn:hover {
-    color: red;
+    color: red !important;
 }
