@@ -39,7 +39,8 @@
     "node-cache": "^5.1.2",
     "node-cron": "^4.2.1",
     "node-fetch": "^2.7.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "remove-accents": "^0.5.0"
   },
   "devDependencies": {
     "prisma": "^6.16.3"
