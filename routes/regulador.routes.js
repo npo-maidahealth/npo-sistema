@@ -32,7 +32,6 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
                             'PARCIALMENTE AUTORIZADA', 'AGUARDANDO AUTENTICAÇÃO'
                         ],
                         mode: 'insensitive'
-
                     }
                 }
             },   
@@ -56,12 +55,16 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
                 atrasoRegulacao: true,
                 area: true,
                 fonte: true,
-                vezesSolicitado: true, 
                 dataCriacao: true,
                 capturada: true,
                 regulada: true,
                 regulador: { 
                     select: { nome: true }
+                },
+                _count: {
+                    select: {
+                        solicitacoes: true
+                    }
                 }
             },
             orderBy: [{ dataSolicitacao: 'asc' }]
@@ -69,14 +72,13 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
 
         console.log(`Encontradas ${prioridades.length} prioridades pendentes`);
         
-        // DEBUG: Log para verificar o que foi encontrado
         console.log('📊 DEBUG - Distribuição das prioridades encontradas:');
         prioridades.forEach(p => {
-            console.log(`- Guia ${p.numeroGuia}: status="${p.status}", regulada=${p.regulada}, capturada=${p.capturada}`);
+            console.log(`- Guia ${p.numeroGuia}: status="${p.status}", regulada=${p.regulada}, capturada=${p.capturada}, solicitações=${p._count.solicitacoes}`);
         });
 
         const ordemCarater = {
-            "URGÊNCIA": 1, "EMERGÊNCIA": 1, "URGENCIA": 1, "EMERGENCIA": 1,
+            "URGÊNCIA e EMERGÊNCIA": 1, "URGENCIA": 1, "EMERGENCIA": 1,
             "PRORROGAÇÃO": 2, "PRORROGACAO": 2, "SP": 3, "SADT": 3,
             "INTERNACAO_ELETIVA": 4, "ELETIVA": 4
         };
@@ -92,7 +94,12 @@ router.get('/pendentes/sincronizar', isAuthenticated, async (req, res) => {
             return new Date(a.dataSolicitacao) - new Date(b.dataSolicitacao);
         });
 
-        res.json(prioridadesOrdenadas);
+        const prioridadesComContador = prioridadesOrdenadas.map(p => ({
+            ...p,
+            vezesSolicitado: p._count.solicitacoes
+        }));
+
+        res.json(prioridadesComContador);
         
     } catch (err) {
         console.error('Erro ao buscar prioridades pendentes:', err);
@@ -122,9 +129,8 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
                     status: {contains: 'CANCELAD', mode: 'insensitive' }
                 },
                 OR: [
-                    { regulada: true }, // Guias marcadas como reguladas
+                    { regulada: true },
                     { 
-                        // Guias com status finalizados (mesmo que não estejam marcadas como reguladas)
                         OR: [
                             { status: { contains: 'AUTORIZAD', mode: 'insensitive' } },
                             { status: { contains: 'APROVAD', mode: 'insensitive' } },
@@ -152,32 +158,35 @@ router.get('/reguladas', isAuthenticated, async (req, res) => {
                 dataHoraSolicitacao: true,
                 dataSolicitacao: true,
                 dataVencimentoSla: true,
-                dataRegulacao: true, // ✅ ADICIONADO para mostrar quando foi regulada
+                dataRegulacao: true,
                 fila: true,
                 atrasada: true,
                 atrasoRegulacao: true,
                 area: true,
                 fonte: true,
-                vezesSolicitado: true, 
                 dataCriacao: true,
                 capturada: true,
                 regulada: true,
                 regulador: { 
                     select: { nome: true }
+                },
+                _count: {
+                    select: {
+                        solicitacoes: true
+                    }
                 }
             },
-            orderBy: [{ dataRegulacao: 'desc' }, { dataSolicitacao: 'desc' }] // Ordena por data de regulacao
+            orderBy: [{ dataRegulacao: 'desc' }, { dataSolicitacao: 'desc' }]
         });
 
         console.log(`Encontradas ${prioridades.length} prioridades reguladas`);
         
-        // DEBUG: Log para verificar o que foi encontrado
-        console.log('📊 DEBUG - Distribuição das guias reguladas:');
-        prioridades.forEach(p => {
-            console.log(`- Guia ${p.numeroGuia}: status="${p.status}", regulada=${p.regulada}, dataRegulacao=${p.dataRegulacao}`);
-        });
+        const prioridadesComContador = prioridades.map(p => ({
+            ...p,
+            vezesSolicitado: p._count.solicitacoes
+        }));
 
-        res.json(prioridades);
+        res.json(prioridadesComContador);
     } catch (err) {
         console.error('Erro ao buscar guias reguladas:', err);
         res.status(500).json({ 
@@ -263,32 +272,49 @@ router.get('/historico/:prioridadeId', isAuthenticated, async (req, res) => {
         if (isNaN(id)) {
             return res.status(400).json({ message: 'ID da prioridade inválido.' });
         }
-        const historico = await prisma.solicitacaoPrioridade.findMany({
+
+        const solicitacoes = await prisma.solicitacaoPrioridade.findMany({
             where: { prioridadeId: id },
             select: {
-                dataHoraSolicitacao: true, 
-                observacaoSolicitacao: true, 
-                createdAt: true,
+                id: true,
+                dataHoraSolicitacao: true,
+                observacaoSolicitacao: true,
                 protocoloSPG: true,
-
                 reguladorPlantao: {
-                    select: { nome: true }
+                    select: { 
+                        nome: true 
+                    }
+                },
+                prioridade: {
+                    select: {
+                        usuario: {
+                            select: {
+                                nome: true
+                            }
+                        }
+                    }
                 }
             },
-            orderBy: [{ dataHoraSolicitacao: 'desc' }]
+            orderBy: [{ dataHoraSolicitacao: 'desc' }] 
         });
 
-        const historicoMapeado = historico.map(item => ({
+        console.log('=== DEBUG HISTÓRICO ===');
+        console.log(`Prioridade ID: ${id}`);
+        console.log(`Total de solicitações encontradas: ${solicitacoes.length}`);
+        console.log('Protocolos encontrados:', solicitacoes.map(s => s.protocoloSPG));
+        console.log('=======================');
+        console.log(`Encontradas ${solicitacoes.length} solicitações para prioridade ${prioridadeId}`);
+
+        const historicoFormatado = solicitacoes.map(item => ({
             id: item.id,
-            dataRegistro: item.dataHoraSolicitacao,
-            nomeUsuario: item.reguladorPlantao?.nome || 'Sistema/ECO', 
-            acao: 'CRIACAO', 
+            dataHora: item.dataHoraSolicitacao,
+            nomeSolicitante: item.prioridade.usuario.nome, 
+            protocolo: item.protocoloSPG,
             observacao: item.observacaoSolicitacao,
-            protocoloSPG: item.protocoloSPG,
+            reguladorPlantao: item.reguladorPlantao?.nome || 'Não atribuído' 
         }));
 
-
-        res.json(historicoMapeado);
+        res.json(historicoFormatado);
         
     } catch (err) {
         console.error(`Erro ao buscar histórico para prioridade ${prioridadeId}:`, err);

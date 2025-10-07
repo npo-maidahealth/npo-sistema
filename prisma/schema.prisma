@@ -24,6 +24,7 @@ model Usuario {
   protocolos_responsaveis Protocolo[]         @relation("Responsavel")
   protocolos_solicitados  Protocolo[]         @relation("Solicitante")
   tratativas              Tratativa[]
+  solicitacoesPrioridade  SolicitacaoPrioridade[]
 }
 
 model Cargo {
@@ -133,25 +134,30 @@ model Prioridade {
   fonte                  String?                 @default("ECO")
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @default(now()) @updatedAt
-  vezesSolicitado        Int?                    @default(1)
+  
   produto                Produto                 @relation(fields: [produtoId], references: [id])
   regulador              Regulador?              @relation("PrioridadeRegulador", fields: [reguladorId], references: [id])
   usuario                Usuario                 @relation("PrioridadeSolicitada", fields: [usuarioId], references: [id])
-  solicitacoes           SolicitacaoPrioridade[]
+  solicitacoes           SolicitacaoPrioridade[] 
 }
 
 model SolicitacaoPrioridade {
   id                    Int      @id @default(autoincrement())
   prioridadeId          Int
-  protocoloSPG          String   @unique
+  protocoloSPG          String   @unique 
   dataHoraSolicitacao   DateTime @default(now())
   observacaoSolicitacao String?
   reguladorPlantaoId    Int?
+  usuarioSolicitanteId  Int      
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  prioridade       Prioridade @relation(fields: [prioridadeId], references: [id])
+  prioridade       Prioridade @relation(fields: [prioridadeId], references: [id], onDelete: Cascade)
   reguladorPlantao Regulador? @relation("SolicitacaoPrioridadeToReguladorPlantao", fields: [reguladorPlantaoId], references: [id])
+  usuarioSolicitante Usuario  @relation(fields: [usuarioSolicitanteId], references: [id]) // Relacionamento com quem solicitou
+  
+  @@index([prioridadeId])
+  @@index([protocoloSPG])
 }
 
 model Regulador {

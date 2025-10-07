@@ -281,7 +281,7 @@ function renderizarCardPrioridade(prioridade, view, user) {
         ? dataVencimentoSla.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) 
         : 'Não informado';
     const slaContador = formatarTempoRestante(prioridade.dataVencimentoSla);
-    const qtdPrioridades = prioridade.vezesSolicitado || 1; 
+    const qtdPrioridades = prioridade.vezesSolicitado || prioridade._count?.solicitacoes || 1;
 
     // Tipo de Guia formatado
     let tipoGuiaDisplay = prioridade.tipoGuia ? prioridade.tipoGuia.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Guia Desconhecida';
@@ -606,38 +606,46 @@ async function carregarHistoricoPrioridade(prioridadeId, container) {
     }
 }
 
-// Função para renderizar o histórico
 function renderizarHistorico(historico, container) {
     if (!historico || historico.length === 0) {
         container.innerHTML = '<div class="no-historico">Nenhum registro de histórico encontrado.</div>';
         return;
     }
 
-    // Ordena por data (mais recente primeiro)
-    historico.sort((a, b) => new Date(b.dataRegistro) - new Date(a.dataRegistro));
-
-    const historicoHTML = historico.map(item => `
-        <div class="historico-item">
-            <div class="historico-data">
-                <span class="historico-usuario">
-                    <i class="fas fa-user-circle" style="margin-right: 5px;"></i> ${item.nomeUsuario || 'Sistema'}
-                </span>
-                <span>${formatarDataHistorico(item.dataRegistro)}</span>
-            </div>
-            
-            ${item.protocoloSPG ? `
-                <div class="historico-protocolo" style="margin-top: 5px;">
-                    <strong>Protocolo:</strong> <span style="color: var(--maida-rosa); font-weight: 600;">${item.protocoloSPG}</span>
+    const historicoHTML = historico.map(item => {
+        return `
+            <div class="historico-item">
+                <div class="historico-header">
+                    <div class="historico-usuario-info">
+                        ${item.nomeSolicitante}
+                    </div>
+                    <div class="historico-data">
+                        ${formatarDataHistorico(item.dataHora)}
+                    </div>
                 </div>
-            ` : ''} 
+                
+                <div class="historico-protocolo">
+                    <strong>Protocolo SPG:</strong> 
+                    <span class="protocolo-number">${item.protocolo}</span>
+                </div>
 
-            <div class="historico-acao">
-                <strong>Ação:</strong> ${formatarAcaoHistorico(item.acao)}
+                <div class="historico-regulador">
+                    <strong>Regulador de Plantão:</strong> ${item.reguladorPlantao}
+                </div>
+
+                ${item.observacao ? `
+                    <div class="historico-observacao">
+                        <strong>Observação:</strong> ${item.observacao}
+                    </div>
+                ` : ''}
             </div>
-    `).join('');
+        `;
+    }).join('');
 
     container.innerHTML = historicoHTML;
 }
+
+// Mantenha a função de formatação de data
 function formatarDataHistorico(dataString) {
     const data = new Date(dataString);
     return data.toLocaleDateString('pt-BR', {

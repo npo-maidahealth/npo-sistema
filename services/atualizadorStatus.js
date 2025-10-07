@@ -15,7 +15,7 @@ export async function atualizarStatusGuias() {
                 id: true,
                 numeroGuia: true,
                 idGuiaECO: true,
-                status: true, // ← ESTÁ FALTANDO NO SEU CÓDIGO ATUAL!
+                status: true,
                 fonte: true,
                 regulada: true
             }
@@ -64,10 +64,9 @@ export async function atualizarStatusGuias() {
                     data: { 
                         status: statusDaAPI,
                         regulada: deveMarcarRegulada,
-                        // Se for marcar como regulada, adiciona data de regulacao
                         ...(deveMarcarRegulada && {
                             dataRegulacao: new Date(),
-                            reguladorId: 1 // Ou o ID do usuário/system que está fazendo a atualização
+                            reguladorId: null 
                         })
                     }
                 });
