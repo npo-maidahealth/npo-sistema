@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             : 'Não informado';
         const slaContador = formatarTempoRestante(guia.dataVencimentoSla);
         
-        const qtdPrioridades = guia.quantidadeSolicitacoes || 0; 
+        const qtdPrioridades = guia._count?.solicitacoes || guia.quantidadeSolicitacoes || 0;
         
         const internacaoIconSVG = `
             <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -344,7 +344,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             fila: dados.fila,
             dataHoraSolicitacao: dados.dataCriacao, 
             dataVencimentoSla: dados.dataVencimentoSla,
-            quantidadeSolicitacoes: dados.quantidade,
+            _count: {
+                solicitacoes: dados.quantidade || 0
+            },
             itensSolicitados: [] // Array vazio pois consulta não tem procedimentos
         };
         
@@ -458,7 +460,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(data.message || 'Erro ao processar prioridade.');
             }
 
-           const qtdPrioridades = (guiaSelecionado.quantidadeSolicitacoes || 0) + 1;
+            const qtdSolicitacoesExistentes = guiaSelecionado._count?.solicitacoes || guiaSelecionado.quantidadeSolicitacoes || 0;
+            const qtdPrioridades = qtdSolicitacoesExistentes + 1;
             const statusInfo = verificarStatusGuia(dadosEnvio.status);
             const statusClass = getStatusStyles(statusInfo.statusDisplay); // Reutiliza a função
             

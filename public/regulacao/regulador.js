@@ -458,7 +458,16 @@ function renderizarCardPrioridade(prioridade, view, user) {
                 return;
             }
             
-            const redirectUrl = `https://issec.maida.health/regulacao/guia/detalhe-guia?id=${guiaId}`;
+            let path;
+            const isOpme = prioridade.tipoGuia?.toUpperCase().includes('SOLICITACAO_DE_OPME');
+
+            if (isOpme) {
+                path = '/regulacao/cotacao-opme/analise/detalhe-guia';
+            } else {
+                path = '/regulacao/guia/detalhe-guia';
+            }
+
+            const redirectUrl = `https://issec.maida.health${path}?id=${guiaId}`;
             
             window.open(redirectUrl, '_blank'); 
         });

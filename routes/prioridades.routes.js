@@ -3,7 +3,7 @@ import prisma from '../db/prisma.js';
 import { isAuthenticated } from '../middleware/auth.middleware.js';
 import { getReguladorAtual } from '../services/escalaService.js';
 import { gerarProtocoloSPG } from '../services/protocoloGerador.js'; 
-import { fetchGuiaDetalhes } from '../services/ecoService.js'; // A função que resolve o token e a URL
+import { fetchGuiaDetalhes } from '../services/ecoService.js'; 
 
 const router = express.Router();
 
@@ -30,18 +30,18 @@ router.get('/consulta-detalhada/:numeroGuia', isAuthenticated, async (req, res) 
         });
     }
 
-    // 2. BUSCA NO PRISMA E COMBINAÇÃO DE DADOS (APENAS PARA LER)
+    // 2. BUSCA NO PRISMA E COMBINAÇÃO DE DADOS 
     try {
         const numeroGuiaParaBusca = guiaDetalhes.autorizacaoGuia || numeroGuia; 
 
         const prioridadeExistente = await prisma.prioridade.findFirst({
-          where: { numeroGuia: numeroGuiaParaBusca },
-          orderBy: { dataCriacao: 'desc' },
-          include: {
-            solicitacoes: { 
-              select: { id: true }
+            where: { numeroGuia: numeroGuiaParaBusca },
+            orderBy: { dataCriacao: 'desc' },
+            include: {
+                solicitacoes: { 
+                    select: { id: true }
+                }
             }
-          }
         });
         
         // Lógica para determinar o status final da guia 
@@ -53,16 +53,22 @@ router.get('/consulta-detalhada/:numeroGuia', isAuthenticated, async (req, res) 
             console.log(`Status agregado forçado para AUTORIZADA na guia ${numeroGuia}`);
         }
         
+        // CORREÇÃO: Calcular quantidade de solicitações dinamicamente
+        const quantidadeSolicitacoes = prioridadeExistente?.solicitacoes?.length || 0;
+        
         const resultado = {
             ...guiaDetalhes,
-            statusRegulacao: prioridadeExistente?.status || statusCorrigido,  // Usa status existente, se houver, ou o corrigido
+            statusRegulacao: prioridadeExistente?.status || statusCorrigido,
             observacao: prioridadeExistente?.observacao || guiaDetalhes.observacao || '',
-            quantidadeSolicitacoes: prioridadeExistente?.vezesSolicitado || 0,
-            prioridadeExistente: !!prioridadeExistente // Flag para o frontend
+            quantidadeSolicitacoes: quantidadeSolicitacoes, // USANDO cálculo dinâmico
+            _count: { 
+                solicitacoes: quantidadeSolicitacoes
+            },
+            prioridadeExistente: !!prioridadeExistente
         };
         
-        // Busca do Produto (mantida para obter o ID)
-        let produtoId = 1; // Default
+        // Busca do Produto
+        let produtoId = 1;
         const produto = await prisma.produto.findFirst({
             where: { nome: guiaDetalhes.nomeCliente || 'DEFAULT' } 
         });
@@ -70,10 +76,10 @@ router.get('/consulta-detalhada/:numeroGuia', isAuthenticated, async (req, res) 
             produtoId = produto.id;
         }
 
-        // 5. Resposta final (Objeto Guia + ID do Produto)
+        // 5. Resposta final
         res.json({
             ...resultado,
-            produtoId: produtoId // ID do produto para o frontend usar no envio de prioridade (POST)
+            produtoId: produtoId
         });
 
     } catch (prismaError) {
