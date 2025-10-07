@@ -96,7 +96,6 @@ body:not(.light) {
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
@@ -110,7 +109,7 @@ body {
 
 .content-area {
     padding: 25px;
-    margin: 40px auto;
+    margin: 0 2% 0 8%;
     max-width: 1200px;
     background: var(--page-bg-color);
     border-radius: 16px;

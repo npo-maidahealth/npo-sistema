@@ -41,6 +41,9 @@ body:not(.light) {
     transition: color .3s, background-color .3s;
 }
 
+.main-content-card {
+    padding: 0 2% 0 9%;
+}
 /* --- ESTILOS PARA OS CARDS DA PÁGINA INICIAL --- */
 .features-grid {
     display: grid;

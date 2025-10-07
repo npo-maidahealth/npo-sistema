@@ -111,9 +111,8 @@ input[type="checkbox"] { display: none; }
 }
 
 .nav__toggle {
-    
     place-items: center;
-    block-size: 100%;
+    block-size: 80%;
     background: none;
     border: none;
     transition: background-color 0.3s ease;
@@ -126,7 +125,7 @@ input[type="checkbox"] { display: none; }
     display: inline-block;
     transition: opacity 0.2s ease, color 0.3s ease;
     color: var(--sidebar-icon-color);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     white-space: nowrap;
 }
 

@@ -54,7 +54,7 @@ body:not(.light) {
     --border-color: #0B2D49;
     --input-bg-color: #134977;
     --input-text-color: #E6E6E8;
-    --tab-hover-bg: #2a2a2e;
+    --tab-hover-bg: #011727;
     --color-brancopreto: #011727; 
 
     /* SLA */
@@ -105,8 +105,8 @@ body {
     transition: var(--transicao-padrao);
 }
 main.content-container {
-    margin-left: auto !important; 
-    margin-right: auto !important;
+    margin-left: 9% !important; 
+    margin-right: 2% !important;
     padding-left: 20px; 
     padding-right: 20px;
 }
@@ -142,7 +142,7 @@ main.content-container {
     margin-bottom: 30px;
 }
 
-label {
+.content-container label {
     font-weight: 600;
     margin-bottom: 5px;
     color: var(--text-color);
