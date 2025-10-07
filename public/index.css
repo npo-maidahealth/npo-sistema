@@ -1,23 +1,100 @@
 @import url('css/base.css');
 @import url('css/modals.css');
 
-body {
-    background-color: var(--cinza-claro-fundo);
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color .3s;
+/* ================= VARIÁVEIS DE TEMA (CONSOLIDADAS) ================= */
+body.light {
+    --page-bg-color: #F0F0F0;
+    --card-bg-color: #FFFFFF;
+    --text-color: #0E3658;
+    --border-color: #ddd;
+    --input-bg-color: #ffffff;
+    --input-text-color: #585958;
+    --tab-hover-bg: #e9ecef;
+    --color-brancopreto: #FFFFFF; 
+
+    /* SLA */
+    --backgroung-sla: #EEF0FC;
+    --colorfont-sla: #606FE1;
+
+    /* Internação */
+    --backgroung-internacao: #FFF2D6;
+    --colorfont-internacao: #E59500;
+
+    /* STATUS */
+    --background-azul: #D6ECF8;
+    --colorfonte-azul: #228CCB;
+    --background-amarelo: #FFF2D6;
+    --colorfonte-amarelo: #E59500;
+    --background-vermelho: #FDE1DF;
+    --colorfonte-vermelho: #DB3C31;
+    --background-verde: #DFF3E2;
+    --colorfonte-verde: #34A643;
+
+    /* FOCO (AZUL) */
+    --azul-amarelo: #0070FF;
+    --azul-amarelo-sombra: #0056cc;
+    --focus-shadow-color: rgba(0, 112, 255, 0.2); 
+
+    /* PROCEDIMENTOS */
+    --color-procedimentos: #6c757d;
 }
 
 body:not(.light) {
-    background-color: #18181B;
+    --page-bg-color: #011727;
+    --card-bg-color: #092339;
+    --text-color: #F8F8F8;
+    --border-color: #0B2D49;
+    --input-bg-color: #134977;
+    --input-text-color: #E6E6E8;
+    --tab-hover-bg: #011727;
+    --color-brancopreto: #011727; 
+
+    /* SLA */
+    --backgroung-sla: #606FE1;
+    --colorfont-sla: #EEF0FC;
+
+    /* Internação */
+    --backgroung-internacao: #E59500;
+    --colorfont-internacao: #FFF2D6;
+
+    /* STATUS */
+    --background-azul: #228CCB;
+    --colorfonte-azul: #D6ECF8;
+    --background-amarelo: #E59500;
+    --colorfonte-amarelo: #FFF2D6;
+    --background-vermelho: #DB3C31;
+    --colorfonte-vermelho: #FDE1DF;
+    --background-verde: #34A643;
+    --colorfonte-verde: #DFF3E2;
+
+    /* FOCO (AMARELO) */
+    --azul-amarelo: #FFCB05;
+    --azul-amarelo-sombra: #D49A04;
+    --focus-shadow-color: rgba(255, 203, 5, 0.3); 
+
+    /* PROCEDIMENTOS */
+    --color-procedimentos: #FAFAFA;
+}
+
+body {
+    background-color: var(--page-bg-color);
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color .3s, color .3s;
+    color: var(--text-color);
 }
 
 .content-container {
     max-width: 1300px;
     margin: 40px auto; /* Centraliza o conteúdo */
-    padding: 0 20px;
-    position: relative; /* Necessário para z-index */
+    position: relative; 
     z-index: 1;
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s, color 0.3s;
+    height: 700px
 }
 
 .content-container h1 {
@@ -31,9 +108,9 @@ body:not(.light) {
     margin-bottom: 30px; /* Mantém o espaçamento inferior */
 
     /* Estilos visuais para o efeito de pílula */
-    background: var(--content-container-h1); /* Sugestão para usar a cor do card principal */
-    color: var(--card-heading-color); /* Cor do texto principal do tema */
-    padding: 10px 25px; /* Padding simétrico para um visual equilibrado */
+    background: var(--card-bg-color); /* Usa a cor do card principal */
+    color: var(--text-color); /* Cor do texto principal do tema */
+    padding: 10px 10px; /* Padding simétrico para um visual equilibrado */
     border-radius: 30px; /* Mais arredondado para o efeito pílula */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     font-weight: 600;
@@ -51,11 +128,10 @@ body:not(.light) {
     gap: 30px;
 }
 
-
 .feature-category {
     font-size: 0.8em;
     font-weight: 600;
-    color: var(--maida-azul);
+    color: var(--azul-amarelo);
     margin-bottom: 15px;
     display: block;
     position: relative;
