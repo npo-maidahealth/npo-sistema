@@ -85,9 +85,13 @@ body {
 }
 
 .content-container {
+    display: flex;
+    flex-direction: column;
+    /* justify-items: center; */
     max-width: 1300px;
+    width: 80vw;
     margin: 40px auto; /* Centraliza o conteúdo */
-    position: relative; 
+    position: relative;
     z-index: 1;
     background-color: var(--card-bg-color);
     border-radius: 10px;
@@ -118,9 +122,6 @@ body {
     transition: color .3s, background-color .3s;
 }
 
-.main-content-card {
-    padding: 0 2% 0 9%;
-}
 /* --- ESTILOS PARA OS CARDS DA PÁGINA INICIAL --- */
 .features-grid {
     display: grid;

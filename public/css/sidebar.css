@@ -89,7 +89,7 @@ input[type="checkbox"] { display: none; }
 /* =============================================================== */
 /* ========= SELETORES DE EXPANSÃO CORRIGIDOS COM :has() ========= */
 /* =============================================================== */
-.vertical-sidebar:has(#sidebar-toggle:checked) nav { width: var(--expanded); }
+.vertical-sidebar:has(#sidebar-toggle:checked) nav { width: var(--expanded); margin-right: 10%;}
 .vertical-sidebar:not(:has(#sidebar-toggle:checked)) nav { width: var(--collapsed); }
 /* =============================================================== */
 
@@ -420,4 +420,9 @@ input[type="checkbox"] { display: none; }
 .day-night input + div:before,
 .day-night input + div:after {
     transition: box-shadow 0.5s ease, transform 0.4s ease, background-color 0.3s ease; /* Limita a transições específicas do tema */
+}
+
+/* Quando o menu está expandido */
+.vertical-sidebar:has(#sidebar-toggle:checked) ~ .content-container {
+    margin-left: var(--expanded);
 }

@@ -108,8 +108,13 @@ body {
 }
 
 .content-area {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    max-width: 1200px;
+    margin: 40px auto;
     padding: 25px;
-    margin: 0 2% 0 8%;
+    margin: 40px auto;
     max-width: 1200px;
     background: var(--page-bg-color);
     border-radius: 16px;
@@ -905,9 +910,7 @@ body {
     font-weight: 600;
     color: var(--azul-amarelo);
     margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 15px;
 }
 
 .historico-usuario {
