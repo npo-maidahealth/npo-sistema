@@ -98,6 +98,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-self: center;
+    width: 80vw;
     max-width: 1200px;
     margin: 40px auto;
     background-color: var(--card-bg-color);

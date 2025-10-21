@@ -87,10 +87,10 @@ body {
 .content-container {
     display: flex;
     flex-direction: column;
-    /* justify-items: center; */
+    justify-items: center;
     max-width: 1300px;
-    width: 80vw;
-    margin: 40px auto; /* Centraliza o conteúdo */
+    width: 79vw;
+    margin: 40px auto;
     position: relative;
     z-index: 1;
     background-color: var(--card-bg-color);
